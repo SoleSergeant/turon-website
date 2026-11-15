@@ -62,6 +62,7 @@ export const PROJECTS: NavProject[] = [
       ] },
       { id: 'dday', label: 'Event day', icon: 'swords', tabs: [
         { path: '/debate-day', label: 'Teams and rounds', roles: ACADEMIC },
+        { path: '/debate-check-in', label: 'Check-in', roles: ['sg', 'academics', 'logistics', 'registration'] },
       ] },
       { id: 'djudge', label: 'Judging', icon: 'gavel', tabs: [
         { path: '/judging', label: 'Judging', roles: ['sg', 'academics', 'judge'] },

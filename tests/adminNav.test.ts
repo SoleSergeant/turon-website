@@ -7,7 +7,7 @@ test('every page sits in the menu once per project, nothing lost', () => {
   const paths = [...PROJECTS.flatMap(p => p.groups), ...SHARED].flatMap(g => g.tabs.map(t => t.path));
   for (const p of ['/dashboard', '/analytics', '/delegates', '/chairs', '/volunteers', '/forms', '/committees', '/allocation',
     '/schedule', '/resources', '/check-in', '/awards', '/certificates', '/messages', '/debate', '/debate-day', '/judging',
-    '/content', '/team', '/accounts', '/seasons', '/activity', '/debate-home', '/debate-site', '/telegram']) {
+    '/content', '/team', '/accounts', '/seasons', '/activity', '/debate-home', '/debate-site', '/telegram', '/debate-check-in']) {
     assert.ok(paths.includes(p), p);
   }
 });
@@ -24,10 +24,11 @@ test('locate: unique pages pick their project; shared pages keep the current one
   assert.equal(locate('/judging/print', 'mun'), null);
 });
 
-test('roles: judge and registration desk get one project, SG gets both', () => {
+test('roles: judge gets one project; registration desk gets check-in in both; SG gets both', () => {
   assert.deepEqual(visibleProjects('judge').map(p => p.id), ['debate']);
   assert.deepEqual(visibleProjects('judge')[0].groups.map(g => g.id), ['djudge']);
-  assert.deepEqual(visibleProjects('registration').map(p => p.id), ['mun']);
+  assert.deepEqual(visibleProjects('registration').map(p => p.id), ['mun', 'debate']);
+  assert.deepEqual(visibleProjects('registration')[1].groups.map(g => [g.id, g.tabs.map(t => t.path)]), [['dday', ['/debate-check-in']]]);
   assert.deepEqual(visibleProjects('sg').map(p => p.id), ['mun', 'debate']);
   // Logistics: Home shows only Overview, Applications only Volunteers.
   const l = visibleGroups(PROJECTS[0].groups, 'logistics');

@@ -60,6 +60,7 @@ const AdminResources = lazy(() => import("./pages/admin/AdminResources"));
 const AdminMessages = lazy(() => import("./pages/admin/AdminMessages"));
 const Delegates = lazy(() => import("./pages/admin/Delegates"));
 const DebateDay = lazy(() => import("./pages/admin/DebateDay"));
+const DebateCheckIn = lazy(() => import("./pages/admin/DebateCheckIn"));
 const DebateHome = lazy(() => import("./pages/admin/DebateHome"));
 const AdminTelegram = lazy(() => import("./pages/admin/Telegram"));
 const Judging = lazy(() => import("./pages/admin/Judging"));
@@ -245,6 +246,7 @@ const App = () => {
           <Route path="/homepage" element={<Navigate to="/content" replace />} />
           <Route path="/team" element={<AdminRoute allow={['sg']}><AdminTeam /></AdminRoute>} />
           <Route path="/check-in" element={<CheckInRoute><CheckIn /></CheckInRoute>} />
+          <Route path="/debate-check-in" element={<CheckInRoute><DebateCheckIn /></CheckInRoute>} />
           <Route path="/reset-password-change" element={<ResetPasswordChange />} />
           <Route path="/forms" element={<AdminRoute allow={['sg']}><FormSettings /></AdminRoute>} />
           <Route path="/accounts" element={<AdminRoute allow={['sg']}><AdminAccounts /></AdminRoute>} />

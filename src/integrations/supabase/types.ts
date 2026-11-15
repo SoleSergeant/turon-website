@@ -750,6 +750,8 @@ export type Database = {
         Row: {
           admin_notes: string | null
           agreed_to_rules: boolean
+          checked_in_at: string | null
+          checked_in_by: string | null
           city: string | null
           contacted_at: string | null
           created_at: string
@@ -779,6 +781,8 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           agreed_to_rules?: boolean
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           city?: string | null
           contacted_at?: string | null
           created_at?: string
@@ -808,6 +812,8 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           agreed_to_rules?: boolean
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           city?: string | null
           contacted_at?: string | null
           created_at?: string
