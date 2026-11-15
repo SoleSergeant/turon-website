@@ -148,6 +148,7 @@ html.admin-theme.dark .hover\:border-green-300:hover { border-color: rgba(74, 22
 html.admin-theme.dark .hover\:border-panel-200:hover { border-color: rgba(123, 148, 194, 0.28); }
 html.admin-theme.dark .hover\:border-panel-400:hover { border-color: #7b94c2; }
 html.admin-theme.dark .hover\:border-purple-300:hover { border-color: rgba(192, 132, 252, 0.4); }
+html.admin-theme.dark .hover\:border-red-300:hover { border-color: rgba(248, 113, 113, 0.4); }
 html.admin-theme.dark .hover\:text-gray-500:hover { color: #8b94a1; }
 html.admin-theme.dark .hover\:text-gray-600:hover { color: #a7afba; }
 html.admin-theme.dark .hover\:text-gray-700:hover { color: #c1c7d0; }

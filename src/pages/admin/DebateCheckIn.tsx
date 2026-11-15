@@ -3,7 +3,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { downloadCsv, datedFilename } from '@/lib/csv';
 import { useToast } from '@/hooks/use-toast';
-import { Search, CheckCircle2, Download, Loader2, Gavel, Mic } from 'lucide-react';
+import { Search, CheckCircle2, Download, Loader2, Gavel, Mic, Undo2 } from 'lucide-react';
 import { confirmAction } from '@/components/admin/ConfirmDialog';
 
 /**
@@ -85,6 +85,7 @@ const DebateCheckIn = () => {
     if (error) { toast({ title: 'Something went wrong', description: error.message, variant: 'destructive' }); return; }
     setPeople(prev => prev.map(x => x.id === p.id ? { ...x, checked_in_at: (data as string | null) ?? null } : x));
     if (checked) { toast({ title: 'Checked in', description: p.full_name }); setSearch(''); }
+    else toast({ title: 'Arrival undone', description: p.kind === 'debater' ? `${p.full_name} is off Teams and rounds and won't count as attended.` : `${p.full_name} won't count as attended.` });
   };
 
   const debaters = people.filter(p => p.kind === 'debater');
@@ -174,10 +175,15 @@ const DebateCheckIn = () => {
                     <p className="text-xs text-gray-500 truncate">{p.detail || '—'}</p>
                   </div>
                   {isIn ? (
-                    <button onClick={() => setCheckIn(p, false)} disabled={busy === p.id}
-                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-600" title="Undo check-in">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" /> {time(p.checked_in_at!)}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center gap-1 text-xs text-green-700">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" /> {time(p.checked_in_at!)}
+                      </span>
+                      <button onClick={() => setCheckIn(p, false)} disabled={busy === p.id}
+                        className="flex items-center gap-1 px-2 py-1 border border-gray-300 bg-white rounded-md text-xs text-gray-700 hover:border-red-300 hover:text-red-600 disabled:opacity-50">
+                        {busy === p.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Undo2 className="h-3.5 w-3.5" />} Undo
+                      </button>
+                    </div>
                   ) : (
                     <button onClick={() => setCheckIn(p, true)} disabled={busy === p.id}
                       className="px-3 py-1.5 bg-panel-600 text-white rounded-lg text-sm font-semibold hover:bg-panel-700 disabled:opacity-50">
