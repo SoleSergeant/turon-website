@@ -28,7 +28,14 @@ export default function DebateDay() {
 
   const load = useCallback(async () => {
     try {
-      setData(await loadEvent());
+      // Only debaters checked in at the door (Event day → Check-in) take part.
+      const [event, arrived] = await Promise.all([
+        loadEvent(),
+        supabase.from('debate_registrations').select('id').not('checked_in_at', 'is', null),
+      ]);
+      if (arrived.error) throw arrived.error;
+      const ids = new Set((arrived.data || []).map(r => r.id));
+      setData({ ...event, roster: event.roster.filter(d => ids.has(d.id)) });
     } catch {
       setMissing(true);
     }
@@ -36,12 +43,11 @@ export default function DebateDay() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Results change while judges score: refresh quietly every 15 s on that tab.
+  // Debaters arrive and judges score while this is open: refresh quietly every 15 s.
   useEffect(() => {
-    if (tab !== 'results') return;
     const id = setInterval(() => { if (document.visibilityState === 'visible') load(); }, 15_000);
     return () => clearInterval(id);
-  }, [tab, load]);
+  }, [load]);
 
   const fail = (title: string, error: any) => toast({ title, description: error?.message, variant: 'destructive' });
 
@@ -101,7 +107,7 @@ export default function DebateDay() {
     if (!data || !data.teams.length || !data.roster.length) return;
     const n = data.teams.length;
     if (!(await confirmAction(
-      `Deal all ${data.roster.length} accepted debaters at random into ${n} team${n === 1 ? '' : 's'}? Everyone's current team and seat is replaced.`,
+      `Deal all ${data.roster.length} arrived debaters at random into ${n} team${n === 1 ? '' : 's'}? Everyone's current team and seat is replaced.`,
       { title: 'Shuffle into teams', confirmLabel: 'Shuffle' },
     ))) return;
     setBusy(true);
@@ -194,7 +200,7 @@ export default function DebateDay() {
       <div className="space-y-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-gray-600">Teams, one-on-one pairings and live results for {debate.name}. Accepted debaters only.</p>
+            <p className="text-gray-600">Teams, one-on-one pairings and live results for {debate.name}. Only debaters checked in at <Link to={adminPath('/debate-check-in')} className="text-panel-700 hover:underline">Check-in</Link> appear here.</p>
           </div>
           <Link to={adminPath('/judging')} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             <Gavel className="h-4 w-4" /> Open the judges' panel
@@ -267,9 +273,9 @@ export default function DebateDay() {
                 </div>
 
                 <div className="rounded-xl border bg-white shadow-sm">
-                  <h3 className="border-b px-5 py-3 font-semibold text-gray-900">Accepted debaters</h3>
+                  <h3 className="border-b px-5 py-3 font-semibold text-gray-900">Arrived debaters</h3>
                   {data.roster.length === 0 ? (
-                    <p className="px-5 py-8 text-center text-sm text-gray-500">Nobody is accepted yet. Accept debaters in Turon Debate first.</p>
+                    <p className="px-5 py-8 text-center text-sm text-gray-500">Nobody has checked in yet. Check debaters in at Event day → Check-in; they appear here within 15 seconds.</p>
                   ) : (
                     <ul className="divide-y divide-gray-100">
                       {data.roster.map(d => (
