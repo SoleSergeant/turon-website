@@ -51,9 +51,6 @@ img{max-width:100%;display:block}
 .nav-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;text-decoration:none;font-weight:500;font-size:15px;color:var(--on-navy)}
 .nav-links a:hover{color:#fff;background:rgba(255,255,255,.08)}
 .nav-tools{display:flex;align-items:center;gap:10px}
-.lang{display:inline-flex;border:1.5px solid var(--navy-line);border-radius:12px;padding:2px}
-.lang button{font:600 14px var(--text);min-width:44px;min-height:40px;border:0;border-radius:9px;background:transparent;color:var(--on-navy);cursor:pointer}
-.lang button[aria-pressed="true"]{background:#fff;color:var(--navy)}
 .menu-btn{display:none;min-width:44px;min-height:44px;border:1.5px solid var(--navy-line);border-radius:12px;background:transparent;color:#fff;cursor:pointer;align-items:center;justify-content:center}
 .menu-btn svg{width:22px;height:22px}
 

@@ -4,7 +4,7 @@
 
 ## What this is
 The website for **Turon**, a student-led ecosystem in Fergana, Uzbekistan.
-Tagline / page title: **"Turon — ecosystem for you(th)"** (the pun only works in English, so the title stays English on every language version; style "(th)" in the gold accent).
+Tagline / page title: **"Turon — ecosystem for you(th)"** (style "(th)" in the gold accent).
 Mission: bring quality opportunities to regional youth so they don't have to leave the region to find them.
 
 ## Rules from the user
@@ -29,7 +29,7 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
   Keep the turon.one changes listed below when resolving conflicts.
 - turon.one changes inside `apps/mun`: `src/lib/domains.ts` (URLs from `VITE_*` env, turonmun.com defaults); `use-subdomain.ts` (sticky `?subdomain=` for test URLs); navbar/email/debate links use `domains.ts`; `scripts/debate-meta.mjs` reads the env; migrations `000_base_tables.sql` and `063_turon_one_alignment.sql`.
 - **Season 8 = the ninth conference** (Seasons 1–7 plus TuronMUN x CAMU). It's set as the current season in `turon-one` (`066_season_8.sql`) and in the app defaults (`sections.ts`). The homepage card text lives in the `site_content` table (Admin → Site content), and that overrides the code defaults.
-- **Hub cache:** `index.html` and `404.html` load `assets/styles.css?v=…` and `assets/app.js?v=…`. **Bump the `?v=` value whenever you change those files**, or returning visitors can see old text (this happened once with the English strings).
+- **Hub cache:** `index.html` and `404.html` load `assets/styles.css?v=…` and `assets/app.js?v=…`. **Bump the `?v=` value whenever you change those files**, or returning visitors can see old text (this happened once).
 - **Hub content:** past milestones only (founding 28 Jun 2024, MyMUN 2024 awards, rename to TuronMUN 12 May 2025, MyMUN 2025 3rd place, Turon Debate Nov 2026). No future plans: Vibe Turon is off the hub until the user decides (see the decision chat).
 - **Supabase:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt, free. Schema 000 → 062 (006 skipped) + 063, checked against the live schema. No data yet. The disabled function `run-migrations-once` can be deleted.
 - `designs/` holds the archived design explorations. Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173.
@@ -68,8 +68,7 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - Photos are hot-linked from turonmun.com (`/images/hero.jpg`, `/seasons/season 1/1.jpg`, `/seasons/Turonxcamu/3.jpg`, `/seasons/season 7/1.jpg`). Better: copy them into `assets/img/` (and compress to WebP), then drop `https://www.turonmun.com` from `img-src` in the CSP.
 
 ## How the code works
-- i18n: Uzbek text is in the HTML. English is in the `EN` object in `assets/app.js`. Elements carry `data-i18n="key"`; attributes use `data-i18n-attr="attr:key"`. **Translations are applied with `textContent` only** (no HTML in strings). Language is stored in localStorage and in `?lang=en`, and both are checked against an allow-list. The H1 is always English (`lang="en"`).
-- Uzbek uses ʻ (U+02BB) in oʻ/gʻ and ʼ (U+02BC) for the tutuq belgisi.
+- **Language: the hub is English only** (`<html lang="en">`; decided 2026-11-27). The Uzbek version, the UZ · EN switch and the translation code were removed. All text lives directly in `index.html`; JS only ever sets text with `textContent`. Old `?lang=en` links still work (the parameter is ignored).
 - **CSP:** no inline `<script>`, no inline `style=""` attributes, no `on*=` handlers. The CSP (in the meta tag and in `vercel.json`) allows only self + Google Fonts + turonmun.com images. If you add a new external resource, update both.
 
 ## Security checklist (done)
@@ -83,11 +82,10 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - Subdomain links: `debat.[domain]`, `vibe.[domain]` (shown as plain text, not links)
 - Vibe Turon warm-up registration link (hero "Next up" currently jumps to #milestones)
 - Team application form (the "Join the team" card uses mailto for now)
-- FAQ: Turon Debate / Vibe Turon **[narx maʼlumoti] / [pricing details]** and **[til] / [language]**
+- FAQ: Turon Debate / Vibe Turon **[pricing details]** and **[language]**
 - Partner logos (partners show as text names; use logos once each partner approves)
 - Hub-specific Telegram/Instagram (currently the TuronMUN ones)
 - Final domain: `canonical`, `og:url` and `sitemap.xml` all say `https://turonmun.com/`
-- Have a native speaker proofread the Uzbek copy
 
 ## Site architecture (agreed)
 Hub + subdomains:
@@ -96,7 +94,7 @@ Hub + subdomains:
 
 ## Homepage section order (current) — the section dial ("option B")
 With JS and a window ≥520px tall, `html.wheel` is on: the page doesn't scroll. One `.screen` is shown at a time, next to a small dial (`nav.dial`) that turns 45° per section and loops (after Contact comes Home). On laptops the dial is a half-wheel on the left edge (`--dial-d`, `--dial-w`); under 1000px wide it's a low arc along the bottom (`--dial-v`). Wheel/trackpad (one step per gesture), arrow keys/PageUp/PageDown/Home/End, vertical swipes, the dial labels, the header links and any `#id` link turn the dial. Inactive screens are `inert`, and the URL hash follows the section (deep links like `/#faq` work). Without JS, or on very short windows, it's a normal scrolling page. Logic: the "Section dial" block in `app.js`; styles: "the dial" / "the stage" in `styles.css`.
-Animations (all off with reduced motion): first-visit hint chip + dial nudge after 2s (remembered in localStorage `turon-dial-seen`; Uzbek hint text needs proofreading), numbers count up on the Numbers stop (real value kept in a visually hidden span), each stop's parts rise in one after another (`rise`, `--d` delays). Focus moves to the new section when it was inside the old one.
+Animations (all off with reduced motion): first-visit hint chip + dial nudge after 2s (remembered in localStorage `turon-dial-seen`), numbers count up on the Numbers stop (real value kept in a visually hidden span), each stop's parts rise in one after another (`rise`, `--d` delays). Focus moves to the new section when it was inside the old one.
 **When you add content, re-check that every stop still fits** (no inner scrolling) at 1366×633, 1024×768, 390×664 and 360×640, in both languages.
 1. Home (navy, `#top`): title, subtitle, Join / See projects, real TuronMUN photo
 2. In numbers (navy, `#numbers`): 700+ · 8 · 15+ · 3; MyMUN award chips
@@ -109,12 +107,12 @@ Animations (all off with reduced motion): first-visit hint chip + dial nudge aft
 
 ## Brand rules
 - Navy **#283480** is the base across the whole ecosystem; each project gets ONE accent.
-- Language: Uzbek (Latin) first, English second; Russian later.
+- Language: English only on the hub (see "How the code works").
 - Mobile-first: most visitors come from Instagram/Telegram on phones.
 - No stock photos; real Turon photos only. No invented stats: every number needs a source (see "Facts used").
 
 ## Suggested next steps
-1. Fill the placeholders; proofread the Uzbek.
+1. Fill the placeholders.
 2. Move photos and fonts into the repo (self-host), then tighten the CSP.
 3. Deploy on Vercel (`vercel.json` is ready), then point the domain.
 4. Build the shared project-site template for `debat.` and `vibe.`.
