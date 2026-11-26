@@ -216,3 +216,107 @@ for c in ['brackets', 'terminal', 'pixel', 'merge']:
         save(f'{c}-wordmark-{mode}', w, h, body)
     save(f'{c}-icon-violet', 64, 64, tech_tile(c, VIOLET, WHITE, '#D0BFFF' if c == 'pixel' else WHITE if c != 'merge' else NAVY))
     save(f'{c}-icon-navy', 64, 64, tech_tile(c, NAVY, WHITE, VIOLET_L))
+
+
+# ---- Round 3: culture + hackathon tropes ---------------------------------
+
+def glyph(ch, size, weight=800):
+    """Outline one glyph centred on (0,0)."""
+    f = FONTS[weight]; gs = f.getGlyphSet(); g = f.getBestCmap()[ord(ch)]
+    bp = BoundsPen(gs); gs[g].draw(bp); k = size / 1000
+    x0, y0, x1, y1 = bp.bounds
+    d, _ = text(ch, size, weight, -(x0 + x1) / 2 * k, (y0 + y1) / 2 * k)
+    return d
+
+
+def sym3(c, fg, accent, bg, uid='a'):
+    if c == 'ikat':  # Margilan ikat silk: V woven from threads with dye-bleed (feathered) ends
+        import random
+        rnd = random.Random(7)
+        out, pitch, h = [], 5.6, 3.8
+        def lerp(p0, p1, y):
+            return p0[0] + (p1[0] - p0[0]) * (y - p0[1]) / (p1[1] - p0[1])
+        y, row = 4.0, 0
+        while y < 95:
+            yc = y + h / 2
+            ol = lerp((0, 4), (37, 96), yc); orr = 100 - ol
+            spans = [(ol, orr)]
+            if yc < 60:
+                il = lerp((27, 4), (50, 60), yc); spans = [(ol, il), (100 - il, orr)]
+            band = 6 <= row <= 9
+            for x0, x1 in spans:
+                j0, j1 = rnd.uniform(-5, 3), rnd.uniform(-3, 5)
+                out.append(f'<rect x="{x0 + j0:.1f}" y="{y:.1f}" width="{max(2, x1 - x0 - j0 + j1):.1f}" '
+                           f'height="{h}" rx="1.6" fill="{accent if band else fg}"/>')
+            y += pitch; row += 1
+        return ''.join(out)
+    if c == 'clock':  # 10:10, the hands make a V: the hackathon clock
+        return (f'<circle cx="50" cy="50" r="42" fill="none" stroke="{fg}" stroke-width="9"/>'
+                f'<path d="M50 14v7" stroke="{fg}" stroke-width="6" stroke-linecap="round"/>'
+                f'<path d="M26 32 50 54 78 26" fill="none" stroke="{accent}" stroke-width="10" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<circle cx="50" cy="54" r="7" fill="{fg}"/>')
+    if c == 'anor':  # pomegranate with a V-shaped slice showing the seeds (ideas)
+        seeds = []
+        for r, (y, xs) in enumerate([(50, (39, 50, 61)), (60, (44, 56)), (70, (50,))]):
+            for x in xs:
+                seeds.append(f'<rect x="{x-4}" y="{y-4}" width="8" height="8" rx="2.5" fill="{accent}"/>')
+        return (f'<path fill="{fg}" d="M38 26 40 10l6 9 4-11 4 11 6-9 2 16z"/>'
+                f'<circle cx="50" cy="60" r="37" fill="{fg}"/>'
+                f'<path fill="{bg}" d="M28 42h44L50 80z" stroke="{bg}" stroke-width="4" stroke-linejoin="round"/>'
+                + ''.join(seeds))
+    if c == 'rishtan':  # Rishtan ceramic plate: a rosette of eight Vs
+        out = [f'<circle cx="50" cy="50" r="47" fill="none" stroke="{fg}" stroke-width="4"/>']
+        for i in range(8):
+            col = accent if i % 2 == 0 else fg
+            out.append(f'<path transform="rotate({i*45} 50 50)" d="M40 9 50 27 60 9" fill="none" '
+                       f'stroke="{col}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>')
+        out.append(f'<circle cx="50" cy="50" r="10" fill="{accent}"/>')
+        return ''.join(out)
+    if c == 'stamp':  # sticker / passport stamp with ring text
+        f = FONTS[800]; gs = f.getGlyphSet(); cmap = f.getBestCmap(); hm = f['hmtx']
+        s = 'VIBE TURON · FERGANA · 2027 · '
+        size, R = 10.5, 39
+        k = size / 1000
+        adv = [hm[cmap[ord(ch)]][0] * k + (1.6 if ch != ' ' else 0) for ch in s]
+        tot = sum(adv); scale = (2 * math.pi * R) / tot
+        out = [f'<circle cx="50" cy="50" r="48" fill="none" stroke="{fg}" stroke-width="3"/>',
+               f'<circle cx="50" cy="50" r="29" fill="none" stroke="{fg}" stroke-width="2"/>']
+        a = -math.pi / 2
+        for ch, w in zip(s, adv):
+            mid = a + (w * scale / 2) / R
+            if ch == '·':
+                out.append(f'<circle cx="{50 + R*math.cos(mid):.2f}" cy="{50 + R*math.sin(mid):.2f}" r="1.8" fill="{accent}"/>')
+            elif ch != ' ':
+                d = glyph(ch, size)
+                out.append(f'<path fill="{fg}" transform="translate({50 + R*math.cos(mid):.2f} {50 + R*math.sin(mid):.2f}) '
+                           f'rotate({math.degrees(mid) + 90:.2f}) translate(0 0)" d="{d}"/>')
+            a += w * scale / R
+        out.append(f'<path fill="{accent}" transform="translate(50 52)" d="{glyph("v", 40)}"/>')
+        return ''.join(out)
+    if c == 'glitch':  # v sliced and shifted, with a violet echo
+        d = glyph('v', 104)
+        cuts = [(0, 26, 0), (26, 44, -7), (44, 58, 5), (58, 74, -3), (74, 100, 0)]
+        out = [f'<defs>' + ''.join(f'<clipPath id="{uid}{i}"><rect x="-10" y="{y0}" width="120" height="{y1-y0}"/></clipPath>'
+                                   for i, (y0, y1, _) in enumerate(cuts)) + '</defs>']
+        out.append(f'<path fill="{accent}" transform="translate(57 52)" d="{d}"/>')
+        for i, (y0, y1, dx) in enumerate(cuts):
+            out.append(f'<g clip-path="url(#{uid}{i})"><path fill="{fg}" transform="translate({50+dx} 52)" d="{d}"/></g>')
+        return ''.join(out)
+
+
+import math
+R3 = ['ikat', 'clock', 'anor', 'rishtan', 'stamp', 'glitch']
+for c in R3:
+    for mode, (fg, acc, sub, bg) in {'light': (NAVY, VIOLET, VIOLET, WHITE),
+                                     'dark': (WHITE, VIOLET_L, VIOLET_L, NAVY)}.items():
+        body = f'<g transform="translate(0 8) scale(0.92)">{sym3(c, fg, acc, bg, "w" + mode[0])}</g>'
+        d, w = text('vibe', 120, 800, 118, 96)
+        d2, _ = text('turon', 34, 500, 122, 150, track=0.32)
+        save(f'{c}-wordmark-{mode}', 118 + w + 4, 168, body + f'<path fill="{fg}" d="{d}"/><path fill="{sub}" d="{d2}"/>')
+    for name, (bg, fg, acc) in {'violet': (VIOLET, WHITE, NAVY if c not in ('stamp', 'glitch') else '#D0BFFF'),
+                                'navy': (NAVY, WHITE, VIOLET_L)}.items():
+        sc = 0.62 if c == 'stamp' else 0.52
+        off = 32 - 50 * sc
+        save(f'{c}-icon-{name}', 64, 64, f'<rect width="64" height="64" rx="14" fill="{bg}"/>'
+             f'<g transform="translate({off:.2f} {off:.2f}) scale({sc})">{sym3(c, fg, acc, bg, "i" + name[0])}</g>')
