@@ -1,4 +1,4 @@
-/* Turon hub — language switch + mobile menu.
+/* Turon hub — language switch, mobile menu and section dots.
    Security: translations are applied with textContent only (no innerHTML),
    and the stored/URL language value is checked against an allow-list. */
 (function () {
@@ -9,6 +9,7 @@
   var LANGS = ['uz', 'en'];
   var EN = {
     skip: 'Skip to content', navLabel: 'Main menu', menu: 'Menu',
+    dotsLabel: 'Sections', dotTop: 'Home',
     navProjects: 'Projects', navMilestones: 'Milestones', navAbout: 'About', navJoin: 'Get involved', navFaq: 'FAQ',
     ctaJoin: 'Join Turon', ctaJoinShort: 'Join Turon', ctaProjects: 'See projects',
     eyebrow: 'Fergana · Uzbekistan · student-led',
@@ -124,4 +125,50 @@ m4: 'Best Medium Conference: 3rd place',
     if (e.key === 'Escape' && links.classList.contains('open')) { closeMenu(); btn.focus(); }
   });
   window.addEventListener('resize', function () { if (window.innerWidth >= 920) closeMenu(); });
+  // Section dots: mark the screen currently in view
+  var dots = document.querySelectorAll('.dots a');
+  if (dots.length && 'IntersectionObserver' in window) {
+    var byId = {};
+    dots.forEach(function (d) { byId[d.getAttribute('href').slice(1)] = d; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        dots.forEach(function (d) { d.removeAttribute('aria-current'); });
+        var d = byId[en.target.id];
+        if (d) d.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    Object.keys(byId).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+  // Wheel fallback: if a small wheel step snapped back to the same screen,
+  // move one screen in that direction. Does nothing when the browser already moved.
+  var snapMq = window.matchMedia ? window.matchMedia('(min-height:520px)') : null;
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen, .site-footer'));
+  // Chrome scrolls before the wheel event fires, so remember where the page last came to rest.
+  var restY = window.scrollY, restTimer = null, wheelDir = 0, wheelTimer = null, wheeling = false;
+  window.addEventListener('scroll', function () {
+    clearTimeout(restTimer);
+    restTimer = setTimeout(function () { if (!wheeling) restY = window.scrollY; }, 150);
+  }, { passive: true });
+  window.addEventListener('wheel', function (e) {
+    if (!snapMq || !snapMq.matches || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
+    wheeling = true; wheelDir = e.deltaY > 0 ? 1 : -1;
+    clearTimeout(wheelTimer);
+    wheelTimer = setTimeout(function () {
+      wheeling = false;
+      var y = window.scrollY, moved = Math.abs(y - restY) > 2;
+      restY = y;
+      if (moved) return;
+      var hh = 68, target = null;
+      for (var i = 0; i < screens.length; i++) {
+        var top = screens[i].getBoundingClientRect().top + y - hh;
+        if (wheelDir > 0 && top > y + 4) { target = screens[i]; break; }
+        if (wheelDir < 0 && top < y - 4) target = screens[i];
+      }
+      if (target) target.scrollIntoView({ block: target.classList.contains('site-footer') ? 'end' : 'start' });
+    }, 450);
+  }, { passive: true });
 })();
