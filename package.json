@@ -1,0 +1,8 @@
+{
+  "name": "turon-one",
+  "private": true,
+  "description": "One Vercel project for turon.one: hub (apps/hub) + TuronMUN/Debate app (apps/mun), routed by hostname in middleware.js",
+  "scripts": {
+    "build": "npm --prefix apps/mun run build && node scripts/assemble.mjs"
+  }
+}

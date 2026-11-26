@@ -2,12 +2,14 @@
 
 Websites for **Turon**, a student-led youth ecosystem in Fergana, Uzbekistan. Domain: **turon.one** (currently in testing).
 
-| Folder | What | Vercel project | Test URL |
-| --- | --- | --- | --- |
-| `apps/hub` | Hub homepage (static HTML/CSS/JS, UZ/EN) | `turon-website` | https://turon-website-roan.vercel.app |
-| `apps/mun` | TuronMUN + Turon Debate + admin + chair (React/Vite/Supabase) | `turon-mun` | https://turon-mun.vercel.app |
+One Vercel project (`turon-website`) serves everything; `middleware.js` picks the site by hostname.
 
-`apps/mun` is a git subtree of [SoleSergeant/turonmun](https://github.com/SoleSergeant/turonmun), pointed at its own Supabase project (`turon-one`). turonmun.com is a separate deployment and is not affected by this repo.
+| Folder | What | Test URL |
+| --- | --- | --- |
+| `apps/hub` | Hub homepage (static HTML/CSS/JS, UZ/EN) | https://turon-website-roan.vercel.app |
+| `apps/mun` | TuronMUN + Turon Debate + admin + chair (React/Vite/Supabase) | https://turon-one-mun.vercel.app |
+
+`apps/mun` is a git subtree of [SoleSergeant/turonmun](https://github.com/SoleSergeant/turonmun), pointed at its own Supabase project (`turon-one`). The turonmun repo itself is never modified from here; code is copied in when needed.
 
 ## Run locally
 
@@ -23,6 +25,6 @@ On the test URL, add `?subdomain=admin`, `?subdomain=chair` or `?subdomain=debat
 
 ## Deploy
 
-Push to `main`: Vercel builds whichever app changed.
+Push to `main`: Vercel runs `npm run build` (MUN app build + `scripts/assemble.mjs`) and deploys both.
 
 See `CLAUDE.md` for the full setup, the database notes and the go-live checklist.
