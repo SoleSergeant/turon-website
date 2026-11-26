@@ -106,6 +106,7 @@ Animations (all off with reduced motion): first-visit hint chip + dial nudge aft
 8. Contact (the footer, `#contact`)
 
 ## Brand rules
+- **Logo (chosen 2026-11-26): "the hub"**: a white ring with three white dots (the projects) around a gold centre, next to the wordmark "turon" (Unbounded 800, no dot). Inline SVG `.logo-mark` in the header and footer (`currentColor` = ring colour); `assets/favicon.svg` and `assets/apple-touch-icon.png` use a thicker small-size version. Master files and avatar/app-icon PNGs are in `designs/logo/`.
 - Navy **#283480** is the base across the whole ecosystem; each project gets ONE accent.
 - Language: English only on the hub (see "How the code works").
 - Mobile-first: most visitors come from Instagram/Telegram on phones.

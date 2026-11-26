@@ -46,7 +46,8 @@ img{max-width:100%;display:block}
 /* ---------- header ---------- */
 .site-header{position:sticky;top:0;z-index:50;background:rgba(20,27,77,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:var(--hh);position:relative}
-.logo{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none;color:#fff;display:inline-flex;align-items:center;min-height:44px}
+.logo{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none;color:#fff;display:inline-flex;align-items:center;gap:10px;min-height:44px}
+.logo-mark{width:30px;height:30px;flex:none}
 .nav-links{display:flex;gap:2px;list-style:none;margin:0;padding:0}
 .nav-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;text-decoration:none;font-weight:500;font-size:15px;color:var(--on-navy)}
 .nav-links a:hover{color:#fff;background:rgba(255,255,255,.08)}
@@ -242,7 +243,8 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
 .site-footer{background:var(--navy-900);color:var(--on-navy);padding:40px 0 32px}
 .footer-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:24px 32px;flex-wrap:wrap;font-size:15px}
 .footer-brand{display:flex;flex-direction:column;gap:6px;max-width:360px}
-.footer-brand strong{color:#fff;font-family:var(--display);font-size:20px}
+.footer-brand strong{color:#fff;font-family:var(--display);font-size:20px;display:inline-flex;align-items:center;gap:8px}
+.footer-brand .logo-mark{width:26px;height:26px}
 .footer-links{display:flex;gap:4px 8px;flex-wrap:wrap;list-style:none;margin:0;padding:0;align-items:center}
 .footer-links a{color:#fff;display:inline-flex;align-items:center;min-height:44px;padding:0 10px;text-underline-offset:4px}
 .copy{width:100%;font-size:13px;color:#B9C0F0;border-top:1px solid rgba(255,255,255,.1);padding-top:20px}
