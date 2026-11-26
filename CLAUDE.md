@@ -24,7 +24,6 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - **Hub project links:** the `GO` map in `middleware.js` (`/go/mun`, `/go/mun-apply`, `/go/debat`). Change these to turon.one URLs at launch.
 - **Env vars** (on `turon-website`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (turon-one DB), plus `VITE_SITE_URL`, `VITE_ADMIN_URL`, `VITE_CHAIR_URL`, `VITE_DEBATE_URL` and `VITE_HUB_URL`, currently set to the test URLs.
 - Both hosts send `X-Robots-Tag: noindex` during the test; remove it in `vercel.json` at launch.
-- An extra Vercel project `turon-mun` (created by mistake) is **paused**; the user can delete it in Vercel.
 - `apps/mun` is a copy of `SoleSergeant/turonmun` at `f6bd6c3` (git subtree). To bring in newer turonmun code (this only reads that repo):
   `git subtree pull --prefix apps/mun https://github.com/SoleSergeant/turonmun.git main`
   Keep the turon.one changes listed below when resolving conflicts.
