@@ -1,0 +1,413 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { CheckCircle2, Clock, XCircle, Hourglass, Loader2, Pencil, LogOut, Users, Swords } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useContent } from '@/content/store';
+import DebateLayout, { useDebateRegistrationOpen, inputCls, primaryButton, focusRing, headingCls } from './DebateLayout';
+import { useDebatePath } from './paths';
+import { useSideStats } from './sides';
+
+export interface DebateRegistration {
+  id: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  telegram: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
+  institution: string;
+  grade: string | null;
+  city: string | null;
+  english_level: string | null;
+  experience: string | null;
+  past_tournaments: string | null;
+  motivation: string | null;
+  heard_from: string | null;
+  preferred_side: string | null;
+  agreed_to_rules: boolean;
+  status: 'pending' | 'approved' | 'waitlisted' | 'rejected';
+  admin_notes: string | null;
+  decision_emailed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const ENGLISH_LEVELS = ['Beginner', 'Intermediate', 'Upper-intermediate', 'Advanced', 'Native / fluent'];
+export const EXPERIENCE = [
+  { value: 'none', label: 'No experience — this is my first' },
+  { value: 'some', label: 'Some — 1 to 3 tournaments' },
+  { value: 'experienced', label: 'Experienced — 4 or more tournaments' },
+];
+const HEARD_FROM = ['Telegram', 'Instagram', 'A friend', 'My school', 'TuronMUN', 'Other'];
+
+export const STATUS_INFO: Record<DebateRegistration['status'], { label: string; icon: typeof Clock; tone: string }> = {
+  pending: { label: 'Under review', icon: Clock, tone: 'border-amber-200 bg-amber-50 text-amber-800' },
+  approved: { label: 'Accepted', icon: CheckCircle2, tone: 'border-green-200 bg-green-50 text-green-800' },
+  waitlisted: { label: 'Waitlisted', icon: Hourglass, tone: 'border-orange-200 bg-orange-50 text-orange-800' },
+  rejected: { label: 'Not accepted', icon: XCircle, tone: 'border-red-200 bg-red-50 text-red-800' },
+};
+
+type Form = Omit<DebateRegistration, 'id' | 'user_id' | 'status' | 'admin_notes' | 'created_at' | 'updated_at'>;
+
+const emptyForm = (name: string, email: string): Form => ({
+  full_name: name, email, phone: '', telegram: '', date_of_birth: '', gender: '', institution: '', grade: '',
+  city: '', english_level: '', experience: '', past_tournaments: '', motivation: '', heard_from: '', preferred_side: '', agreed_to_rules: false,
+});
+
+function Field({ label, required, children, hint }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
+  return (
+    <label className="block text-sm">
+      <span className="mb-1 block text-slate-700">{label}{required && <span className="text-debate-maroon"> *</span>}</span>
+      {children}
+      {hint && <span className="mt-1 block text-xs text-slate-500">{hint}</span>}
+    </label>
+  );
+}
+
+/** Registration form, or the debater's registration + status once submitted. */
+export default function DebateRegister() {
+  const d = useContent('debate');
+  const { open } = useDebateRegistrationOpen();
+  const { user, logout, loading: authLoading } = useAuth();
+  const path = useDebatePath();
+  const [existing, setExisting] = useState<DebateRegistration | null>(null);
+  const [form, setForm] = useState<Form | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  const sideStats = useSideStats();
+  // Team + one-on-one opponent, once the organisers reveal them (migration 045).
+  const [assignment, setAssignment] = useState<{ team_label: string | null; team_name: string | null; team_position: string | null; slot: number | null; opponent: string | null } | null>(null);
+  const showShares = d.show_side_stats && sideStats.total > 0;
+
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [error]);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data, error: loadErr } = await supabase.from('debate_registrations')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (loadErr) setError('Registration is not available yet. Please try again later.');
+      setExisting((data as DebateRegistration) || null);
+      if ((data as DebateRegistration | null)?.status === 'approved') {
+        const { data: mine } = await supabase.rpc('my_debate_assignment');
+        setAssignment(Array.isArray(mine) && mine.length ? mine[0] : null);
+      }
+      setForm(data ? { ...emptyForm('', ''), ...(data as DebateRegistration) } : emptyForm(user.user_metadata?.full_name || '', user.email || ''));
+      setLoading(false);
+    })();
+  }, [user]);
+
+  const set = <K extends keyof Form>(key: K, value: Form[K]) => setForm(f => (f ? { ...f, [key]: value } : f));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !form) return;
+    if (sideStats.sides.length > 0 && !form.preferred_side) { setError('Please choose the side you would like to be on.'); return; }
+    if (!form.motivation?.trim()) { setError('Please tell us why you want to join.'); return; }
+    if (!form.agreed_to_rules) { setError('Please agree to the rules to continue.'); return; }
+    setError(null);
+    setSaving(true);
+    const payload = {
+      full_name: form.full_name.trim(),
+      email: user.email || form.email,
+      phone: form.phone.trim(),
+      telegram: form.telegram?.trim() || null,
+      date_of_birth: form.date_of_birth || null,
+      gender: form.gender || null,
+      institution: form.institution.trim(),
+      grade: form.grade?.trim() || null,
+      city: form.city?.trim() || null,
+      english_level: form.english_level || null,
+      experience: form.experience || null,
+      past_tournaments: form.past_tournaments?.trim() || null,
+      motivation: form.motivation?.trim() || null,
+      heard_from: form.heard_from || null,
+      preferred_side: form.preferred_side || null,
+      agreed_to_rules: true,
+    };
+    try {
+      const table = supabase.from('debate_registrations');
+      const { data, error: saveErr } = existing
+        ? await table.update(payload).eq('id', existing.id).select().single()
+        : await table.insert({ ...payload, user_id: user.id }).select().single();
+      if (saveErr) {
+        if (saveErr.code === '23505') throw new Error('This account is already registered.');
+        throw saveErr;
+      }
+      setExisting(data as DebateRegistration);
+      setEditing(false);
+      sideStats.refetch();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      setError(err.message || 'Could not save your registration.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Signed-out visitors go to the debate sign-in page and come back here.
+  if (!authLoading && !user) {
+    return <Navigate to={`${path('/login')}?redirect=${encodeURIComponent(path('/register'))}`} replace />;
+  }
+
+  if (loading || !form) {
+    return (
+      <DebateLayout title="Register">
+        <div className="flex justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-debate-blue" /></div>
+      </DebateLayout>
+    );
+  }
+
+  const signedInAs = (
+    <p className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
+      Signed in as {user?.email}
+      <button onClick={() => logout()} className={`inline-flex items-center gap-1 rounded hover:text-slate-900 ${focusRing}`}><LogOut className="h-3 w-3" /> Sign out</button>
+    </p>
+  );
+
+  // ── Already registered: show status ──────────────────────────────────
+  if (existing && !editing) {
+    const info = STATUS_INFO[existing.status];
+    const rows: [string, string | null | undefined][] = [
+      ['Name', existing.full_name], ['Email', existing.email], ['Phone', existing.phone], ['Telegram', existing.telegram],
+      ['School / university', existing.institution], ['Grade / year', existing.grade], ['City', existing.city],
+      ['English level', existing.english_level],
+      ['Preferred side', existing.preferred_side],
+      ['Experience', EXPERIENCE.find(x => x.value === existing.experience)?.label ?? existing.experience],
+    ];
+    return (
+      <DebateLayout title="My registration">
+        <div className="container mx-auto max-w-2xl px-4 py-10 sm:py-16">
+          <div className="text-center">
+            <CheckCircle2 className="mx-auto h-12 w-12 text-debate-blue" />
+            <h1 className={`${headingCls} text-3xl text-debate-blue mt-4`}>{d.success_title}</h1>
+            <p className="mt-2 text-slate-600">{d.success_text}</p>
+          </div>
+
+          <div className={`mt-8 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 font-semibold ${info.tone}`}>
+            <info.icon className="h-5 w-5" /> Status: {info.label}
+          </div>
+
+          {assignment?.team_label && (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-3 rounded-xl border border-debate-blue/20 bg-debate-blue-50 px-4 py-3">
+                <span className={`${headingCls} flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-debate-blue text-lg text-white`}>{assignment.team_label}</span>
+                <div className="text-sm">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-debate-blue"><Users className="h-3.5 w-3.5" /> Your team</p>
+                  <p className="font-semibold text-slate-900">{assignment.team_name || `Team ${assignment.team_label}`}{assignment.slot ? ` · ${assignment.team_label}${assignment.slot}` : ''}</p>
+                  {assignment.team_position && <p className="text-slate-600">Position: {assignment.team_position}</p>}
+                </div>
+              </div>
+              {assignment.opponent && (
+                <div className="flex items-center gap-3 rounded-xl border border-debate-maroon/20 bg-debate-maroon-50 px-4 py-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-debate-maroon text-white"><Swords className="h-5 w-5" /></span>
+                  <div className="text-sm">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-debate-maroon">One-on-one</p>
+                    <p className="font-semibold text-slate-900">vs {assignment.opponent}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <dl className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+            {rows.filter(([, v]) => v).map(([k, v]) => (
+              <div key={k} className="flex justify-between gap-4 px-5 py-3 text-sm">
+                <dt className="text-slate-500">{k}</dt>
+                <dd className="text-right">{v}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {existing.status === 'pending' && (
+            <div className="mt-6 text-center">
+              <button onClick={() => setEditing(true)} className={`inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 ${focusRing}`}>
+                <Pencil className="h-4 w-4" /> Edit my answers
+              </button>
+            </div>
+          )}
+          {signedInAs}
+        </div>
+      </DebateLayout>
+    );
+  }
+
+  // ── Closed and not registered ────────────────────────────────────────
+  if (!existing && !open) {
+    return (
+      <DebateLayout title="Register">
+        <div className="container mx-auto max-w-lg px-4 py-24 text-center">
+          <h1 className={`${headingCls} text-3xl text-debate-blue`}>{d.form_title}</h1>
+          <p className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-600">{d.closed_message}</p>
+          <Link to={path('/')} className={`mt-6 inline-block rounded text-sm text-debate-maroon hover:underline ${focusRing}`}>← Back</Link>
+          {signedInAs}
+        </div>
+      </DebateLayout>
+    );
+  }
+
+  // ── Form ─────────────────────────────────────────────────────────────
+  return (
+    <DebateLayout title="Register">
+      <div className="container mx-auto max-w-2xl px-4 py-10 sm:py-16">
+        <h1 className={`${headingCls} text-3xl text-debate-blue text-center`}>{d.form_title}</h1>
+        <p className="mt-2 text-center text-slate-600">{d.form_intro}</p>
+
+        <form onSubmit={submit} className="mt-8 space-y-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-debate-blue/5 sm:p-8">
+          <fieldset className="space-y-4">
+            <legend className="mb-2 text-xs font-semibold uppercase tracking-widest text-debate-maroon">About you</legend>
+            <Field label="Full name" required>
+              <input required value={form.full_name} onChange={e => set('full_name', e.target.value)} className={inputCls} autoComplete="name" />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Email" hint="From your account">
+                <input value={user?.email || form.email} disabled className={`${inputCls} bg-slate-50 text-slate-500`} />
+              </Field>
+              <Field label="Phone" required>
+                <input required type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} autoComplete="tel" inputMode="tel" placeholder="+998 90 123 45 67" className={inputCls} />
+              </Field>
+              <Field label="Telegram username">
+                <input value={form.telegram ?? ''} onChange={e => set('telegram', e.target.value)} autoComplete="off" placeholder="@username" className={inputCls} />
+              </Field>
+              <Field label="Date of birth">
+                <input type="date" value={form.date_of_birth ?? ''} onChange={e => set('date_of_birth', e.target.value)} autoComplete="bday" className={inputCls} />
+              </Field>
+              <Field label="Gender">
+                <select value={form.gender ?? ''} onChange={e => set('gender', e.target.value)} className={inputCls}>
+                  <option value="">—</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Prefer not to say</option>
+                </select>
+              </Field>
+              <Field label="City / region">
+                <input value={form.city ?? ''} onChange={e => set('city', e.target.value)} autoComplete="address-level2" className={inputCls} />
+              </Field>
+            </div>
+          </fieldset>
+
+          <fieldset className="space-y-4">
+            <legend className="mb-2 text-xs font-semibold uppercase tracking-widest text-debate-maroon">Education</legend>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="School / university" required>
+                <input required value={form.institution} onChange={e => set('institution', e.target.value)} autoComplete="organization" className={inputCls} />
+              </Field>
+              <Field label="Grade / year">
+                <input value={form.grade ?? ''} onChange={e => set('grade', e.target.value)} placeholder="e.g. 10th grade" className={inputCls} />
+              </Field>
+            </div>
+          </fieldset>
+
+          <fieldset className="space-y-4">
+            <legend className="mb-2 text-xs font-semibold uppercase tracking-widest text-debate-maroon">Debate</legend>
+            {sideStats.sides.length > 0 && (
+              <div role="radiogroup" aria-labelledby="side-label" aria-describedby={d.side_hint ? 'side-hint' : undefined} aria-required="true">
+                <p id="side-label" className="text-sm text-slate-700">{d.side_label}<span className="text-debate-maroon"> *</span></p>
+                {d.side_hint && <p id="side-hint" className="mt-1 text-xs text-slate-500">{d.side_hint}</p>}
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {sideStats.shares.map(({ side, percent }) => {
+                    const checked = form.preferred_side === side;
+                    return (
+                      <label
+                        key={side}
+                        className={`relative cursor-pointer rounded-xl border p-4 transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-debate-blue-400 ${checked ? 'border-debate-blue bg-debate-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                      >
+                        <input
+                          type="radio"
+                          name="preferred_side"
+                          value={side}
+                          checked={checked}
+                          onChange={() => set('preferred_side', side)}
+                          className="sr-only"
+                        />
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="font-semibold">{side}</span>
+                          <span aria-hidden className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${checked ? 'border-debate-blue' : 'border-slate-300'}`}>
+                            {checked && <span className="h-2.5 w-2.5 rounded-full bg-debate-blue" />}
+                          </span>
+                        </span>
+                        {showShares && (
+                          <span className="mt-3 block">
+                            <span className="block h-1.5 overflow-hidden rounded-full bg-slate-100">
+                              <span className="block h-full rounded-full bg-debate-blue transition-all" style={{ width: `${percent}%` }} />
+                            </span>
+                            <span className="mt-1.5 block text-xs text-slate-500">{percent}% of registrations</span>
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="English level">
+                <select value={form.english_level ?? ''} onChange={e => set('english_level', e.target.value)} className={inputCls}>
+                  <option value="">—</option>
+                  {ENGLISH_LEVELS.map(l => <option key={l}>{l}</option>)}
+                </select>
+              </Field>
+              <Field label="Debate experience">
+                <select value={form.experience ?? ''} onChange={e => set('experience', e.target.value)} className={inputCls}>
+                  <option value="">—</option>
+                  {EXPERIENCE.map(x => <option key={x.value} value={x.value}>{x.label}</option>)}
+                </select>
+              </Field>
+            </div>
+            <Field label="Why do you want to join?" required>
+              <textarea required rows={4} value={form.motivation ?? ''} onChange={e => set('motivation', e.target.value)} className={inputCls} />
+            </Field>
+            <Field label="How did you hear about us?" required>
+              <select required value={form.heard_from ?? ''} onChange={e => set('heard_from', e.target.value)} className={inputCls}>
+                <option value="">—</option>
+                {HEARD_FROM.map(h => <option key={h}>{h}</option>)}
+              </select>
+            </Field>
+          </fieldset>
+
+          {d.rules.trim() && (
+            <details className="rounded-lg border border-slate-200 bg-slate-50 text-sm">
+              <summary className={`cursor-pointer rounded-lg px-3 py-2 font-medium text-debate-blue ${focusRing}`}>Read the {d.rules_title.toLowerCase()}</summary>
+              <p className="whitespace-pre-line px-3 pb-3 leading-relaxed text-slate-700">{d.rules}</p>
+            </details>
+          )}
+          <label className="flex items-start gap-3 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={form.agreed_to_rules}
+              onChange={e => set('agreed_to_rules', e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 accent-debate-maroon"
+            />
+            <span>{d.rules_label} <span className="text-debate-maroon">*</span></span>
+          </label>
+
+          <div ref={errorRef} aria-live="polite">{error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}</div>
+
+          <div className="flex flex-col-reverse items-center justify-end gap-3 sm:flex-row">
+            {editing && (
+              <button type="button" onClick={() => setEditing(false)} className={`rounded-lg px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 ${focusRing}`}>Cancel</button>
+            )}
+            <button
+              type="submit"
+              disabled={saving}
+              className={`${primaryButton} w-full px-6 py-3.5 sm:w-auto`}
+            >
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {existing ? 'Save changes' : 'Submit registration'}
+            </button>
+          </div>
+        </form>
+        {signedInAs}
+      </div>
+    </DebateLayout>
+  );
+}

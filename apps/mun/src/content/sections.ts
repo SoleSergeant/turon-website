@@ -1,0 +1,700 @@
+import type { Field, Section } from './types';
+import { seasonsData, type SeasonData } from '@/data/seasonsData';
+
+/**
+ * Every admin-editable piece of website content.
+ *
+ * `defaults` is what the site shows until an admin edits the section in
+ * Admin → Site content. Text fields may use {season} (the Season label from
+ * General) and {site}. Headline fields marked "rich" highlight *starred*
+ * words in gold.
+ */
+
+const LOGO = '/logos/turonmun-logo-320.png';
+
+// ── Reusable field sets ────────────────────────────────────────────────
+const titleDesc: Field[] = [
+  { key: 'title', label: 'Title', type: 'text' },
+  { key: 'description', label: 'Description', type: 'textarea' },
+];
+const qa: Field[] = [
+  { key: 'question', label: 'Question', type: 'text' },
+  { key: 'answer', label: 'Answer', type: 'textarea' },
+];
+
+// ── General ────────────────────────────────────────────────────────────
+const general = {
+  site_name: 'TuronMUN',
+  season_label: 'Season 7',
+  conference_date: '',
+  logo_url: LOGO,
+  contact_email: 'admin@turonmun.com',
+  contact_phone: '+998903672103',
+  instagram_url: 'https://www.instagram.com/turon.mun/',
+  telegram_url: 'https://t.me/TuronMUN',
+  links_url: 'https://myurls.co/turonmunconference',
+  sponsorship_url: 'http://t.me/ozodjonov_mh',
+  footer_about: 'Join us for an enriching diplomatic simulation that brings together students from around the world to discuss pressing global issues.',
+  footer_credits: 'Coded & created by Numonov Samandar & Asadbek Abdukhalilov',
+  footer_credits_url: 'https://t.me/samandar_vibe',
+};
+
+// ── Homepage ───────────────────────────────────────────────────────────
+const next_season = {
+  badge_label: 'Next Season',
+  heading: 'Coming Soon',
+  subtitle: 'Details will be announced shortly.',
+  date_text: 'To be announced',
+  duration_text: 'To be announced',
+  location_text: 'Fergana, Uzbekistan',
+  delegates_text: 'To be announced',
+  apply_label: 'Apply now',
+};
+
+const hero = {
+  eyebrow: 'Model United Nations · Fergana, Uzbekistan',
+  intro: 'A student-run Model UN conference in Fergana. Since July 2024 we have run eight conferences for school and university students from across Uzbekistan.',
+  apply_button: 'Apply Now',
+  committees_button: 'Explore Committees',
+  accolades: [
+    'MyMUN awards: Best Small Conference',
+    'Best Socials',
+    'Best Logistics',
+  ],
+};
+
+const home_about = {
+  headline: 'We are the only MUN from *Central Asia* that topped the *mymun charts* *back-to-back*',
+  paragraphs: [
+    'Delegates represent a country in a committee, research its position, and spend the day debating, negotiating and writing resolutions. Committees run in English, with Uzbek and Russian committees in some seasons.',
+    'You do not need MUN experience. Most of our delegates came to their first conference with us, and our chairs help newcomers find their feet.',
+  ],
+  stats: [
+    { label: 'Delegates so far', value: 700, suffix: '+' },
+    { label: 'Countries represented', value: 3, suffix: '' },
+    { label: 'Committees run', value: 15, suffix: '+' },
+    { label: 'Seasons', value: 7, suffix: '' },
+  ],
+  features: [
+    { title: 'Crisis committees', description: 'Some committees get updates during the session, so plans made in the morning have to change by the afternoon.' },
+    { title: 'Negotiation', description: 'Resolutions only pass with votes, so most of the work happens in unmoderated caucus, finding people who will sign on.' },
+    { title: 'People', description: 'Delegates come from schools and universities across the country, and many come back season after season.' },
+    { title: 'Speaking', description: 'Every delegate speaks: opening speeches, points of information, and defending their own clauses.' },
+  ],
+};
+
+const home_sections = {
+  committees_title: 'Our Committees',
+  committees_intro: 'The committees for the current season, with their topics and chairs.',
+  committees_button: 'View All Committees',
+  schedule_title: 'Conference Agenda',
+  schedule_intro: "Here's a preview of our event schedule. For the complete agenda and details, please visit the Schedule page.",
+  faq_title: 'Frequently Asked Questions',
+  faq_intro: 'If your question is not here, write to us on Telegram or by email.',
+};
+
+const faq = {
+  items: [
+    { question: 'What is Model United Nations?', answer: "Model United Nations (MUN) is an educational simulation where students role-play as delegates representing different countries in UN committees. Participants research global issues, represent their assigned country's positions, debate, and draft resolutions to address international challenges." },
+    { question: 'Who can participate in the conference?', answer: 'School and university students. Most delegates are from Uzbekistan, and anyone can apply. You can apply on your own or as a delegation from your school.' },
+    { question: 'How much does participation cost?', answer: 'Participation fees vary depending on whether you are applying as an individual delegate or as part of a delegation. Early bird rates and discounts for returning delegates are available. Please check the Application page for current pricing details.' },
+    { question: 'What is the conference language?', answer: 'The conference is conducted primarily in English. Most committee sessions, documentation, and communication are in English. Each season also features one Russian-language committee for participants more comfortable in Russian.' },
+    { question: 'Do I need previous MUN experience to participate?', answer: 'No, prior experience is not required. We welcome delegates of all experience levels. We provide training sessions and resources for first-time participants to ensure everyone can engage meaningfully in the conference.' },
+    { question: 'What should I do to prepare for the conference?', answer: 'Preparation includes researching your assigned country and committee topics, drafting position papers, and reviewing parliamentary procedure. We provide a delegate handbook and research guides to assist you in your preparation.' },
+  ],
+};
+
+const sponsors = {
+  heading: 'Our *partners*',
+  intro: 'The schools and organisations that support TuronMUN with venues, prizes and funding.',
+  empty_text: '{season} sponsors will be announced here. Reach out if you\'d like to partner with us.',
+  cta_eyebrow: 'Sponsoring',
+  cta_text: 'Want to support a season? Write to us and we will send the details.',
+  cta_button: 'Sponsor With Us',
+  cta_url: '/contact',
+  logos: [
+    { name: 'Sponsor 1', image: '/logos/logo1.png', url: '' },
+    { name: 'Sponsor 2', image: '/logos/logo2.png', url: '' },
+    { name: 'Sponsor 4', image: '/logos/logo4.png', url: '' },
+    { name: 'Sponsor 5', image: '/logos/logo5.png', url: '' },
+    { name: 'Sponsor 6', image: '/logos/logo6.png', url: '' },
+  ],
+};
+
+// ── About page ─────────────────────────────────────────────────────────
+const about_page = {
+  title: 'About TuronMUN',
+  intro: 'TuronMUN started at the Presidential School in Fergana in the summer of 2024, run by students who wanted a proper MUN conference in the region. Two years and eight conferences later, it is still run by students.',
+  primary_button: 'Apply',
+  secondary_button: 'Past Conferences',
+  mission_title: 'What we do',
+  mission_statement: 'We run one-day and multi-day Model UN conferences: committees, chairs, rules of procedure, awards and socials. We try to keep fees low, give first-time delegates a fair chance, and make each season a little better organised than the last.',
+  timeline_title: 'Timeline',
+  timeline_intro: 'Every season so far, and a few other moments along the way.',
+  timeline: [
+    { date: 'June 28, 2024', title: 'FerganaPS MUN Founded', description: 'The conference is founded at the Presidential School in Fergana.', milestones: ['Official founding of FerganaPS MUN', 'Telegram channel created', 'Registered through mymun.com'] },
+    { date: 'July 1, 2024', title: 'Season 1', description: 'Applications open for the first season.', milestones: ['80 delegates from across Uzbekistan', '4 committees', 'Held on July 28, 2024'] },
+    { date: 'November 5, 2024', title: 'Season 2', description: 'A smaller season with two committees.', milestones: ['2 committees', '50 delegates', 'Location: Presidential School in Fergana'] },
+    { date: 'January 4, 2025', title: 'Season 3', description: 'Our largest season at the time, and the first Uzbek-language committee.', milestones: ['5 committees', '105 delegates', 'Location: Presidential School in Fergana'] },
+    { date: 'January 25, 2025', title: 'Historic Partnership', description: 'Partnership with the Central Asian University MUN in Nukus.', milestones: ['First MUN conference in Karakalpakstan', 'Expanding MUN culture in new regions', 'Strengthening national MUN community'] },
+    { date: 'April 12, 2025', title: 'Season 4', description: 'Our first conference outside the Presidential School, and the first step towards expansion and the rebrand.', milestones: ['Held at Rahimov School, Fergana branch', '80 delegates', '4 committees'] },
+    { date: 'May 1, 2025', title: 'MyMUN Awards 2024', description: 'Season 2 (November 5, 2024) takes first place in three categories of the MyMUN 2024 awards.', milestones: ['1st, Best Small Conference', '1st, Best Socials', '1st, Best Logistics'] },
+    { date: 'May 12, 2025', title: 'Rebranding to TuronMUN', description: 'FerganaPS MUN becomes TuronMUN.', milestones: ['New name and logo'] },
+    { date: 'July 28, 2025', title: 'TuronMUN x CAMU', description: 'Our first anniversary, held at Central Asian Medical University.', milestones: ['First joint MUN with a medical university', '120 delegates', '6 committees in 3 languages', '3rd, Best Medium Conference, MyMUN 2025 awards'] },
+    { date: 'November 9, 2025', title: 'Season 5', description: 'The first season under a new Secretary-General.', milestones: ['Held at Registan Private School', '100 delegates', '5 committees in 2 languages'] },
+    { date: 'March 29, 2026', title: 'Season 6', description: 'Held at Registan Private School, Fergana.', milestones: ['Partnership with SATashkent', '80 delegates', 'New award categories'] },
+    { date: 'July 28, 2026', title: 'Season 7', description: 'Two years of TuronMUN, celebrated back at the Presidential School in Fergana.', milestones: ['Two-year anniversary', '120 delegates', 'Location: Presidential School in Fergana'] },
+  ],
+  seasons_title: 'Seasons',
+  seasons_intro: 'Where and when each season took place.',
+  seasons_button: 'Explore Current Committees',
+  gallery_title: 'Photos',
+  gallery_intro: 'From past seasons.',
+  gallery: [
+    { image: '/lovable-uploads/mun-action-1.jpg', alt: 'TuronMUN Delegates in Action', caption: 'Delegates engaged in committee discussions' },
+    { image: '/lovable-uploads/mun-action-2.jpg', alt: 'TuronMUN Committee Session', caption: 'Active participation in committee session' },
+    { image: '/lovable-uploads/mun-action-3.jpg', alt: 'TuronMUN Debate', caption: 'Debate in committee' },
+    { image: '/lovable-uploads/mun-action-4.jpg', alt: 'TuronMUN Speakers', caption: "Delegates delivering their country's position" },
+    { image: '/lovable-uploads/mun-action-5.jpg', alt: 'TuronMUN Group Photo', caption: 'TuronMUN participants and organizers' },
+    { image: '/lovable-uploads/mun-action-6.jpg', alt: 'TuronMUN Closing Ceremony', caption: 'Awarding outstanding delegates' },
+  ],
+};
+
+// ── Past seasons ───────────────────────────────────────────────────────
+const past_conferences = {
+  title: 'Past Conferences',
+  intro: 'Every TuronMUN season so far: where it was held, who came, and photos from the day.',
+  cta_title: 'Join Our Next Conference',
+  cta_text: 'Applications for the next season open on this site. Follow our Telegram channel to hear first.',
+  cta_button: 'Apply Now',
+};
+
+// Menu order on the site follows this list's order.
+const MENU_ORDER = ['season1', 'season2', 'season3', 'season4', 'turonmun-camu', 'season5', 'season6', 'season7'];
+const MENU_LABELS: Record<string, string> = {
+  season1: 'Season 1', season2: 'Season 2', season3: 'Season 3', season4: 'Season 4',
+  'turonmun-camu': 'TuronMUN x CAMU', season5: 'Season 5', season6: 'Season 6', season7: 'Season 7',
+};
+export type PastSeason = SeasonData & { menu_label: string; show_in_menu: boolean };
+const past_seasons = {
+  seasons: MENU_ORDER
+    .map(id => seasonsData.find(s => s.id === id))
+    .filter((s): s is (typeof seasonsData)[number] => !!s)
+    .map(s => ({ ...s, menu_label: MENU_LABELS[s.id] ?? s.title, show_in_menu: true })) as PastSeason[],
+};
+
+const seasonFields: Field[] = [
+  { key: 'title', label: 'Title', type: 'text', hint: 'e.g. Season Seven' },
+  { key: 'menu_label', label: 'Menu label', type: 'text', hint: 'Shown under Past Conferences in the menu' },
+  { key: 'show_in_menu', label: 'Show in menu', type: 'boolean' },
+  { key: 'route', label: 'Page address', type: 'text', hint: 'e.g. /seasons/7 — must start with /seasons/' },
+  { key: 'id', label: 'Internal ID', type: 'text', hint: 'Unique, no spaces, e.g. season7' },
+  { key: 'year', label: 'Year', type: 'text' },
+  { key: 'date', label: 'Date', type: 'text', hint: 'As shown, e.g. March 29, 2026' },
+  { key: 'endDate', label: 'End date (optional)', type: 'text' },
+  { key: 'location', label: 'Location', type: 'text' },
+  { key: 'theme', label: 'Theme', type: 'text' },
+  { key: 'description', label: 'Description', type: 'textarea' },
+  { key: 'experience', label: 'Experience / story', type: 'textarea' },
+  { key: 'milestone', label: 'Milestone', type: 'text' },
+  { key: 'highlights', label: 'Highlights', type: 'strings' },
+  {
+    key: 'statistics', label: 'Statistics', type: 'group', fields: [
+      { key: 'participants', label: 'Delegates', type: 'text' },
+      { key: 'committees', label: 'Committees', type: 'number' },
+      { key: 'location', label: 'Venue', type: 'text' },
+      { key: 'languages', label: 'Languages', type: 'text' },
+      { key: 'fee', label: 'Fee', type: 'text' },
+    ],
+  },
+  { key: 'photos', label: 'Photos', type: 'list', itemLabel: 'Photo', titleKey: 'caption', fields: [
+    { key: 'url', label: 'Image', type: 'image' },
+    { key: 'caption', label: 'Caption', type: 'text' },
+  ] },
+  {
+    key: '__style', label: 'Colours (advanced)', type: 'group', collapsed: true,
+    hint: 'Tailwind classes. New seasons copy these from the season above; you rarely need to change them.',
+    fields: [
+      { key: 'color', label: 'Gradient', type: 'text' },
+      { key: 'accentColor', label: 'Accent', type: 'text' },
+      { key: 'lightBg', label: 'Light background', type: 'text' },
+      { key: 'mediumBg', label: 'Medium background', type: 'text' },
+      { key: 'borderColor', label: 'Border', type: 'text' },
+      { key: 'textColor', label: 'Text colour', type: 'text' },
+      { key: 'secondaryTextColor', label: 'Secondary text colour', type: 'text' },
+      { key: 'patternStyle', label: 'Pattern', type: 'text' },
+    ],
+  },
+];
+
+// ── Other pages ────────────────────────────────────────────────────────
+const registration = {
+  badge_closed: '{season} — Applications Opening Soon',
+  badge_open: '{season} — Applications Open',
+  title: 'Apply for {season}',
+  intro_closed: "We're preparing the next chapter of TuronMUN. Applications for delegates and chairs will open shortly — follow us to be the first to know.",
+  intro_open: 'Choose your role below and begin your TuronMUN journey.',
+  delegate_description: 'Represent a country in one of our committees. Debate, draft resolutions, and practise diplomacy.',
+  chair_description: 'Lead a committee as a chair. Shape the debate and guide delegates through the session.',
+  observer_enabled: true,
+  observer_title: 'Observer',
+  observer_description: 'Attend the conference as an observer. Watch debates, take notes, and learn from the floor.',
+  observer_url: 'https://forms.gle/95J7rWqQoTEvo2Rr7',
+  chair_form_subtitle: '{season} — Lead a committee and shape the TuronMUN experience',
+  volunteer_form_subtitle: '{season} — Help make the conference unforgettable',
+  signup_tip: 'Create an account to get early access to {season} application when it opens!',
+};
+
+const pages = {
+  committees_badge: '{season}',
+  committees_title: 'Our Committees',
+  committees_intro: 'Join one of our carefully designed committees to debate pressing international issues, develop diplomatic skills, and forge connections with fellow delegates.',
+  committees_cta_title: 'Ready to Join the Deliberation?',
+  committees_cta_text: 'Places in each committee are limited and filled in the order applications arrive.',
+  committees_cta_button: 'Register as a Delegate',
+  schedule_title: 'Conference Schedule',
+  schedule_intro: 'Plan your TuronMUN experience with our full day programme.',
+  schedule_empty_title: 'No Schedule Available',
+  schedule_empty_text: 'Check back soon — the schedule will be published before the conference.',
+  resources_eyebrow: 'Delegate Preparation',
+  resources_title: 'Resources & Materials',
+  resources_intro: 'Access comprehensive guides, background materials, and tools to help you prepare for a successful Model UN experience.',
+  resources_links_title: 'Additional Resources',
+  resources_links_intro: 'External links to help you prepare further.',
+  resources_links: [
+    { title: 'Country Research Database', description: 'Detailed information on all UN member states.', label: 'Explore', url: 'https://www.un.org/en/about-us/member-states' },
+    { title: 'Resolution Templates', description: 'Download templates for drafting effective resolutions.', label: 'Download', url: 'https://www.wisemee.com/model-un-resolution-template/' },
+    { title: 'Diplomatic Glossary', description: 'Essential terms and phrases used in diplomatic contexts.', label: 'View Glossary', url: 'https://www.wisemee.com/mun-glossary/' },
+  ],
+  awards_title: 'Award Winners',
+  awards_intro: 'Celebrating the outstanding delegates of TuronMUN.',
+  awards_pending_title: 'Winners announced after the conference',
+  awards_pending_text: 'Award winners will be published here once the conference concludes. Stay tuned!',
+  team_title: 'Our Team',
+  team_intro: 'The people who organise TuronMUN, and everyone who helped make it happen.',
+  updates_title: 'Event Updates',
+  updates_intro: 'Stay informed about the latest developments for TuronMUN {season}, including committee information and event schedules.',
+  updates_committees_text: 'Explore the various committees that will be part of TuronMUN {season}, including topics, background guides, and committee structures.',
+  updates_schedule_text: 'View the complete schedule for TuronMUN {season}, including opening and closing ceremonies, committee sessions, and social events.',
+};
+
+const contact = {
+  eyebrow: 'Get In Touch',
+  title: 'Contact Us',
+  intro: 'Have questions about the conference? Our team is here to help you with any inquiries.',
+  form_title: 'Send us a message',
+  form_intro: "Fill out the form below and we'll get back to you as soon as possible.",
+  venue_name: 'To be announced',
+  venue_text: 'The venue and dates for TuronMUN {season} will be announced soon. Follow us on Telegram and Instagram for updates.',
+  venue_address: '',
+  venue_image: '',
+  faq_title: 'Frequently Asked Questions',
+  faq_intro: 'Find quick answers to common questions.',
+  faq: [
+    { question: 'How can I apply to be a delegate?', answer: "To apply as a delegate, navigate to our Registration page and fill out the application form. You'll receive a confirmation email with further instructions." },
+    { question: 'Is there a participation fee?', answer: 'Yes, there is a participation fee that varies depending on your delegation type. Early bird rates are available. Please check our Registration page for current pricing.' },
+    { question: 'How can I become a committee chair?', answer: 'Committee chair applications are opened 6 months before the conference. To apply, send your CV and a motivation letter to chairs@munconference.org.' },
+    { question: 'When will I know my country assignment?', answer: 'Country assignments are typically sent out 4-6 weeks after your registration is confirmed, along with committee assignments.' },
+  ],
+  faq_footer: "Still have questions? Don't hesitate to contact us directly.",
+};
+
+const seo = {
+  site_url: 'https://www.turonmun.com',
+  default_title: 'TuronMUN - Model United Nations Conference',
+  default_description: 'Join TuronMUN for an enriching Model United Nations experience. Develop diplomacy, debate, and leadership skills with students from around the world.',
+  keywords: 'MUN, Model United Nations, TuronMUN, Uzbekistan, Fergana, debate, diplomacy, UN, conference',
+  share_image: 'https://www.turonmun.com/og-image.png?v=2',
+};
+
+const certificates = {
+  background_url: '',
+  debate_background_url: '',
+  signer_name: '',
+  signer_title: 'Secretary-General',
+  signature_url: '',
+};
+
+const extras = {
+  secret_title: 'If you found this, just know…',
+  secret_lines: [
+    "You're one in a million.",
+    "Your smile can change someone's whole day.",
+    "Never forget: you're more special than you think.",
+  ],
+  secret_signoff: 'Love u :)',
+};
+
+// ── Turon Debate (debat.turonmun.com) ─────────────────────────────────
+const debate = {
+  name: 'Turon Debate',
+  intro: 'Sharpen your arguments, think on your feet and compete with debaters from across Uzbekistan. Watch the video to see how a round works, then register below.',
+  video_url: '',
+  video_caption: 'How a Turon Debate round works',
+  register_button: 'Register',
+  registration_open: true,
+  registration_deadline: '',
+  closed_message: 'Registration is closed right now. Follow us on Telegram for the next round.',
+  info: [
+    { label: 'Format', value: 'To be announced' },
+    { label: 'Date', value: 'To be announced' },
+    { label: 'Venue', value: 'Fergana, Uzbekistan' },
+    { label: 'Participation', value: 'Free' },
+  ],
+  steps_title: 'How it works',
+  steps: [
+    { title: 'Create an account', description: 'Sign up with your email or Google account.' },
+    { title: 'Register', description: 'Fill in the short registration form. You can edit it until it is reviewed.' },
+    { title: 'Get confirmed', description: 'Our team reviews every registration and lets you know the result.' },
+    { title: 'Debate', description: 'Prepare, show up and make your case.' },
+  ],
+  faq_title: 'Questions',
+  faq: [] as { question: string; answer: string }[],
+  judging_title: "How you're judged",
+  judging_intro: 'Judges score every team out of {total} points. Know the rubric, and prepare for it.',
+  rules_title: 'Rules',
+  rules: '',
+  results_title: 'Results',
+  show_results: false,
+  cta_title: 'Ready to make your case?',
+  cta_text: 'Registration takes about five minutes.',
+  form_title: 'Register for Turon Debate',
+  form_intro: 'Tell us a little about yourself. Fields marked * are required.',
+  side_label: 'Which side would you like to be on?',
+  side_hint: "We'll try to match your choice, but sides may be reassigned to balance the rounds.",
+  sides: ['Affirmative', 'Opposition', 'Government', 'Parents'],
+  show_side_stats: true,
+  // Event day (Admin → Debate day, judges' panel)
+  judging_criteria: [
+    { label: 'Arguments & Logic', max: 25 },
+    { label: 'Rebuttal', max: 25 },
+    { label: 'Speaking & Presentation', max: 20 },
+    { label: 'Evidence & Examples', max: 15 },
+    { label: 'Teamwork', max: 15 },
+  ],
+  reveal_teams: false,
+  rules_label: 'I agree to follow the tournament rules and code of conduct.',
+  success_title: 'Registration received',
+  success_text: "Thank you for registering. We'll review your registration and contact you by email or Telegram.",
+  // Decision emails ("Send decision emails" in Registrations). {name} = first name, {event} = Name above.
+  email_approved_subject: "You're in: {event}",
+  email_approved_body: 'Dear {name},\n\nCongratulations! Your registration for {event} has been accepted. We will send the schedule and round details closer to the date.\n\nBest regards,\nThe {event} team',
+  email_waitlisted_subject: "{event}: you're on the waiting list",
+  email_waitlisted_body: 'Dear {name},\n\nThank you for registering for {event}. All places are currently taken, so you are on the waiting list. We will email you as soon as a place opens.\n\nBest regards,\nThe {event} team',
+  email_rejected_subject: 'Your {event} registration',
+  email_rejected_body: "Dear {name},\n\nThank you for registering for {event}. Unfortunately we can't offer you a place this time. We hope to see you at a future round.\n\nBest regards,\nThe {event} team",
+};
+
+// ── Section registry ───────────────────────────────────────────────────
+export const SECTIONS = {
+  general: {
+    key: 'general', group: 'Site', title: 'General',
+    description: 'Season label, contact details, social links and logo used across the whole site.',
+    defaults: general,
+    fields: [
+      { key: 'site_name', label: 'Site name', type: 'text' },
+      { key: 'season_label', label: 'Season label', type: 'text', hint: 'Shown wherever the site says {season} — splash screen, registration, dashboards. Change it when the next season is announced.' },
+      { key: 'conference_date', label: 'Conference start (date & time)', type: 'date', hint: 'Drives the countdown on the delegate dashboard. Leave empty to hide it.' },
+      { key: 'logo_url', label: 'Logo', type: 'image' },
+      { key: 'contact_email', label: 'Contact email', type: 'text' },
+      { key: 'contact_phone', label: 'Contact phone', type: 'text' },
+      { key: 'instagram_url', label: 'Instagram', type: 'url' },
+      { key: 'telegram_url', label: 'Telegram', type: 'url' },
+      { key: 'links_url', label: 'All-links page', type: 'url', hint: 'Shown as "Social Media" on Contact' },
+      { key: 'sponsorship_url', label: 'Sponsorship contact link', type: 'url' },
+      { key: 'footer_about', label: 'Footer text', type: 'textarea' },
+      { key: 'footer_credits', label: 'Footer credits', type: 'text' },
+      { key: 'footer_credits_url', label: 'Footer credits link', type: 'url' },
+    ],
+  },
+  next_season: {
+    key: 'next_season', group: 'Homepage', title: 'Next season card',
+    description: 'The card on the right of the homepage hero.',
+    defaults: next_season,
+    fields: [
+      { key: 'badge_label', label: 'Badge', type: 'text' },
+      { key: 'heading', label: 'Heading', type: 'text' },
+      { key: 'subtitle', label: 'Subtitle', type: 'textarea' },
+      { key: 'date_text', label: 'Date', type: 'text' },
+      { key: 'duration_text', label: 'Duration', type: 'text' },
+      { key: 'location_text', label: 'Location', type: 'text' },
+      { key: 'delegates_text', label: 'Delegates', type: 'text' },
+      { key: 'apply_label', label: 'Apply button', type: 'text' },
+    ],
+  },
+  hero: {
+    key: 'hero', group: 'Homepage', title: 'Hero',
+    defaults: hero,
+    fields: [
+      { key: 'eyebrow', label: 'Small label', type: 'text' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'apply_button', label: 'Apply button', type: 'text' },
+      { key: 'committees_button', label: 'Committees button', type: 'text' },
+      { key: 'accolades', label: 'Awards line', type: 'strings' },
+    ],
+  },
+  home_about: {
+    key: 'home_about', group: 'Homepage', title: 'About block',
+    defaults: home_about,
+    fields: [
+      { key: 'headline', label: 'Headline', type: 'textarea', hint: 'Wrap words in *stars* to highlight them in gold.' },
+      { key: 'paragraphs', label: 'Paragraphs', type: 'strings' },
+      { key: 'stats', label: 'Stats', type: 'list', itemLabel: 'Stat', titleKey: 'label', fields: [
+        { key: 'label', label: 'Label', type: 'text' },
+        { key: 'value', label: 'Number', type: 'number' },
+        { key: 'suffix', label: 'Suffix', type: 'text', hint: 'e.g. +' },
+      ] },
+      { key: 'features', label: 'Points', type: 'list', itemLabel: 'Point', titleKey: 'description', fields: titleDesc },
+    ],
+  },
+  home_sections: {
+    key: 'home_sections', group: 'Homepage', title: 'Committees, schedule & FAQ headings',
+    defaults: home_sections,
+    fields: [
+      { key: 'committees_title', label: 'Committees — title', type: 'text' },
+      { key: 'committees_intro', label: 'Committees — intro', type: 'textarea' },
+      { key: 'committees_button', label: 'Committees — button', type: 'text' },
+      { key: 'schedule_title', label: 'Schedule — title', type: 'text' },
+      { key: 'schedule_intro', label: 'Schedule — intro', type: 'textarea' },
+      { key: 'faq_title', label: 'FAQ — title', type: 'text' },
+      { key: 'faq_intro', label: 'FAQ — intro', type: 'textarea' },
+    ],
+  },
+  faq: {
+    key: 'faq', group: 'Homepage', title: 'FAQ',
+    defaults: faq,
+    fields: [{ key: 'items', label: 'Questions', type: 'list', itemLabel: 'Question', titleKey: 'question', fields: qa }],
+  },
+  sponsors: {
+    key: 'sponsors', group: 'Homepage', title: 'Sponsors',
+    defaults: sponsors,
+    fields: [
+      { key: 'heading', label: 'Heading', type: 'text', hint: 'Wrap words in *stars* to highlight them in gold.' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'logos', label: 'Sponsor logos', type: 'list', itemLabel: 'Sponsor', titleKey: 'name', fields: [
+        { key: 'name', label: 'Name', type: 'text' },
+        { key: 'image', label: 'Logo', type: 'image' },
+        { key: 'url', label: 'Website (optional)', type: 'url' },
+      ] },
+      { key: 'empty_text', label: 'Text when there are no sponsors', type: 'textarea' },
+      { key: 'cta_eyebrow', label: 'Call to action — label', type: 'text' },
+      { key: 'cta_text', label: 'Call to action — text', type: 'textarea' },
+      { key: 'cta_button', label: 'Call to action — button', type: 'text' },
+      { key: 'cta_url', label: 'Call to action — link', type: 'text', hint: 'A page like /contact or a full URL' },
+    ],
+  },
+  about_page: {
+    key: 'about_page', group: 'About page', title: 'About page',
+    defaults: about_page,
+    fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'primary_button', label: 'Primary button', type: 'text' },
+      { key: 'secondary_button', label: 'Secondary button', type: 'text' },
+      { key: 'mission_title', label: 'Mission — title', type: 'text' },
+      { key: 'mission_statement', label: 'Mission — text', type: 'textarea' },
+      { key: 'timeline_title', label: 'Timeline — title', type: 'text' },
+      { key: 'timeline_intro', label: 'Timeline — intro', type: 'textarea' },
+      { key: 'timeline', label: 'Timeline', type: 'list', itemLabel: 'Event', titleKey: 'title', fields: [
+        { key: 'date', label: 'Date', type: 'text' },
+        ...titleDesc,
+        { key: 'milestones', label: 'Milestones', type: 'strings' },
+      ] },
+      { key: 'seasons_title', label: 'Seasons — title', type: 'text', hint: 'The season cards come from Past seasons.' },
+      { key: 'seasons_intro', label: 'Seasons — intro', type: 'textarea' },
+      { key: 'seasons_button', label: 'Seasons — button', type: 'text' },
+      { key: 'gallery_title', label: 'Gallery — title', type: 'text' },
+      { key: 'gallery_intro', label: 'Gallery — intro', type: 'textarea' },
+      { key: 'gallery', label: 'Gallery', type: 'list', itemLabel: 'Photo', titleKey: 'caption', fields: [
+        { key: 'image', label: 'Image', type: 'image' },
+        { key: 'alt', label: 'Alt text', type: 'text' },
+        { key: 'caption', label: 'Caption', type: 'text' },
+      ] },
+    ],
+  },
+  past_conferences: {
+    key: 'past_conferences', group: 'Past seasons', title: 'Past conferences page',
+    defaults: past_conferences,
+    fields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'cta_title', label: '"Join us" box — title', type: 'text' },
+      { key: 'cta_text', label: '"Join us" box — text', type: 'textarea' },
+      { key: 'cta_button', label: '"Join us" box — button', type: 'text' },
+    ],
+  },
+  past_seasons: {
+    key: 'past_seasons', group: 'Past seasons', title: 'Seasons',
+    description: 'Each season gets a page at its address and (optionally) a menu entry. Add a new one when a season ends.',
+    defaults: past_seasons,
+    fields: [{
+      key: 'seasons', label: 'Seasons', type: 'list', itemLabel: 'Season', titleKey: 'title', fields: seasonFields,
+    }],
+  },
+  registration: {
+    key: 'registration', group: 'Pages', title: 'Registration',
+    defaults: registration,
+    description: 'Whether applications are open is set in Admin → Forms.',
+    fields: [
+      { key: 'badge_closed', label: 'Badge — closed', type: 'text' },
+      { key: 'badge_open', label: 'Badge — open', type: 'text' },
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'intro_closed', label: 'Intro — closed', type: 'textarea' },
+      { key: 'intro_open', label: 'Intro — open', type: 'textarea' },
+      { key: 'delegate_description', label: 'Delegate card', type: 'textarea' },
+      { key: 'chair_description', label: 'Chair card', type: 'textarea' },
+      { key: 'observer_enabled', label: 'Show the Observer card', type: 'boolean' },
+      { key: 'observer_title', label: 'Observer card — title', type: 'text' },
+      { key: 'observer_description', label: 'Observer card — text', type: 'textarea' },
+      { key: 'observer_url', label: 'Observer form link', type: 'url' },
+      { key: 'chair_form_subtitle', label: 'Chair form subtitle', type: 'text' },
+      { key: 'volunteer_form_subtitle', label: 'Volunteer form subtitle', type: 'text' },
+      { key: 'signup_tip', label: 'Sign-up page tip', type: 'textarea' },
+    ],
+  },
+  pages: {
+    key: 'pages', group: 'Pages', title: 'Committees, schedule, resources, awards, updates',
+    defaults: pages,
+    fields: [
+      { key: 'committees_badge', label: 'Committees — badge', type: 'text' },
+      { key: 'committees_title', label: 'Committees — title', type: 'text' },
+      { key: 'committees_intro', label: 'Committees — intro', type: 'textarea' },
+      { key: 'committees_cta_title', label: 'Committees — call to action title', type: 'text' },
+      { key: 'committees_cta_text', label: 'Committees — call to action text', type: 'textarea' },
+      { key: 'committees_cta_button', label: 'Committees — call to action button', type: 'text' },
+      { key: 'schedule_title', label: 'Schedule — title', type: 'text' },
+      { key: 'schedule_intro', label: 'Schedule — intro', type: 'textarea' },
+      { key: 'schedule_empty_title', label: 'Schedule — empty title', type: 'text' },
+      { key: 'schedule_empty_text', label: 'Schedule — empty text', type: 'textarea' },
+      { key: 'resources_eyebrow', label: 'Resources — small label', type: 'text' },
+      { key: 'resources_title', label: 'Resources — title', type: 'text' },
+      { key: 'resources_intro', label: 'Resources — intro', type: 'textarea' },
+      { key: 'resources_links_title', label: 'Resources — external links title', type: 'text' },
+      { key: 'resources_links_intro', label: 'Resources — external links intro', type: 'textarea' },
+      { key: 'resources_links', label: 'Resources — external links', type: 'list', itemLabel: 'Link', titleKey: 'title', fields: [
+        ...titleDesc,
+        { key: 'label', label: 'Button text', type: 'text' },
+        { key: 'url', label: 'Link', type: 'url' },
+      ] },
+      { key: 'awards_title', label: 'Awards — title', type: 'text' },
+      { key: 'awards_intro', label: 'Awards — intro', type: 'textarea' },
+      { key: 'awards_pending_title', label: 'Awards — before results', type: 'text' },
+      { key: 'awards_pending_text', label: 'Awards — before results text', type: 'textarea' },
+      { key: 'team_title', label: 'Team — title', type: 'text', hint: 'The people themselves are edited in Admin → Team.' },
+      { key: 'team_intro', label: 'Team — intro', type: 'textarea' },
+      { key: 'updates_title', label: 'Event updates — title', type: 'text' },
+      { key: 'updates_intro', label: 'Event updates — intro', type: 'textarea' },
+      { key: 'updates_committees_text', label: 'Event updates — committees card', type: 'textarea' },
+      { key: 'updates_schedule_text', label: 'Event updates — schedule card', type: 'textarea' },
+    ],
+  },
+  contact: {
+    key: 'contact', group: 'Pages', title: 'Contact',
+    description: 'Email, phone and social links come from General.',
+    defaults: contact,
+    fields: [
+      { key: 'eyebrow', label: 'Small label', type: 'text' },
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'form_title', label: 'Form title', type: 'text' },
+      { key: 'form_intro', label: 'Form intro', type: 'textarea' },
+      { key: 'venue_name', label: 'Venue name', type: 'text' },
+      { key: 'venue_text', label: 'Venue text', type: 'textarea' },
+      { key: 'venue_address', label: 'Venue address', type: 'text', hint: 'Leave empty (and no photo) while the venue is not announced.' },
+      { key: 'venue_image', label: 'Venue photo', type: 'image' },
+      { key: 'faq_title', label: 'FAQ — title', type: 'text' },
+      { key: 'faq_intro', label: 'FAQ — intro', type: 'textarea' },
+      { key: 'faq', label: 'FAQ', type: 'list', itemLabel: 'Question', titleKey: 'question', fields: qa },
+      { key: 'faq_footer', label: 'FAQ — closing line', type: 'text' },
+    ],
+  },
+  seo: {
+    key: 'seo', group: 'Site', title: 'Search & sharing',
+    description: 'How the site appears on Google and when shared on Telegram/Instagram.',
+    defaults: seo,
+    fields: [
+      { key: 'site_url', label: 'Site address', type: 'url' },
+      { key: 'default_title', label: 'Default page title', type: 'text' },
+      { key: 'default_description', label: 'Default description', type: 'textarea' },
+      { key: 'keywords', label: 'Keywords', type: 'text' },
+      { key: 'share_image', label: 'Share image', type: 'image' },
+    ],
+  },
+  certificates: {
+    key: 'certificates', group: 'Site', title: 'Certificates',
+    description: 'Design of the certificates delegates download from My History (only for people marked attended).',
+    defaults: certificates,
+    fields: [
+      { key: 'background_url', label: 'Certificate background', type: 'image', hint: 'A4 landscape image (e.g. 3508 × 2480) with your border, logos and seals, and the middle left empty for the text. Leave empty for the built-in design.' },
+      { key: 'debate_background_url', label: 'Turon Debate background', type: 'image', hint: 'Same, for debaters and judges. Leave empty for the built-in debate design.' },
+      { key: 'signer_name', label: 'Signed by (name)', type: 'text' },
+      { key: 'signer_title', label: 'Signed by (title)', type: 'text' },
+      { key: 'signature_url', label: 'Signature image', type: 'image', hint: 'Transparent PNG of the signature. Optional.' },
+    ],
+  },
+  extras: {
+    key: 'extras', group: 'Site', title: 'Easter egg',
+    description: 'The hidden message (Ctrl + ? or the Konami code).',
+    defaults: extras,
+    fields: [
+      { key: 'secret_title', label: 'Title', type: 'text' },
+      { key: 'secret_lines', label: 'Lines', type: 'strings' },
+      { key: 'secret_signoff', label: 'Sign-off', type: 'text' },
+    ],
+  },
+  debate: {
+    key: 'debate', group: 'Turon Debate', title: 'Turon Debate',
+    description: 'The Turon Debate site (turonmun.com/debat): video, text, and whether registration is open. Registrations are in Admin → Turon Debate.',
+    defaults: debate,
+    fields: [
+      { key: 'name', label: 'Name', type: 'text' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'video_url', label: 'YouTube video link', type: 'url', hint: 'Paste the YouTube link (watch, youtu.be or shorts). Leave empty to show "Video coming soon".' },
+      { key: 'video_caption', label: 'Video caption', type: 'text' },
+      { key: 'register_button', label: 'Register button', type: 'text' },
+      { key: 'registration_open', label: 'Registration open', type: 'boolean' },
+      { key: 'registration_deadline', label: 'Registration deadline (optional)', type: 'date', hint: 'Registration closes automatically after this.' },
+      { key: 'closed_message', label: 'Message when closed', type: 'textarea' },
+      { key: 'info', label: 'Key details', type: 'list', itemLabel: 'Detail', titleKey: 'label', fields: [
+        { key: 'label', label: 'Label', type: 'text' },
+        { key: 'value', label: 'Value', type: 'text' },
+      ] },
+      { key: 'steps_title', label: 'Steps — title', type: 'text' },
+      { key: 'steps', label: 'Steps', type: 'list', itemLabel: 'Step', titleKey: 'title', fields: titleDesc },
+      { key: 'faq_title', label: 'FAQ — title', type: 'text' },
+      { key: 'faq', label: 'FAQ', type: 'list', itemLabel: 'Question', titleKey: 'question', fields: qa, hint: 'Hidden when empty.' },
+      { key: 'judging_title', label: 'Judging — title', type: 'text', hint: 'Shows the judging criteria below (the same list the judges score with).' },
+      { key: 'judging_intro', label: 'Judging — intro', type: 'textarea', hint: '{total} becomes the total points, e.g. 100.' },
+      { key: 'rules_title', label: 'Rules — title', type: 'text' },
+      { key: 'rules', label: 'Rules', type: 'textarea', hint: 'Shown on the landing page and above the rules checkbox on the form. Hidden when empty.' },
+      { key: 'results_title', label: 'Results — title', type: 'text' },
+      { key: 'show_results', label: 'Show results publicly', type: 'boolean', hint: 'Team ranking and one-on-one winners on the landing page. Turn on after the event; judge names are never shown.' },
+      { key: 'cta_title', label: 'Closing call to action — title', type: 'text' },
+      { key: 'cta_text', label: 'Closing call to action — text', type: 'text' },
+      { key: 'form_title', label: 'Form — title', type: 'text' },
+      { key: 'form_intro', label: 'Form — intro', type: 'textarea' },
+      { key: 'side_label', label: 'Form — side question', type: 'text' },
+      { key: 'side_hint', label: 'Form — side question hint', type: 'text' },
+      { key: 'sides', label: 'Sides to choose from', type: 'strings', hint: "e.g. Affirmative, Opposition, Government, Parents. Leave empty to hide the question. Renaming a side doesn't change answers already given." },
+      { key: 'show_side_stats', label: 'Show what share of registrations picked each side', type: 'boolean', hint: 'e.g. "17% of registrations" under each side on the form. Rejected registrations are not counted.' },
+      { key: 'rules_label', label: 'Form — rules checkbox', type: 'text' },
+      { key: 'judging_criteria', label: 'Judging criteria', type: 'list', itemLabel: 'Criterion', titleKey: 'label', hint: "Used on the judges' score sheets. Renaming a criterion after judging has started drops the points already given for it.", fields: [
+        { key: 'label', label: 'Criterion', type: 'text' },
+        { key: 'max', label: 'Points', type: 'number' },
+      ] },
+      { key: 'reveal_teams', label: 'Show teams to debaters', type: 'boolean', hint: "Accepted debaters see their team, position and one-on-one opponent on their registration page." },
+      { key: 'success_title', label: 'After registering — title', type: 'text' },
+      { key: 'success_text', label: 'After registering — text', type: 'textarea' },
+      { key: 'email_approved_subject', label: 'Accepted email — subject', type: 'text', hint: 'Sent by "Send decision emails" in Registrations. {event} becomes the Name above.' },
+      { key: 'email_approved_body', label: 'Accepted email — message', type: 'textarea', hint: '{name} becomes the debater\'s first name, {event} the Name above. A "View my registration" button is added below.' },
+      { key: 'email_waitlisted_subject', label: 'Waitlisted email — subject', type: 'text' },
+      { key: 'email_waitlisted_body', label: 'Waitlisted email — message', type: 'textarea' },
+      { key: 'email_rejected_subject', label: 'Rejected email — subject', type: 'text' },
+      { key: 'email_rejected_body', label: 'Rejected email — message', type: 'textarea' },
+    ],
+  },
+} satisfies Record<string, Section<any>>;
+
+export type SectionKey = keyof typeof SECTIONS;
+export type ContentMap = { [K in SectionKey]: (typeof SECTIONS)[K]['defaults'] };
+export const SECTION_LIST: Section[] = Object.values(SECTIONS) as Section[];

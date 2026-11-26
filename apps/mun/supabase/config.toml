@@ -1,0 +1,2 @@
+# Live project ref (used by `supabase link --project-ref` / `functions deploy`)
+project_id = "ylqgyxibakupzxbvwgvf"

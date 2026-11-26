@@ -1,0 +1,845 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
+import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
+import { getCurrentSeason, inSeason } from '@/lib/season';
+import type { FormSettings, FormQuestion } from '@/hooks/useFormSettings';
+import { useToast } from '@/hooks/use-toast';
+import {
+  ToggleLeft, ToggleRight, Calendar, Users, DollarSign,
+  Plus, Trash2, Loader2, Save, ClipboardList,
+  AlertCircle, CheckCircle2, Clock, RefreshCw, ChevronDown, ChevronUp,
+  Eye, X, ChevronLeft, ChevronRight, EyeOff, Lock,
+} from 'lucide-react';
+import DynamicFormStep from '@/components/registration/DynamicFormStep';
+
+// Convert a stored ISO timestamp to a local YYYY-MM-DD for <input type="date">
+const toDateInput = (iso?: string | null) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+// Applications OPEN at the start of the chosen day (local 00:00)
+const toOpenISO = (date: string) => (date ? new Date(`${date}T00:00:00`).toISOString() : null);
+// Deadline is INCLUSIVE — applications close at the END of the chosen day (local 23:59:59)
+const toDeadlineISO = (date: string) => (date ? new Date(`${date}T23:59:59`).toISOString() : null);
+import PersonalInfoStep from '@/components/registration/PersonalInfoStep';
+import PreferencesStep from '@/components/registration/PreferencesStep';
+import CommitteePreferencesStep from '@/components/registration/CommitteePreferencesStep';
+import EssayStep from '@/components/registration/EssayStep';
+import AdditionalInfoStep from '@/components/registration/AdditionalInfoStep';
+import RegistrationSteps from '@/components/registration/RegistrationSteps';
+import { confirmAction } from '@/components/admin/ConfirmDialog';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+const BLANK_FORM_DATA = {
+  fullName: '', dateOfBirth: '', gender: '', email: '', phone: '',
+  telegramUsername: '', institution: '', countryAndCity: '', grade: '',
+  munExperience: '', experience: '', previousMUNs: '',
+  delegationType: 'individual', participationType: 'in-person',
+  committee_preference1: '', committee_preference2: '', committee_preference3: '',
+  motivationEssay: '', issueInterest: '',
+  dietaryRestrictions: '', medicalConditions: '', emergencyContact: '',
+  emergencyPhone: '', feeAgreement: '', discountEligibility: [] as string[],
+  finalConfirmation: false, hasIELTS: 'no', hasSAT: 'no',
+  ieltsScore: '', satScore: '', agreeToTerms: false, photo: null as File | null,
+};
+
+// ── Custom Questions Live Editor Step ──────────────────────────────────────────
+const DEFAULT_STEP_COUNT = 4; // steps 1-4 are fully configurable; step 5 = fee/confirm
+
+const BLANK_FQ = (): FormQuestion => ({
+  id: Math.random().toString(36).slice(2, 10),
+  step: 1, order: 999,
+  name: `custom_${Math.random().toString(36).slice(2, 6)}`,
+  label: '', type: 'text',
+  placeholder: '', helpText: '',
+  required: false, visible: true, system: false,
+});
+
+const FQ_TYPE_LABELS: Record<string, string> = {
+  text: 'Short text', email: 'Email', tel: 'Phone', date: 'Date',
+  textarea: 'Long text', select: 'Dropdown', file: 'File upload',
+};
+
+const FormBuilderSection: React.FC<{
+  questions: FormQuestion[];
+  stepLabels: string[];
+  onUpdate: (qs: FormQuestion[]) => void;
+}> = ({ questions, stepLabels, onUpdate }) => {
+  const inputE = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-panel-500 focus:border-transparent bg-white';
+  const [openStep, setOpenStep] = useState<number | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<FormQuestion | null>(null);
+  const [optText, setOptText] = useState('');
+
+  const stepQuestions = (s: number) =>
+    questions.filter(q => q.step === s).sort((a, b) => a.order - b.order);
+
+  const startEdit = (q: FormQuestion) => {
+    setEditDraft({ ...q });
+    setOptText((q.options ?? []).join('\n'));
+    setEditId(q.id);
+  };
+
+  const startNew = (step: number) => {
+    const q = { ...BLANK_FQ(), step };
+    setEditDraft(q);
+    setOptText('');
+    setEditId(q.id);
+  };
+
+  const saveEdit = () => {
+    if (!editDraft || !editDraft.label.trim()) return;
+    const saved: FormQuestion = {
+      ...editDraft,
+      options: editDraft.type === 'select' ? optText.split('\n').map(s => s.trim()).filter(Boolean) : [],
+    };
+    const exists = questions.some(q => q.id === saved.id);
+    const next = exists
+      ? questions.map(q => q.id === saved.id ? saved : q)
+      : [...questions, saved];
+    onUpdate(next);
+    setEditId(null);
+    setEditDraft(null);
+  };
+
+  const cancelEdit = () => { setEditId(null); setEditDraft(null); };
+
+  const toggleVisible = (id: string) =>
+    onUpdate(questions.map(q => q.id === id ? { ...q, visible: !q.visible } : q));
+
+  const deleteQ = async (id: string) => {
+    if (!(await confirmAction('Delete this question?', { title: 'Delete question', danger: true }))) return;
+    onUpdate(questions.filter(q => q.id !== id));
+  };
+
+  const moveQ = (id: string, dir: -1 | 1) => {
+    const q = questions.find(x => x.id === id);
+    if (!q) return;
+    const stepQs = stepQuestions(q.step);
+    const idx = stepQs.findIndex(x => x.id === id);
+    const targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= stepQs.length) return;
+    const other = stepQs[targetIdx];
+    onUpdate(questions.map(x => {
+      if (x.id === id) return { ...x, order: other.order };
+      if (x.id === other.id) return { ...x, order: q.order };
+      return x;
+    }));
+  };
+
+  return (
+    <div className={`${inputCls.replace('w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-panel-500 focus:border-transparent', '')} bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden`}>
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+        <ClipboardList size={16} className="text-violet-600" />
+        <h3 className="font-semibold text-gray-900">Form Builder</h3>
+        <span className="ml-auto text-xs text-gray-400">{questions.filter(q => q.visible).length} visible fields across {DEFAULT_STEP_COUNT} steps</span>
+      </div>
+
+      {Array.from({ length: DEFAULT_STEP_COUNT }, (_, i) => i + 1).map(s => {
+        const sqs = stepQuestions(s);
+        const isOpen = openStep === s;
+        return (
+          <div key={s} className="border-b border-gray-100 last:border-0">
+            {/* Step header */}
+            <button
+              onClick={() => setOpenStep(isOpen ? null : s)}
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left"
+            >
+              <span className="w-6 h-6 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center flex-shrink-0">{s}</span>
+              <span className="font-medium text-gray-800 text-sm">{stepLabels[s - 1] ?? `Step ${s}`}</span>
+              <span className="ml-auto text-xs text-gray-400 mr-2">{sqs.length} question{sqs.length !== 1 ? 's' : ''}</span>
+              {isOpen ? <ChevronUp size={15} className="text-gray-400" /> : <ChevronDown size={15} className="text-gray-400" />}
+            </button>
+
+            {/* Step content */}
+            {isOpen && (
+              <div className="border-t border-gray-100">
+                {/* Question rows */}
+                {sqs.map((q, idx) => (
+                  <div key={q.id}>
+                    <div className={`flex items-center gap-2 px-5 py-3 ${!q.visible ? 'opacity-50' : 'hover:bg-gray-50'} transition-colors`}>
+                      {/* Reorder */}
+                      <div className="flex flex-col gap-0.5 flex-shrink-0">
+                        <button onClick={() => moveQ(q.id, -1)} disabled={idx === 0}
+                          className="text-gray-300 hover:text-gray-500 disabled:opacity-20 text-[10px] leading-none">▲</button>
+                        <button onClick={() => moveQ(q.id, 1)} disabled={idx === sqs.length - 1}
+                          className="text-gray-300 hover:text-gray-500 disabled:opacity-20 text-[10px] leading-none">▼</button>
+                      </div>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          {q.system && <span title="Built-in field" className="flex-shrink-0"><Lock size={11} className="text-gray-300" /></span>}
+                          <p className="text-sm font-medium text-gray-800 truncate">{q.label || <em className="text-gray-400">Untitled</em>}</p>
+                        </div>
+                        <p className="text-xs text-gray-400">
+                          {FQ_TYPE_LABELS[q.type] ?? q.type}
+                          {q.widget === 'committee_select' ? ' · Committee dropdown' : ''}
+                          {q.widget === 'photo_upload' ? ' · Photo upload' : ''}
+                          {q.required ? ' · Required' : ' · Optional'}
+                        </p>
+                      </div>
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button onClick={() => toggleVisible(q.id)}
+                          className={`p-1.5 rounded-lg transition-colors ${q.visible ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100' : 'text-orange-400 hover:bg-orange-50'}`}
+                          title={q.visible ? 'Hide field' : 'Show field'}>
+                          {q.visible ? <Eye size={14} /> : <EyeOff size={14} />}
+                        </button>
+                        <button onClick={() => editId === q.id ? cancelEdit() : startEdit(q)}
+                          className={`px-2.5 py-1 text-xs rounded-lg border transition-colors font-medium ${editId === q.id ? 'bg-violet-100 border-violet-300 text-violet-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
+                          {editId === q.id ? 'Cancel' : 'Edit'}
+                        </button>
+                        {!q.system && (
+                          <button onClick={() => deleteQ(q.id)}
+                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Inline editor */}
+                    {editId === q.id && editDraft && (
+                      <div className="px-5 pb-4 pt-2 bg-violet-50 border-t border-violet-100">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1">Label *</label>
+                            <input className={inputE} value={editDraft.label}
+                              onChange={e => setEditDraft(p => p ? { ...p, label: e.target.value } : p)} />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-1">Placeholder</label>
+                              <input className={inputE} value={editDraft.placeholder ?? ''}
+                                onChange={e => setEditDraft(p => p ? { ...p, placeholder: e.target.value } : p)} />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-1">Help text</label>
+                              <input className={inputE} value={editDraft.helpText ?? ''}
+                                onChange={e => setEditDraft(p => p ? { ...p, helpText: e.target.value } : p)} />
+                            </div>
+                          </div>
+                          {!q.system && (
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">Field type</label>
+                                <select className={inputE} value={editDraft.type}
+                                  onChange={e => setEditDraft(p => p ? { ...p, type: e.target.value as FormQuestion['type'] } : p)}>
+                                  {Object.entries(FQ_TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                                </select>
+                              </div>
+                              <div className="flex items-end pb-1">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                  <input type="checkbox" className="rounded" checked={editDraft.required}
+                                    onChange={e => setEditDraft(p => p ? { ...p, required: e.target.checked } : p)} />
+                                  Required
+                                </label>
+                              </div>
+                            </div>
+                          )}
+                          {editDraft.type === 'select' && !editDraft.widget && (
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-1">Dropdown options (one per line)</label>
+                              <textarea rows={4} className={`${inputE} resize-none font-mono text-xs`}
+                                placeholder={"Option A\nOption B\nOption C"}
+                                value={optText} onChange={e => setOptText(e.target.value)} />
+                            </div>
+                          )}
+                          <div className="flex gap-2 pt-1">
+                            <button onClick={saveEdit} disabled={!editDraft.label.trim()}
+                              className="px-3 py-1.5 bg-panel-600 text-white text-sm rounded-lg hover:bg-panel-700 disabled:opacity-50 font-medium">Save</button>
+                            <button onClick={cancelEdit}
+                              className="px-3 py-1.5 border border-gray-300 text-sm rounded-lg hover:bg-gray-50">Cancel</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* New question editor for this step */}
+                {editId !== null && !questions.some(q => q.id === editId) && editDraft?.step === s && editDraft && (
+                  <div className="px-5 py-4 bg-violet-50 border-t border-violet-100">
+                    <p className="text-xs font-bold text-violet-700 uppercase tracking-wide mb-3">New Question — Step {s}</p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">Label *</label>
+                        <input className={inputE} placeholder="e.g. LinkedIn Profile"
+                          value={editDraft.label}
+                          onChange={e => setEditDraft(p => p ? { ...p, label: e.target.value } : p)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">Placeholder</label>
+                          <input className={inputE} value={editDraft.placeholder ?? ''}
+                            onChange={e => setEditDraft(p => p ? { ...p, placeholder: e.target.value } : p)} />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">Help text</label>
+                          <input className={inputE} value={editDraft.helpText ?? ''}
+                            onChange={e => setEditDraft(p => p ? { ...p, helpText: e.target.value } : p)} />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">Field type</label>
+                          <select className={inputE} value={editDraft.type}
+                            onChange={e => setEditDraft(p => p ? { ...p, type: e.target.value as FormQuestion['type'] } : p)}>
+                            {Object.entries(FQ_TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                          </select>
+                        </div>
+                        <div className="flex items-end pb-1">
+                          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" className="rounded" checked={editDraft.required}
+                              onChange={e => setEditDraft(p => p ? { ...p, required: e.target.checked } : p)} />
+                            Required
+                          </label>
+                        </div>
+                      </div>
+                      {editDraft.type === 'select' && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">Options (one per line)</label>
+                          <textarea rows={4} className={`${inputE} resize-none font-mono text-xs`}
+                            placeholder={"Option A\nOption B\nOption C"}
+                            value={optText} onChange={e => setOptText(e.target.value)} />
+                        </div>
+                      )}
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={saveEdit} disabled={!editDraft.label.trim()}
+                          className="px-3 py-1.5 bg-panel-600 text-white text-sm rounded-lg hover:bg-panel-700 disabled:opacity-50 font-medium">Add Question</button>
+                        <button onClick={cancelEdit}
+                          className="px-3 py-1.5 border border-gray-300 text-sm rounded-lg hover:bg-gray-50">Cancel</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Add question button */}
+                {!(editId !== null && editDraft?.step === s && !questions.some(q => q.id === editId)) && (
+                  <div className="px-5 py-3 bg-gray-50 border-t border-gray-100">
+                    <button onClick={() => startNew(s)}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+                      <Plus size={13} /> Add question to Step {s}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ── Form Preview Modal ──────────────────────────────────────────────────────────
+const FormPreviewModal: React.FC<{
+  formType: 'delegate' | 'chair' | 'volunteer';
+  formQuestions: FormQuestion[];
+  stepLabels?: string[];
+  onClose: () => void;
+}> = ({ formType, formQuestions, stepLabels, onClose }) => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({ ...BLANK_FORM_DATA });
+
+  const SUBMIT_STEP = 5;
+  const totalSteps = SUBMIT_STEP;
+
+  const noop = () => {};
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      if (name === 'discountEligibility') {
+        setFormData(prev => ({
+          ...prev,
+          discountEligibility: checked
+            ? [...prev.discountEligibility.filter(i => i !== 'None'), value]
+            : prev.discountEligibility.filter(i => i !== value),
+        }));
+      } else {
+        setFormData(prev => ({ ...prev, [name]: checked }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const calculateFee = () => ({ originalFee: 90000, discount: 0, finalFee: 90000 });
+
+  const STEP_LABELS: Record<number, string> = {
+    1: 'Personal Info', 2: 'Preferences', 3: 'Committees',
+    4: 'Essay', 5: 'Submit',
+  };
+  const stepLabel = (s: number) => STEP_LABELS[s] ?? `Step ${s}`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-white">
+      {/* Preview header */}
+      <div className="flex items-center justify-between px-6 py-3 bg-amber-50 border-b border-amber-200 flex-shrink-0">
+        <div className="flex items-center gap-2 text-amber-800 text-sm font-semibold">
+          <Eye size={16} />
+          <span>
+            Preview — {formType === 'delegate' ? 'Delegate Registration' : formType === 'chair' ? 'Chair Application' : 'Volunteer Application'}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Step pills */}
+          <div className="hidden sm:flex items-center gap-1">
+            {Array.from({ length: totalSteps }, (_, i) => i + 1).map(s => (
+              <button
+                key={s}
+                onClick={() => setStep(s)}
+                title={stepLabel(s)}
+                className={`w-7 h-7 rounded-full text-xs font-bold transition-colors ${s === step ? 'bg-amber-700 text-white' : 'bg-white border border-amber-300 text-amber-700 hover:bg-amber-100'}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setStep(s => Math.max(1, s - 1))}
+              disabled={step === 1}
+              className="flex items-center gap-1 px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+            >
+              <ChevronLeft size={14} /> Prev
+            </button>
+            <span className="text-xs text-gray-500 font-medium sm:hidden">Step {step}/{totalSteps}</span>
+            <button
+              onClick={() => setStep(s => Math.min(totalSteps, s + 1))}
+              disabled={step === totalSteps}
+              className="flex items-center gap-1 px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+            >
+              Next <ChevronRight size={14} />
+            </button>
+          </div>
+          <button onClick={onClose} className="p-1.5 hover:bg-amber-100 rounded-lg text-amber-700 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Form content */}
+      <div className="flex-1 overflow-y-auto bg-gradient-to-b from-white to-panel-50">
+        <div className="container pt-8 pb-16">
+          <RegistrationSteps currentStep={Math.min(step, 5)} labels={stepLabels} />
+          <div className="max-w-3xl mx-auto mt-6">
+            {[1, 2, 3, 4].includes(step) && (() => {
+              const stepQs = formQuestions.filter(q => q.step === step).sort((a, b) => a.order - b.order);
+              const labels = stepLabels ?? ['Personal Info','Experience','Committees','Essays','Details'];
+              if (stepQs.length > 0) {
+                return (
+                  <DynamicFormStep
+                    step={step}
+                    stepTitle={`Page ${step} — ${labels[step - 1]}`}
+                    questions={stepQs}
+                    formData={formData}
+                    handleChange={handleChange}
+                    nextStep={noop}
+                    prevStep={noop}
+                    isFirst={step === 1}
+                  />
+                );
+              }
+              // Fallback if migration not yet run
+              if (step === 1) return <PersonalInfoStep formData={formData} handleChange={handleChange} nextStep={noop} />;
+              if (step === 2) return <PreferencesStep formData={formData} handleChange={handleChange} nextStep={noop} prevStep={noop} />;
+              if (step === 3) return <CommitteePreferencesStep formData={formData} handleChange={handleChange} nextStep={noop} prevStep={noop} />;
+              if (step === 4) return <EssayStep formData={formData} handleChange={handleChange} nextStep={noop} prevStep={noop} />;
+            })()}
+
+            {/* Last step — submit (always disabled in preview) */}
+            {step === SUBMIT_STEP && (
+              <div className="relative">
+                <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center">
+                  <div className="bg-amber-100 border border-amber-300 text-amber-800 px-6 py-4 rounded-xl text-center shadow-sm">
+                    <p className="font-semibold text-sm">Submit step — disabled in preview</p>
+                    <p className="text-xs mt-1 text-amber-600">Applications cannot be submitted from the admin panel</p>
+                  </div>
+                </div>
+                <AdditionalInfoStep
+                  formData={formData}
+                  handleChange={handleChange}
+                  calculateFee={calculateFee}
+                  handleSubmit={async () => {}}
+                  prevStep={noop}
+                  isSubmitting={false}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const inputCls = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-panel-500 focus:border-transparent';
+const labelCls = 'block text-xs font-semibold text-gray-600 mb-1';
+const sectionCls = 'bg-white rounded-xl border border-gray-200 shadow-sm p-5';
+
+// ── Component ──────────────────────────────────────────────────────────────────
+const FormSettingsPage = () => {
+  const { toast } = useToast();
+  const [tab, setTab] = useState<'delegate' | 'chair' | 'volunteer'>('delegate');
+  const [settings, setSettings] = useState<Record<string, FormSettings>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [approvedCounts, setApprovedCounts] = useState<Record<string, number>>({});
+  // Local draft for the active tab
+  const [draft, setDraft] = useState<FormSettings | null>(null);
+  // Custom-question being edited
+  // Form preview overlay
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const season = await getCurrentSeason();
+      const [{ data: rows }, { count: delegateCount }, { count: chairCount }, { count: volunteerCount }] = await Promise.all([
+        supabase.from('form_settings').select('*'),
+        inSeason(supabase.from('applications')
+          .select('id', { count: 'exact', head: true }), season)
+          .eq('status', 'approved')
+          .neq('application_type', 'chair'),
+        inSeason(supabase.from('applications')
+          .select('id', { count: 'exact', head: true }), season)
+          .eq('status', 'approved')
+          .eq('application_type', 'chair'),
+        inSeason(supabase.from('volunteer_applications')
+          .select('id', { count: 'exact', head: true }), season)
+          .eq('status', 'approved'),
+      ]);
+
+      const map: Record<string, FormSettings> = {};
+      (rows as unknown as FormSettings[] || []).forEach(r => { map[r.form_type] = r; }); // JSON columns typed by hand
+      setSettings(map);
+      setApprovedCounts({
+        delegate: delegateCount ?? 0,
+        chair: chairCount ?? 0,
+        volunteer: volunteerCount ?? 0,
+      });
+    } catch (e: any) {
+      toast({ title: 'Error loading settings', description: e.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  // Sync draft when tab changes
+  useEffect(() => {
+    setDraft(settings[tab] ? { ...settings[tab] } : null);
+  }, [tab, settings]);
+
+  const set = (field: keyof FormSettings, value: any) =>
+    setDraft(prev => prev ? { ...prev, [field]: value } : prev);
+
+  const dirty = !!draft && !!settings[tab] && JSON.stringify(draft) !== JSON.stringify(settings[tab]);
+  useUnsavedChanges(dirty);
+
+  const switchTab = async (t: typeof tab) => {
+    if (t === tab) return;
+    if (dirty && !(await confirmAction(`You have unsaved changes to the ${tab} form. Discard them?`, { title: 'Unsaved changes', confirmLabel: 'Discard changes', danger: true }))) return;
+    setTab(t);
+  };
+
+  // ── Save ───────────────────────────────────────────────────────────────────
+  const handleSave = async () => {
+    if (!draft) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase.from('form_settings')
+        .update({
+          is_open: draft.is_open,
+          closed_message: draft.closed_message,
+          opens_at: draft.opens_at || null,
+          deadline: draft.deadline || null,
+          max_capacity: draft.max_capacity || null,
+          fee_amount: Number(draft.fee_amount),
+          ielts_discount: Number(draft.ielts_discount),
+          sat_discount: Number(draft.sat_discount),
+          returning_discount: Number(draft.returning_discount) || 0,
+          step_labels: draft.step_labels,
+          form_questions: (draft.form_questions ?? []) as unknown as Json,
+        })
+        .eq('form_type', tab);
+      if (error) throw error;
+
+      setSettings(prev => ({ ...prev, [tab]: draft }));
+      toast({ title: 'Settings saved' });
+    } catch (e: any) {
+      toast({ title: 'Save failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const approvedCount = approvedCounts[tab] ?? 0;
+  const isEffectivelyClosed = !draft?.is_open ||
+    (!!draft?.deadline && new Date(draft.deadline) < new Date()) ||
+    (draft?.max_capacity != null && approvedCount >= draft.max_capacity);
+
+  const feePreview = (ielts: boolean, sat: boolean) => {
+    if (!draft) return 0;
+    const discount = (ielts ? draft.ielts_discount : 0) + (sat ? draft.sat_discount : 0);
+    return Math.max(0, draft.fee_amount - discount);
+  };
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <AdminLayout title="Forms">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-panel-500" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <>
+      {previewOpen && (
+        <FormPreviewModal
+          formType={tab}
+          formQuestions={draft?.form_questions ?? []}
+          stepLabels={draft?.step_labels}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
+    <AdminLayout title="Forms">
+      <div className="space-y-6 max-w-4xl">
+
+        {/* Tabs */}
+        <div className="flex gap-2">
+          {(['delegate', 'chair', 'volunteer'] as const).map(t => (
+            <button key={t} onClick={() => switchTab(t)}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${tab === t ? 'bg-panel-600 text-white shadow' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
+              {t === 'delegate' ? 'Delegate Registration' : t === 'chair' ? 'Chair Application' : 'Volunteer Application'}
+            </button>
+          ))}
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setPreviewOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+            >
+              <Eye size={15} /> Preview Form
+            </button>
+            <button onClick={loadAll} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg" title="Refresh">
+              <RefreshCw size={16} />
+            </button>
+          </div>
+        </div>
+
+        {!draft ? (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-yellow-800 text-sm flex items-center gap-3">
+            <AlertCircle size={18} /> Settings row not found. Run migration 011 in Supabase SQL editor first.
+          </div>
+        ) : (
+          <>
+            {/* ── Open / Close ── */}
+            <div className={sectionCls}>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-semibold text-gray-900">Form Status</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">Controls whether applicants can submit this form</p>
+                </div>
+                {/* Big toggle */}
+                <button onClick={() => set('is_open', !draft.is_open)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm ${draft.is_open ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}>
+                  {draft.is_open
+                    ? <><ToggleRight size={20} /> Open — accepting applications</>
+                    : <><ToggleLeft size={20} /> Closed — not accepting applications</>}
+                </button>
+              </div>
+
+              {/* Status summary */}
+              <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${isEffectivelyClosed ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                {isEffectivelyClosed ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
+                <span className="font-medium">{isEffectivelyClosed ? 'Effectively closed' : 'Accepting applications'}</span>
+                {draft.max_capacity && (
+                  <span className="ml-auto text-xs text-gray-500">{approvedCount} / {draft.max_capacity} spots filled</span>
+                )}
+              </div>
+
+              {/* Closed message */}
+              <div className="mt-4">
+                <label className={labelCls}>Message shown to visitors when closed</label>
+                <textarea rows={2} className={`${inputCls} resize-none`}
+                  value={draft.closed_message}
+                  onChange={e => set('closed_message', e.target.value)} />
+              </div>
+            </div>
+
+            {/* ── Open / Close dates & Capacity ── */}
+            <div className={sectionCls}>
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Calendar size={16} className="text-panel-600" /> Open / Close Dates &amp; Capacity
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Applications open date <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input type="date" className={inputCls}
+                    value={toDateInput((draft as any).opens_at)}
+                    onChange={e => set('opens_at' as any, toOpenISO(e.target.value))} />
+                  <p className="text-[11px] text-gray-400 mt-1">Opens at the start of this day. Public shows an "opens in" countdown until then.</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Application deadline <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <input type="date" className={inputCls}
+                    value={toDateInput(draft.deadline)}
+                    onChange={e => set('deadline', toDeadlineISO(e.target.value))} />
+                  <p className="text-[11px] text-gray-400 mt-1">Inclusive — applications stay open through this whole day, then auto-close.</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Max capacity <span className="text-gray-400 font-normal">(optional)</span></label>
+                  <div className="relative">
+                    <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="number" min="1" className={`${inputCls} pl-9`} placeholder="Unlimited"
+                      value={draft.max_capacity ?? ''}
+                      onChange={e => set('max_capacity', e.target.value ? Number(e.target.value) : null)} />
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {approvedCount} approved so far.
+                    {draft.max_capacity ? ` ${Math.max(0, draft.max_capacity - approvedCount)} spots remaining.` : ''}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Fee Configuration (delegate only) ── */}
+            {tab === 'delegate' && (
+              <div className={sectionCls}>
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <DollarSign size={16} className="text-emerald-600" /> Fee Configuration
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+                  <div>
+                    <label className={labelCls}>Base Fee (UZS)</label>
+                    <input type="number" min="0" className={inputCls}
+                      value={draft.fee_amount}
+                      onChange={e => set('fee_amount', Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>IELTS Discount (UZS)</label>
+                    <input type="number" min="0" className={inputCls}
+                      value={draft.ielts_discount}
+                      onChange={e => set('ielts_discount', Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>SAT Discount (UZS)</label>
+                    <input type="number" min="0" className={inputCls}
+                      value={draft.sat_discount}
+                      onChange={e => set('sat_discount', Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Returning Delegate Discount (UZS)</label>
+                    <input type="number" min="0" className={inputCls}
+                      value={draft.returning_discount ?? 0}
+                      onChange={e => set('returning_discount', Number(e.target.value))} />
+                    <p className="mt-1 text-[11px] text-gray-400">For accounts that were a delegate in an earlier season. Checked automatically.</p>
+                  </div>
+                </div>
+
+                {/* Price preview */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Price Preview</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: 'No discount',    ielts: false, sat: false },
+                      { label: 'With IELTS',     ielts: true,  sat: false },
+                      { label: 'With SAT',       ielts: false, sat: true  },
+                      { label: 'IELTS + SAT',    ielts: true,  sat: true  },
+                    ].map(c => (
+                      <div key={c.label} className="text-center bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                        <p className="text-[11px] text-gray-400 mb-1">{c.label}</p>
+                        <p className="text-lg font-bold text-gray-900">{feePreview(c.ielts, c.sat).toLocaleString()}</p>
+                        <p className="text-[10px] text-gray-400">UZS</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Volunteer deposit (volunteer only) ── */}
+            {tab === 'volunteer' && (
+              <div className={sectionCls}>
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <DollarSign size={16} className="text-emerald-600" /> Participation Fee
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Shown on the volunteer form intro and on the commitment question. Covers food, certificates and other event materials.
+                </p>
+                <div className="max-w-xs">
+                  <label className={labelCls}>Participation Fee Amount (UZS)</label>
+                  <input
+                    type="number" min="0" className={inputCls}
+                    value={draft.fee_amount}
+                    onChange={e => set('fee_amount', Number(e.target.value))}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* ── Step Labels ── */}
+            <div className={sectionCls}>
+              <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                <ClipboardList size={16} className="text-violet-600" /> Step Labels
+              </h3>
+              <p className="text-xs text-gray-400 mb-4">
+                Rename the 5 steps shown in the form progress bar. Changes are reflected immediately in the preview.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                {(draft.step_labels ?? ['Personal Info','Experience','Committees','Essays','Details']).map((label, idx) => (
+                  <div key={idx}>
+                    <label className={labelCls}>Step {idx + 1}</label>
+                    <input
+                      type="text"
+                      className={inputCls}
+                      value={label}
+                      placeholder={['Personal Info','Experience','Committees','Essays','Details'][idx]}
+                      onChange={e => {
+                        const updated = [...(draft.step_labels ?? ['Personal Info','Experience','Committees','Essays','Details'])];
+                        updated[idx] = e.target.value;
+                        set('step_labels', updated);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Form Builder ── */}
+            <FormBuilderSection
+              questions={draft.form_questions ?? []}
+              onUpdate={qs => set('form_questions', qs)}
+              stepLabels={draft.step_labels ?? ['Personal Info','Experience','Committees','Essays','Details']}
+            />
+
+            {/* ── Footer save ── */}
+            <div className="flex justify-end pb-8">
+              <button onClick={handleSave} disabled={saving}
+                className="flex items-center gap-2 px-6 py-2.5 bg-panel-600 text-white rounded-xl font-semibold hover:bg-panel-700 disabled:opacity-50 shadow transition-colors">
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                Save Changes
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </AdminLayout>
+    </>
+  );
+};
+
+export default FormSettingsPage;

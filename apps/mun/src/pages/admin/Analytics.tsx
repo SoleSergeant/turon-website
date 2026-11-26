@@ -1,0 +1,448 @@
+import React, { useEffect, useState } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
+import { supabase } from '@/integrations/supabase/client';
+import { getCurrentSeason, inSeason } from '@/lib/season';
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Globe,
+  School,
+  MapPin,
+  Award,
+  Loader2,
+  DollarSign,
+  Calendar,
+  Merge
+} from 'lucide-react';
+import MergeDemographicsModal, { Bucket, Alias } from '@/components/admin/MergeDemographicsModal';
+
+// Existing region normalization, extracted verbatim so it can run before the
+// admin alias map is applied. Turns "Fergana, Uzbekistan" → "Fergana", etc.
+const normalizeRegion = (rawCountry: string): string => {
+  let country = (rawCountry || 'Unknown').trim();
+  const lowerCountry = country.toLowerCase();
+  const cities = ['fergana', 'andijan', 'namangan', 'kokand', 'tashkent', 'samarkand', 'bukhara', 'khiva', 'nukus', 'navoi', 'jizzakh', 'gulistan', 'termez'];
+  if (lowerCountry.includes('uzbekistan') || cities.some(city => lowerCountry.includes(city))) {
+    if (lowerCountry.includes('uzbekistan')) {
+      const parts = country.split(/[,\s]+/).filter(p => p.toLowerCase() !== 'uzbekistan' && p.length > 0);
+      country = parts.length > 0 ? parts[0] : 'Uzbekistan';
+    }
+  }
+  return country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+};
+
+// Follows the admin alias map to a final canonical label, guarding against
+// cycles, so chained merges (A→B, B→C) resolve A all the way to C.
+const resolveAlias = (map: Map<string, string>, value: string): string => {
+  let cur = value.trim();
+  const seen = new Set<string>();
+  while (true) {
+    const key = cur.toLowerCase();
+    if (seen.has(key)) break;
+    seen.add(key);
+    const next = map.get(key);
+    if (!next || next.trim().toLowerCase() === key) break;
+    cur = next.trim();
+  }
+  return cur;
+};
+
+interface AnalyticsData {
+  totalRegistrations: number;
+  schoolsCount: number;
+  countriesCount: number;
+  acceptanceRate: number;
+  committeeDistribution: { name: string; delegates: number; percentage: number }[];
+  statusDistribution: { status: string; count: number; color: string }[];
+  paymentDistribution: { status: string; count: number; color: string }[];
+  topSchools: { name: string; count: number }[];
+  topCountries: { name: string; count: number }[];
+  allRegionBuckets: Bucket[];
+  allSchoolBuckets: Bucket[];
+  registrationsByDay: { date: string; count: number }[];
+  totalRevenue: number;
+  avgPayment: number;
+}
+
+const Analytics = () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<AnalyticsData>({
+    totalRegistrations: 0,
+    schoolsCount: 0,
+    countriesCount: 0,
+    acceptanceRate: 0,
+    committeeDistribution: [],
+    statusDistribution: [],
+    paymentDistribution: [],
+    topSchools: [],
+    topCountries: [],
+    allRegionBuckets: [],
+    allSchoolBuckets: [],
+    registrationsByDay: [],
+    totalRevenue: 0,
+    avgPayment: 0
+  });
+  const [aliases, setAliases] = useState<Alias[]>([]);
+  const [mergeField, setMergeField] = useState<'region' | 'school' | null>(null);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      // Fetch all applications
+      const season = await getCurrentSeason();
+      const { data: applications, error } = await inSeason(supabase
+        .from('applications')
+        .select('id, institution, country, status, payment_status, payment_amount, assigned_committee_id, created_at'), season);
+
+      if (error) throw error;
+
+      // Fetch committees for mapping
+      const { data: committees } = await supabase
+        .from('committees')
+        .select('id, name');
+
+      // Fetch country assignments
+      const { data: assignments } = await supabase
+        .from('country_assignments')
+        .select('application_id, committee_id');
+
+      // Fetch admin-defined merge aliases (collapse "Fergana"/"Farg'ona"/…)
+      const { data: aliasRows } = await supabase
+        .from('demographic_aliases')
+        .select('id, field, raw_value, canonical_value');
+      const aliasList = (aliasRows as Alias[]) || [];
+      setAliases(aliasList);
+
+      // Build case-insensitive lookup maps per field.
+      const regionAliasMap = new Map<string, string>();
+      const schoolAliasMap = new Map<string, string>();
+      aliasList.forEach(a => {
+        (a.field === 'region' ? regionAliasMap : schoolAliasMap)
+          .set(a.raw_value.trim().toLowerCase(), a.canonical_value);
+      });
+
+      if (!applications || applications.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const apps = applications as any[];
+      const total = apps.length;
+
+      // ── Unique schools & regions (normalize → then apply admin aliases) ──
+      const schoolMap: Record<string, number> = {};
+      const countryMap: Record<string, number> = {};
+      apps.forEach(a => {
+        const schoolBucket = ((a.institution || 'Unknown').trim()) || 'Unknown';
+        const school = resolveAlias(schoolAliasMap, schoolBucket);
+
+        const regionBucket = normalizeRegion(a.country || 'Unknown');
+        const country = resolveAlias(regionAliasMap, regionBucket);
+
+        schoolMap[school] = (schoolMap[school] || 0) + 1;
+        countryMap[country] = (countryMap[country] || 0) + 1;
+      });
+
+      const schoolsCount = Object.keys(schoolMap).length;
+      const countriesCount = Object.keys(countryMap).length;
+
+      const allRegionBuckets = Object.entries(countryMap)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+      const allSchoolBuckets = Object.entries(schoolMap)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+
+      const topSchools = allSchoolBuckets.slice(0, 8);
+      const topCountries = allRegionBuckets.slice(0, 8);
+
+      // ── Acceptance rate ──
+      const approved = apps.filter(a => a.status === 'approved').length;
+      const acceptanceRate = total > 0 ? Math.round((approved / total) * 100) : 0;
+
+      // ── Status Distribution ──
+      const statusCounts = apps.reduce((acc, app) => {
+        const status = app.status || 'pending';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const statusDistribution = [
+        { status: 'Approved', count: statusCounts['approved'] || 0, color: 'bg-green-500' },
+        { status: 'Pending', count: statusCounts['pending'] || 0, color: 'bg-yellow-500' },
+        { status: 'Waitlisted', count: statusCounts['waitlisted'] || 0, color: 'bg-panel-500' },
+        { status: 'Rejected', count: statusCounts['rejected'] || 0, color: 'bg-red-500' }
+      ];
+
+      // ── Payment Distribution ──
+      const paymentCounts = apps.reduce((acc, app) => {
+        const status = app.payment_status || 'pending';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const paymentDistribution = [
+        { status: 'Paid', count: paymentCounts['paid'] || 0, color: 'bg-green-500' },
+        { status: 'Pending', count: paymentCounts['pending'] || 0, color: 'bg-yellow-500' },
+        { status: 'Overdue', count: paymentCounts['overdue'] || 0, color: 'bg-red-500' }
+      ];
+
+      // ── Revenue ──
+      const totalRevenue = apps.reduce((sum, a) => sum + (a.payment_amount || 0), 0);
+      const paidApps = apps.filter(a => a.payment_amount && a.payment_amount > 0);
+      const avgPayment = paidApps.length > 0 ? Math.round(totalRevenue / paidApps.length) : 0;
+
+      // ── Committee Distribution (from country_assignments) ──
+      const committeeMap = new Map(committees?.map(c => [c.id, c.name]));
+      const committeeCounts: Record<string, number> = {};
+
+      // Count based on ACTUAL assignments, not just assigned_committee_id
+      if (assignments && assignments.length > 0) {
+        assignments.forEach(a => {
+          const name = committeeMap.get(a.committee_id) || 'Unknown';
+          committeeCounts[name] = (committeeCounts[name] || 0) + 1;
+        });
+      }
+
+      // Count unassigned
+      const assignedIds = new Set(assignments?.map(a => a.application_id) || []);
+      const unassigned = apps.filter(a => !assignedIds.has(a.id)).length;
+      if (unassigned > 0) {
+        committeeCounts['Unassigned'] = unassigned;
+      }
+
+      const committeeDistribution = Object.entries(committeeCounts)
+        .map(([name, count]) => ({
+          name,
+          delegates: count,
+          percentage: total > 0 ? Math.round((count / total) * 100) : 0
+        }))
+        .sort((a, b) => b.delegates - a.delegates);
+
+      // ── Registrations by day (last 14 days) ──
+      const dayMap: Record<string, number> = {};
+      const now = new Date();
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        dayMap[d.toISOString().split('T')[0]] = 0;
+      }
+      apps.forEach(a => {
+        if (a.created_at) {
+          const day = new Date(a.created_at).toISOString().split('T')[0];
+          if (day in dayMap) {
+            dayMap[day]++;
+          }
+        }
+      });
+      const registrationsByDay = Object.entries(dayMap).map(([date, count]) => ({ date, count }));
+
+      setData({
+        totalRegistrations: total,
+        schoolsCount,
+        countriesCount,
+        acceptanceRate,
+        committeeDistribution,
+        statusDistribution,
+        paymentDistribution,
+        topSchools,
+        topCountries,
+        allRegionBuckets,
+        allSchoolBuckets,
+        registrationsByDay,
+        totalRevenue,
+        avgPayment
+      });
+
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  if (loading) {
+    return (
+      <AdminLayout title="Analytics">
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="h-8 w-8 animate-spin text-panel-600" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout title="Analytics">
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <p className="text-gray-600">Real-time registration trends and insights</p>
+        </div>
+
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Registrations</p>
+                <p className="text-2xl font-semibold text-gray-900">{data.totalRegistrations}</p>
+                <p className="text-xs text-panel-600">Live data</p>
+              </div>
+              <Users className="h-8 w-8 text-panel-500" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Schools Participating</p>
+                <p className="text-2xl font-semibold text-gray-900">{data.schoolsCount}</p>
+                <p className="text-xs text-green-600">Unique institutions</p>
+              </div>
+              <School className="h-8 w-8 text-green-500" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Geographic Reach</p>
+                <p className="text-2xl font-semibold text-gray-900">{data.countriesCount}</p>
+                <p className="text-xs text-purple-600">Regional diversity</p>
+              </div>
+              <Globe className="h-8 w-8 text-purple-500" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Acceptance Rate</p>
+                <p className="text-2xl font-semibold text-gray-900">{data.acceptanceRate}%</p>
+                <p className="text-xs text-orange-600">{data.statusDistribution.find(s => s.status === 'Approved')?.count || 0} approved</p>
+              </div>
+              <Award className="h-8 w-8 text-orange-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Committees + locations */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Committee Distribution */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Committee Assignments</h3>
+              <Globe className="h-5 w-5 text-panel-500" />
+            </div>
+            <div className="space-y-3">
+              {data.committeeDistribution.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No committee assignments yet.</p>
+              ) : (
+                data.committeeDistribution.map((committee, idx) => {
+                  const colors = ['bg-panel-500', 'bg-panel-500', 'bg-purple-500', 'bg-teal-500', 'bg-emerald-500', 'bg-gray-400'];
+                  const barColor = committee.name === 'Unassigned' ? 'bg-gray-400' : colors[idx % colors.length];
+                  return (
+                    <div key={committee.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">{committee.name}</span>
+                        <span className="text-sm font-semibold text-gray-900">{committee.delegates} <span className="text-gray-400 font-normal text-xs">({committee.percentage}%)</span></span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2.5">
+                        <div className={`${barColor} h-2.5 rounded-full transition-all`} style={{ width: `${committee.percentage}%` }} />
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Top Locations */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Top Locations</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setMergeField('region')}
+                  className="flex items-center gap-1 text-xs font-medium text-purple-600 hover:text-purple-800 border border-purple-200 hover:border-purple-300 rounded-md px-2 py-1 transition-colors"
+                  title="Merge duplicate region names"
+                >
+                  <Merge size={13} /> Merge
+                </button>
+                <MapPin className="h-5 w-5 text-purple-500" />
+              </div>
+            </div>
+            {data.topCountries.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">No data yet</p>
+            ) : (
+              <div className="space-y-2">
+                {data.topCountries.map((item, idx) => (
+                  <div key={item.name} className="flex items-center justify-between py-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-gray-400 w-5">{idx + 1}</span>
+                      <span className="text-sm text-gray-800">{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${(item.count / data.topCountries[0].count) * 100}%` }} />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700 w-8 text-right">{item.count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Top Schools */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Top Schools</h3>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setMergeField('school')}
+                className="flex items-center gap-1 text-xs font-medium text-green-600 hover:text-green-800 border border-green-200 hover:border-green-300 rounded-md px-2 py-1 transition-colors"
+                title="Merge duplicate school names"
+              >
+                <Merge size={13} /> Merge
+              </button>
+              <School className="h-5 w-5 text-green-500" />
+            </div>
+          </div>
+          {data.topSchools.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No data yet</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              {data.topSchools.map((item, idx) => (
+                <div key={item.name} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-gray-400 w-5">{idx + 1}</span>
+                    <span className="text-sm text-gray-800 truncate max-w-[250px]">{item.name}</span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                    <Users className="h-3 w-3 text-gray-400" /> {item.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {mergeField && (
+        <MergeDemographicsModal
+          field={mergeField}
+          buckets={mergeField === 'region' ? data.allRegionBuckets : data.allSchoolBuckets}
+          aliases={aliases.filter(a => a.field === mergeField)}
+          onClose={() => setMergeField(null)}
+          onChanged={fetchAnalytics}
+        />
+      )}
+    </AdminLayout>
+  );
+};
+
+export default Analytics;

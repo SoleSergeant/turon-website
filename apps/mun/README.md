@@ -1,0 +1,34 @@
+# TuronMUN
+
+The website of TuronMUN, a student-run Model United Nations conference in Fergana, Uzbekistan: www.turonmun.com.
+
+One React app serves four sites, chosen by subdomain (`src/hooks/use-subdomain.ts`):
+
+| Address | What |
+|---|---|
+| www.turonmun.com | Public site, delegate sign-up and dashboard |
+| admin.turonmun.com | Admin panel (SG, Academics, Logistics, judges) |
+| chair.turonmun.com | Chair dashboard and live sessions |
+| debat.turonmun.com (also /debat) | Turon Debate — see `docs/TURON_DEBATE.md` |
+
+**Stack:** Vite, React, TypeScript, Tailwind, Supabase (database, auth, storage, the `send-email` function), hosted on Vercel.
+
+## Develop
+
+```sh
+npm ci
+npm run dev        # http://localhost:8080
+npm run build      # type-checks, then builds to dist/
+```
+
+`.env` needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`).
+
+## Deploy
+
+Pushing to `main` deploys to Vercel.
+
+## Database
+
+Migrations live in `supabase/migrations/`, numbered in order. Run new ones in the Supabase SQL editor (project `ylqgyxibakupzxbvwgvf`) **before** pushing code that needs them. Each one is safe to re-run. Admin setup and email: `docs/ADMIN_PANEL_SETUP.md`.
+
+Most site text is edited in Admin → Site content, not in code (`src/content/sections.ts` holds the defaults).

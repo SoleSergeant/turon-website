@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /chair-dashboard
+Disallow: /chair-login
+Disallow: /auth/
+Disallow: /reset-password
+Disallow: /reset-password-change
+Disallow: /debat/register
+
+Sitemap: https://www.turonmun.com/sitemap.xml
