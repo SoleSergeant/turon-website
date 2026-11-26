@@ -88,7 +88,8 @@ img{max-width:100%;display:block}
 /* laptops: a small half-wheel on the left edge */
 html.wheel{--dial-d:clamp(270px,46vh,360px);--dial-w:calc(var(--dial-d) / 2 + 30px);--dial-v:0px;overflow:hidden}
 @supports (height:100svh){html.wheel{--dial-d:clamp(270px,46svh,360px)}}
-.wheel body{overflow:hidden;background:var(--navy-900)}
+/* html.wheel already stops page scrolling; body must stay overflow:visible or it clips the phone menu (body is only 68px tall here) */
+.wheel body{overflow:visible;background:var(--navy-900)}
 .wheel .dial{display:block;position:fixed;z-index:30;left:0;top:var(--hh);bottom:0;width:var(--dial-w);background:var(--navy-900);overflow:hidden}
 .dial-disc{position:absolute;left:calc(var(--dial-d) / -2);top:50%;width:var(--dial-d);height:var(--dial-d);margin-top:calc(var(--dial-d) / -2);border-radius:50%;background:radial-gradient(circle at 75% 50%,#2E3A94 0%,#1C2560 72%);border:2px solid var(--navy-line);box-shadow:0 0 0 8px rgba(62,74,154,.18);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
 .dial-disc::after{content:"";position:absolute;left:50%;top:50%;width:18%;height:18%;transform:translate(-50%,-50%);border-radius:50%;background:var(--navy-900);border:2px solid var(--navy-line)}
