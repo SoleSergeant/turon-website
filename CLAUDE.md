@@ -29,6 +29,8 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
   `git subtree pull --prefix apps/mun https://github.com/SoleSergeant/turonmun.git main`
   Keep the turon.one changes listed below when resolving conflicts.
 - turon.one changes inside `apps/mun`: `src/lib/domains.ts` (URLs from `VITE_*` env, turonmun.com defaults); `use-subdomain.ts` (sticky `?subdomain=` for test URLs); navbar/email/debate links use `domains.ts`; `scripts/debate-meta.mjs` reads the env; migrations `000_base_tables.sql` and `063_turon_one_alignment.sql`.
+- **Season 8 = the ninth conference** (Seasons 1–7 plus TuronMUN x CAMU). It's set as the current season in `turon-one` (`066_season_8.sql`) and in the app defaults (`sections.ts`). The homepage card text lives in the `site_content` table (Admin → Site content), and that overrides the code defaults.
+- **Hub content:** past milestones only (founding 28 Jun 2024, MyMUN 2024 awards, rename to TuronMUN 12 May 2025, MyMUN 2025 3rd place, Turon Debate Nov 2026). No future plans: Vibe Turon is off the hub until the user decides (see the decision chat).
 - **Supabase:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt, free. Schema 000 → 062 (006 skipped) + 063, checked against the live schema. No data yet. The disabled function `run-migrations-once` can be deleted.
 - `designs/` holds the archived design explorations. Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173.
 
