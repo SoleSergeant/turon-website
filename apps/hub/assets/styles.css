@@ -76,28 +76,52 @@ img{max-width:100%;display:block}
   .no-js .nav-links{order:3;width:100%;overflow-x:auto}
 }
 
-/* ---------- screens: one section = one screen, snap between them ---------- */
+/* ---------- screens ----------
+   Without JS (or on very short windows) the screens are a normal scrolling page.
+   With JS, html.wheel shows one screen at a time next to the dial (option B). */
 .screen{padding:var(--sy) 0;display:flex;flex-direction:column;justify-content:center}
 .screen>.wrap{width:100%}
 .screen+.screen:not(.dark){border-top:1px solid #E4E6F2}
-/* Snap only when JS is on (header height is known) and the window is tall enough to hold a screen */
-@media (min-height:520px){
-  html.js{scroll-snap-type:y mandatory}
-  .js .screen{min-height:var(--screen);scroll-snap-align:start}
-  .js .site-footer{scroll-snap-align:end}
-}
 
-/* section dots (desktop) */
-.dots{display:none}
-@media (min-width:1000px) and (min-height:520px){
-  .js .dots{display:flex;flex-direction:column;gap:2px;position:fixed;right:6px;top:50%;transform:translateY(-50%);z-index:40}
+/* ---------- the dial ---------- */
+.dial{display:none}
+/* laptops: a small half-wheel on the left edge */
+html.wheel{--dial-d:clamp(270px,46vh,360px);--dial-w:calc(var(--dial-d) / 2 + 30px);--dial-v:0px;overflow:hidden}
+@supports (height:100svh){html.wheel{--dial-d:clamp(270px,46svh,360px)}}
+.wheel body{overflow:hidden;background:var(--navy-900)}
+.wheel .dial{display:block;position:fixed;z-index:30;left:0;top:var(--hh);bottom:0;width:var(--dial-w);background:var(--navy-900);overflow:hidden}
+.dial-disc{position:absolute;left:calc(var(--dial-d) / -2);top:50%;width:var(--dial-d);height:var(--dial-d);margin-top:calc(var(--dial-d) / -2);border-radius:50%;background:radial-gradient(circle at 75% 50%,#2E3A94 0%,#1C2560 72%);border:2px solid var(--navy-line);box-shadow:0 0 0 8px rgba(62,74,154,.18);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
+.dial-disc::after{content:"";position:absolute;left:50%;top:50%;width:18%;height:18%;transform:translate(-50%,-50%);border-radius:50%;background:var(--navy-900);border:2px solid var(--navy-line)}
+.dial a{--r:calc(var(--dial-d) * .12);position:absolute;left:50%;top:50%;display:flex;align-items:center;min-height:32px;padding:0 6px;white-space:nowrap;text-decoration:none;font:600 13px/1 var(--text);color:var(--on-navy);border-radius:8px;transform-origin:0 50%;transform:translateY(-50%) rotate(calc(var(--i) * 45deg)) translateX(var(--r));transition:color .3s}
+.dial a:hover{color:#fff}
+.dial a[aria-current="true"]{color:var(--gold);font-weight:700}
+.dial a:nth-child(1){--i:0}.dial a:nth-child(2){--i:1}.dial a:nth-child(3){--i:2}.dial a:nth-child(4){--i:3}
+.dial a:nth-child(5){--i:4}.dial a:nth-child(6){--i:5}.dial a:nth-child(7){--i:6}.dial a:nth-child(8){--i:7}
+.dial-pointer{position:absolute;left:calc(var(--dial-d) / 2 + 9px);top:50%;margin-top:-9px;border:9px solid transparent;border-left:13px solid var(--gold);border-right:0}
+
+/* the stage: the active screen fills everything right of / above the dial */
+html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
+@supports (height:100svh){html.wheel{--screen:calc(100svh - var(--hh) - var(--dial-v))}}
+.wheel .screen{position:fixed;top:var(--hh);left:var(--dial-w);right:0;bottom:var(--dial-v);margin:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:var(--bg);border:0;
+  opacity:0;visibility:hidden;transform:translateY(28px);transition:opacity .4s,transform .55s cubic-bezier(.3,.7,.2,1),visibility 0s .55s}
+.wheel .screen.dark{background:radial-gradient(120% 90% at 85% 0%,#33409A 0%,var(--navy) 38%,var(--navy-900) 100%)}
+.wheel .site-footer.screen{background:var(--navy-900);padding:var(--sy) 0}
+.wheel[data-dir="back"] .screen{transform:translateY(-28px)}
+.wheel .screen.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .45s .12s,transform .6s .12s cubic-bezier(.3,.7,.2,1),visibility 0s}
+.wheel .screen:focus{outline:none}
+.wheel .site-footer .footer-inner{align-items:center}
+@media (prefers-reduced-motion:reduce){.dial-disc,.wheel .screen,.wheel .screen.is-active{transition:none}}
+.nav-links a[aria-current="true"]{color:#fff;background:rgba(255,255,255,.1)}
+
+/* phones & tablets: a low arc along the bottom instead */
+@media (max-width:999px){
+  html.wheel{--dial-d:250px;--dial-v:66px;--dial-w:0px}
+  .wheel .dial{top:auto;right:0;width:auto;height:var(--dial-v);border-top:1px solid var(--navy-line)}
+  .dial-disc{left:50%;top:10px;margin:0 0 0 calc(var(--dial-d) / -2)}
+  .dial-disc::after{display:none}
+  .dial a{--r:calc(var(--dial-d) / 2 - 20px);min-height:28px;font-size:12.5px;transform-origin:50% 50%;transform:translate(-50%,-50%) rotate(calc(var(--i) * 45deg)) translateY(calc(var(--r) * -1))}
+  .dial-pointer{left:50%;top:0;margin:0 0 0 -7px;border:7px solid transparent;border-top:9px solid var(--gold);border-bottom:0}
 }
-.dots a{position:relative;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;text-decoration:none}
-.dots a::before{content:"";width:10px;height:10px;border-radius:50%;background:rgba(40,52,128,.35);box-shadow:0 0 0 2px rgba(255,255,255,.85);transition:transform .15s,background .15s}
-.dots a:hover::before{background:var(--navy)}
-.dots a[aria-current="true"]::before{background:var(--gold);transform:scale(1.35)}
-.dot-label{position:absolute;right:36px;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--navy-900);color:#fff;font-size:13px;font-weight:600;padding:5px 10px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .15s}
-.dots a:hover .dot-label,.dots a:focus-visible .dot-label{opacity:1}
 
 /* ---------- hero (dark) ---------- */
 .dark{background:radial-gradient(120% 90% at 85% 0%,#33409A 0%,var(--navy) 38%,var(--navy-900) 100%);color:#fff}
@@ -218,9 +242,9 @@ img{max-width:100%;display:block}
 @media (max-width:999px){
   /* hero: text on top, the photo fills whatever height is left */
   .hero{display:flex;flex-direction:column;align-items:stretch;gap:clamp(18px,3vh,28px)}
-  .js .hero-screen{height:var(--screen);min-height:0}
-  .js .hero-screen .hero{height:100%}
-  .hero-photo{aspect-ratio:auto;flex:1 1 0;min-height:0;max-height:none;border-radius:22px}
+  .hero-photo{aspect-ratio:16/10;max-height:360px;border-radius:22px}
+  .wheel .hero{flex:1 1 auto;min-height:0}
+  .wheel .hero-photo{aspect-ratio:auto;flex:1 1 0;min-height:0;max-height:none}
   .about{grid-template-columns:1fr}
   .photos{min-height:clamp(220px,34vh,360px)}
 }
@@ -257,8 +281,35 @@ img{max-width:100%;display:block}
   .faq summary{font-size:16px;min-height:54px}
 }
 /* very short phones: drop the hero photo rather than push the buttons off screen */
-@media (max-width:999px) and (max-height:600px){
-  .hero-photo{display:none}
+@media (max-width:999px) and (max-height:560px){
+  .wheel .hero-photo{display:none}
+}
+
+
+/* narrow laptops: give the About story more width */
+@media (min-width:1000px) and (max-width:1299px){
+  .about{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+}
+/* short phones (dial at the bottom): tighten so each stop still fits */
+@media (max-width:767px) and (max-height:700px){
+  html.wheel{--sy:14px}
+  .section-head h2,.split h2{font-size:26px}
+  .impact .stat{padding:12px 10px 12px 0;gap:6px}
+  .impact dd{font-size:34px}
+  .impact dt{font-size:14px}
+  .numbers .wrap{gap:14px}
+  .awards{font-size:13px;gap:6px 8px}
+  .awards li{padding:4px 10px}
+  .project h3{font-size:21px}
+  .project-body{padding:16px 18px;gap:8px}
+  .project p{font-size:14.5px}
+  .story{padding:18px;gap:10px}
+  .story h2{font-size:21px}
+  .story p{font-size:14.5px}
+  .card{padding:18px;gap:8px}
+  .partners-title{margin-top:18px}
+  .section-head{margin-bottom:10px}
+  .section-head p,.lead{font-size:14.5px}
 }
 
 /* 404 */

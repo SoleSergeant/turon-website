@@ -26,8 +26,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="assets/styles.css?v=202611262200">
-<script src="assets/app.js?v=202611262200" defer></script>
+<link rel="stylesheet" href="assets/styles.css?v=202611271200">
+<script src="assets/app.js?v=202611271200" defer></script>
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="skip">Asosiy mazmunga oʻtish</a>
@@ -59,7 +59,7 @@
 
 <main id="main" tabindex="-1">
 
-<!-- Each <section class="screen"> fills exactly one screen; the page snaps from screen to screen. -->
+<!-- Each .screen (7 sections + the footer) is one stop on the dial: with JS, one is shown at a time. -->
 
 <!-- 1. Hero -->
 <section class="screen dark hero-screen" id="top" aria-labelledby="hero-title">
@@ -244,19 +244,23 @@
 
 </main>
 
-<!-- Section dots (desktop): jump between screens -->
-<nav class="dots" aria-label="Boʻlimlar" data-i18n-attr="aria-label:dotsLabel">
-  <a href="#top"><span class="dot-label" data-i18n="dotTop">Bosh sahifa</span></a>
-  <a href="#numbers"><span class="dot-label" data-i18n="impactTitle">Raqamlarda</span></a>
-  <a href="#projects"><span class="dot-label" data-i18n="navProjects">Loyihalar</span></a>
-  <a href="#milestones"><span class="dot-label" data-i18n="navMilestones">Bosqichlar</span></a>
-  <a href="#about"><span class="dot-label" data-i18n="navAbout">Biz haqimizda</span></a>
-  <a href="#join"><span class="dot-label" data-i18n="navJoin">Qoʻshilish</span></a>
-  <a href="#faq"><span class="dot-label" data-i18n="navFaq">Savollar</span></a>
+<!-- Section dial (option B): a small wheel that turns to the section on screen. Hidden without JS / on very short screens. -->
+<nav class="dial" aria-label="Boʻlimlar" data-i18n-attr="aria-label:dotsLabel">
+  <div class="dial-disc">
+    <a href="#top" data-i18n="dotTop">Bosh sahifa</a>
+    <a href="#numbers" data-i18n="impactTitle">Raqamlarda</a>
+    <a href="#projects" data-i18n="navProjects">Loyihalar</a>
+    <a href="#milestones" data-i18n="navMilestones">Bosqichlar</a>
+    <a href="#about" data-i18n="navAbout">Biz haqimizda</a>
+    <a href="#join" data-i18n="navJoin">Qoʻshilish</a>
+    <a href="#faq" data-i18n="navFaq">Savollar</a>
+    <a href="#contact" data-i18n="dotContact">Aloqa</a>
+  </div>
+  <span class="dial-pointer" aria-hidden="true"></span>
 </nav>
 
 <!-- 8. Footer -->
-<footer class="site-footer" id="contact">
+<footer class="site-footer screen" id="contact">
   <div class="wrap footer-inner">
     <div class="footer-brand">
       <strong>turon<span class="gold">.</span></strong>

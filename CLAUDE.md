@@ -95,15 +95,17 @@ Hub + subdomains:
 - Hub (turonmun.com for now; a new domain later — turon.uz is taken): Home, About, Projects, Calendar, Get involved, Contact.
 - Project sites on subdomains: `mun.` (or the existing turonmun.com), `debat.`, `vibe.` — all share ONE template: hero (name, date, register) → what it is → format & schedule → who can join → what you get → past editions/photos → FAQ → register. Each shows a small `turon.` mark linking back to the hub (no "a Turon initiative" text). Reuse `assets/styles.css`: same navy shell, swap the accent.
 
-## Homepage section order (current) — one screen per section
-The hub is a "screens" page: each `<section class="screen">` is exactly one screen tall (`--screen` = 100svh minus the 68px header) and the page snaps screen to screen (CSS scroll-snap, `html.js`, only when the window is ≥520px tall). Desktop has side dots (`.dots`); on phones, wide rows (projects, timeline, cards, partners) swipe sideways. `app.js` has a wheel fallback so one mouse-wheel notch always moves one screen. Hero/heading sizes use `min(vw, vh)` so short laptop screens shrink text instead of cutting it off. **When you add content, re-check that each screen still fits** (1366×633, 360×640, both languages).
-1. Hero (navy, `#top`): title, subtitle, Join / See projects, real TuronMUN photo
-2. Numbers (navy, `#numbers`): 700+ · 8 · 15+ · 3; MyMUN award chips
-3. Projects (`#projects`): TuronMUN · Turon Debate · Vibe Turon
+## Homepage section order (current) — the section dial ("option B")
+With JS and a window ≥520px tall, `html.wheel` is on: the page doesn't scroll. One `.screen` is shown at a time, next to a small dial (`nav.dial`) that turns 45° per section and loops (after Contact comes Home). On laptops the dial is a half-wheel on the left edge (`--dial-d`, `--dial-w`); under 1000px wide it's a low arc along the bottom (`--dial-v`). Wheel/trackpad (one step per gesture), arrow keys/PageUp/PageDown/Home/End, vertical swipes, the dial labels, the header links and any `#id` link turn the dial. Inactive screens are `inert`, and the URL hash follows the section (deep links like `/#faq` work). Without JS, or on very short windows, it's a normal scrolling page. Logic: the "Section dial" block in `app.js`; styles: "the dial" / "the stage" in `styles.css`.
+**When you add content, re-check that every stop still fits** (no inner scrolling) at 1366×633, 1024×768, 390×664 and 360×640, in both languages.
+1. Home (navy, `#top`): title, subtitle, Join / See projects, real TuronMUN photo
+2. In numbers (navy, `#numbers`): 700+ · 8 · 15+ · 3; MyMUN award chips
+3. Projects (`#projects`): TuronMUN · Turon Debate · Vibe Turon (a sideways swipe row on phones)
 4. Milestones (`#milestones`): horizontal timeline, 5 past milestones
-5. Why Turon (`#about`): story + 3 photos (1 photo on tall phones, none on short ones)
+5. Why Turon (`#about`): story + 3 photos (1 on tall phones, none on short ones)
 6. Get involved + Hosts & partners (`#join`)
-7. FAQ (`#faq`), then the footer
+7. FAQ (`#faq`)
+8. Contact (the footer, `#contact`)
 
 ## Brand rules
 - Navy **#283480** is the base across the whole ecosystem; each project gets ONE accent.

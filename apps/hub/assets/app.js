@@ -1,4 +1,4 @@
-/* Turon hub — language switch, mobile menu and section dots.
+/* Turon hub — language switch, mobile menu and the section dial.
    Security: translations are applied with textContent only (no innerHTML),
    and the stored/URL language value is checked against an allow-list. */
 (function () {
@@ -9,7 +9,7 @@
   var LANGS = ['uz', 'en'];
   var EN = {
     skip: 'Skip to content', navLabel: 'Main menu', menu: 'Menu',
-    dotsLabel: 'Sections', dotTop: 'Home',
+    dotsLabel: 'Sections', dotTop: 'Home', dotContact: 'Contact',
     navProjects: 'Projects', navMilestones: 'Milestones', navAbout: 'About', navJoin: 'Get involved', navFaq: 'FAQ',
     ctaJoin: 'Join Turon', ctaJoinShort: 'Join Turon', ctaProjects: 'See projects',
     eyebrow: 'Fergana · Uzbekistan · student-led',
@@ -125,50 +125,141 @@ m4: 'Best Medium Conference: 3rd place',
     if (e.key === 'Escape' && links.classList.contains('open')) { closeMenu(); btn.focus(); }
   });
   window.addEventListener('resize', function () { if (window.innerWidth >= 920) closeMenu(); });
-  // Section dots: mark the screen currently in view
-  var dots = document.querySelectorAll('.dots a');
-  if (dots.length && 'IntersectionObserver' in window) {
-    var byId = {};
-    dots.forEach(function (d) { byId[d.getAttribute('href').slice(1)] = d; });
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        dots.forEach(function (d) { d.removeAttribute('aria-current'); });
-        var d = byId[en.target.id];
-        if (d) d.setAttribute('aria-current', 'true');
-      });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    Object.keys(byId).forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) io.observe(el);
-    });
+  // ---------- Section dial (option B) ----------
+  // One screen at a time; the dial turns 45° per section and loops (after Contact comes Home).
+  // Off without JS or on windows under 520px tall: then the page is a normal scrolling page.
+  var wheelMq = window.matchMedia ? window.matchMedia('(min-height:520px)') : null;
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var disc = document.querySelector('.dial-disc');
+  var N = panels.length, STEP = 360 / N;
+  var cur = 0, turns = 0, on = false;
+  var currentLinks = document.querySelectorAll('.dial a, .nav-links a');
+
+  function panelIndexFor(id) {
+    var el = id && document.getElementById(id);
+    var p = el && el.closest('.screen');
+    return p ? panels.indexOf(p) : -1;
   }
-  // Wheel fallback: if a small wheel step snapped back to the same screen,
-  // move one screen in that direction. Does nothing when the browser already moved.
-  var snapMq = window.matchMedia ? window.matchMedia('(min-height:520px)') : null;
-  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen, .site-footer'));
-  // Chrome scrolls before the wheel event fires, so remember where the page last came to rest.
-  var restY = window.scrollY, restTimer = null, wheelDir = 0, wheelTimer = null, wheeling = false;
-  window.addEventListener('scroll', function () {
-    clearTimeout(restTimer);
-    restTimer = setTimeout(function () { if (!wheeling) restY = window.scrollY; }, 150);
-  }, { passive: true });
+  function canScroll(p, dir) {
+    return dir > 0 ? p.scrollTop + p.clientHeight < p.scrollHeight - 8 : p.scrollTop > 8;
+  }
+  function paint() {
+    panels.forEach(function (p, i) {
+      var active = i === cur;
+      p.classList.toggle('is-active', active);
+      p.inert = !active;
+    });
+    var id = '#' + panels[cur].id;
+    currentLinks.forEach(function (a) {
+      if (a.getAttribute('href') === id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    disc.style.transform = 'rotate(' + (-turns * STEP) + 'deg)';
+  }
+  function go(i, opts) {
+    i = ((i % N) + N) % N;
+    if (!on) return;
+    var d = ((i - cur) % N + N) % N;
+    if (d > N / 2) d -= N;           // turn the short way round
+    if (d === 0 && !(opts && opts.force)) return;
+    turns += d;
+    root.setAttribute('data-dir', d < 0 ? 'back' : 'fwd');
+    cur = i;
+    panels[cur].scrollTop = 0;
+    paint();
+    if (opts && opts.focus) panels[cur].focus({ preventScroll: true });
+    try {
+      var u = new URL(window.location.href);
+      u.hash = cur === 0 ? '' : panels[cur].id;
+      history.replaceState(null, '', u);
+    } catch (e) {}
+  }
+  function enable() {
+    if (on || !disc) return;
+    on = true;
+    root.classList.add('wheel');
+    panels.forEach(function (p) { p.setAttribute('tabindex', '-1'); });
+    var start = panelIndexFor(window.location.hash.slice(1));
+    cur = start < 0 ? 0 : start; turns = cur;
+    disc.style.transition = 'none';
+    paint();
+    void disc.offsetWidth; disc.style.transition = '';
+    window.scrollTo(0, 0);
+  }
+  function disable() {
+    if (!on) return;
+    on = false;
+    root.classList.remove('wheel');
+    panels.forEach(function (p) { p.inert = false; p.classList.remove('is-active'); p.removeAttribute('tabindex'); });
+    panels[cur].scrollIntoView();
+  }
+
+  // Mouse wheel / trackpad: one step per gesture. If the screen itself has more to scroll, scroll it first.
+  var acc = 0, blocked = false, lastEvt = 0, lastSwitch = 0;
   window.addEventListener('wheel', function (e) {
-    if (!snapMq || !snapMq.matches || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
-    wheeling = true; wheelDir = e.deltaY > 0 ? 1 : -1;
-    clearTimeout(wheelTimer);
-    wheelTimer = setTimeout(function () {
-      wheeling = false;
-      var y = window.scrollY, moved = Math.abs(y - restY) > 2;
-      restY = y;
-      if (moved) return;
-      var hh = 68, target = null;
-      for (var i = 0; i < screens.length; i++) {
-        var top = screens[i].getBoundingClientRect().top + y - hh;
-        if (wheelDir > 0 && top > y + 4) { target = screens[i]; break; }
-        if (wheelDir < 0 && top < y - 4) target = screens[i];
-      }
-      if (target) target.scrollIntoView({ block: target.classList.contains('site-footer') ? 'end' : 'start' });
-    }, 450);
+    if (!on || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
+    var now = Date.now(), dir = e.deltaY > 0 ? 1 : -1, gap = now - lastEvt;
+    lastEvt = now;
+    if (blocked) { if (gap > 180 && now - lastSwitch > 550) blocked = false; else return; }
+    if (canScroll(panels[cur], dir)) { acc = 0; return; }
+    if (gap > 250) acc = 0;
+    acc += e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY;
+    if (Math.abs(acc) >= 40) { acc = 0; blocked = true; lastSwitch = now; go(cur + dir); }
   }, { passive: true });
+
+  // Keyboard
+  document.addEventListener('keydown', function (e) {
+    if (!on || e.altKey || e.ctrlKey || e.metaKey) return;
+    var t = e.target, tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    var dir = 0;
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') dir = 1;
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') dir = -1;
+    else if (e.key === ' ' && !(t && t.closest && t.closest('a,button,summary'))) dir = e.shiftKey ? -1 : 1;
+    else if (e.key === 'Home') { e.preventDefault(); go(0); return; }
+    else if (e.key === 'End') { e.preventDefault(); go(N - 1); return; }
+    if (!dir || canScroll(panels[cur], dir)) return;
+    e.preventDefault(); go(cur + dir);
+  });
+
+  // Touch: swipe up/down (sideways swipes belong to the card rows)
+  var tx = 0, ty = 0, tEdge = null;
+  document.addEventListener('touchstart', function (e) {
+    if (!on || e.touches.length !== 1) return;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+    var p = panels[cur];
+    tEdge = { down: !canScroll(p, 1), up: !canScroll(p, -1) };
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (!on || !tEdge) return;
+    var dx = tx - e.changedTouches[0].clientX, dy = ty - e.changedTouches[0].clientY, edge = tEdge;
+    tEdge = null;
+    if (Math.abs(dy) < 50 || Math.abs(dy) < Math.abs(dx) * 1.3) return;
+    if (dy > 0 && edge.down) go(cur + 1);
+    else if (dy < 0 && edge.up) go(cur - 1);
+  }, { passive: true });
+
+  // In-page links (#projects, #join-partner, dial labels…) turn the dial instead of scrolling
+  document.addEventListener('click', function (e) {
+    if (!on || e.defaultPrevented || e.button !== 0) return;
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    var i = panelIndexFor(id);
+    if (i < 0) return;
+    e.preventDefault();
+    go(i, { focus: true });
+    var target = document.getElementById(id);
+    if (target && target !== panels[i]) target.scrollIntoView({ block: 'nearest' });
+  });
+  window.addEventListener('hashchange', function () {
+    var i = panelIndexFor(window.location.hash.slice(1));
+    if (i >= 0) go(i);
+  });
+
+  function sync() { if (wheelMq && wheelMq.matches) enable(); else disable(); }
+  if (wheelMq) {
+    if (wheelMq.addEventListener) wheelMq.addEventListener('change', sync); else wheelMq.addListener(sync);
+  }
+  sync();
 })();
