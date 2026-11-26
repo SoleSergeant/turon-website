@@ -31,6 +31,12 @@ Monorepo, one Vercel project per app, all deployed from this repo:
 - `designs/` holds the archived design explorations.
 - Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173. MUN app: `cd apps/mun && npm ci && npm run dev`.
 
+## Verified 2026-11-26 (test URLs)
+- Hub: https://turon-website-roan.vercel.app has CSP/HSTS/noindex headers; `/go/debat` returns 307 to the MUN app.
+- MUN: https://turon-mun.vercel.app (home), `/debat` (Debate, with its own link-preview tags), `?subdomain=admin` (admin login). It reads from the `turon-one` database.
+- Vercel Analytics isn't enabled on `turon-mun`, so `/_vercel/insights/script.js` returns 404 (harmless console error). Enable it in Vercel → turon-mun → Analytics.
+- Both Vercel projects use "only build affected projects", so a push rebuilds only the app that changed.
+
 ## Going live on turon.one (checklist)
 1. Buy turon.one (ideally in Vercel, so DNS is automatic).
 2. Add domains in Vercel: `turon.one` + `www.turon.one` → hub; `mun.`, `debat.`, `admin.` and `chair.turon.one` → `turon-mun`.
