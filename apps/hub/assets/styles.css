@@ -120,9 +120,23 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
   .wheel .dial{top:auto;right:0;width:auto;height:var(--dial-v);border-top:1px solid var(--navy-line)}
   .dial-disc{left:50%;top:10px;margin:0 0 0 calc(var(--dial-d) / -2)}
   .dial-disc::after{display:none}
-  .dial a{--r:calc(var(--dial-d) / 2 - 20px);min-height:28px;font-size:12.5px;transform-origin:50% 50%;transform:translate(-50%,-50%) rotate(calc(var(--i) * 45deg)) translateY(calc(var(--r) * -1))}
+  .dial a{--r:calc(var(--dial-d) / 2 - 27px);min-height:28px;font-size:12.5px;transform-origin:50% 50%;transform:translate(-50%,-50%) rotate(calc(var(--i) * 45deg)) translateY(calc(var(--r) * -1))}
   .dial-pointer{left:50%;top:0;margin:0 0 0 -7px;border:7px solid transparent;border-top:9px solid var(--gold);border-bottom:0}
+  /* option A: only the current name is shown; the other names hide (the ☰ menu and ‹ › cover them) */
+  .dial a{visibility:hidden;font-size:14px}
+  .dial a[aria-current="true"]{visibility:visible}
+  /* 8 tick marks near the rim, one per section, turning with the wheel */
+  .dial-disc::before{content:"";position:absolute;inset:5px;border-radius:50%;
+    background:repeating-conic-gradient(from -2.5deg,rgba(211,215,247,.55) 0deg 5deg,transparent 5deg 45deg);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 7px));
+            mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 7px))}
+  .wheel .dial-step{display:inline-flex}
 }
+.dial-step{display:none;position:absolute;top:50%;width:44px;height:44px;margin-top:-22px;align-items:center;justify-content:center;border:1.5px solid var(--navy-line);border-radius:50%;background:var(--navy-900);color:#fff;cursor:pointer;padding:0}
+.dial-step svg{width:20px;height:20px}
+.dial-step:hover{border-color:var(--gold);color:var(--gold)}
+.dial-prev{left:max(8px,calc(50% - var(--dial-d) / 2 - 52px))}
+.dial-next{right:max(8px,calc(50% - var(--dial-d) / 2 - 52px))}
 
 /* ---------- hero (dark) ---------- */
 .dark{background:radial-gradient(120% 90% at 85% 0%,#33409A 0%,var(--navy) 38%,var(--navy-900) 100%);color:#fff}

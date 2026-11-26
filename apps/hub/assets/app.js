@@ -11,6 +11,7 @@
     skip: 'Skip to content', navLabel: 'Main menu', menu: 'Menu',
     dotsLabel: 'Sections', dotTop: 'Home', dotContact: 'Contact',
     hintScroll: 'Scroll down', hintSwipe: 'Swipe up',
+    dialPrev: 'Previous section', dialNext: 'Next section',
     navProjects: 'Projects', navMilestones: 'Milestones', navAbout: 'About', navJoin: 'Get involved', navFaq: 'FAQ',
     ctaJoin: 'Join Turon', ctaJoinShort: 'Join Turon', ctaProjects: 'See projects',
     eyebrow: 'Fergana · Uzbekistan · student-led',
@@ -258,6 +259,12 @@ m4: 'Best Medium Conference: 3rd place',
     go(i, { focus: true });
     var target = document.getElementById(id);
     if (target && target !== panels[i]) target.scrollIntoView({ block: 'nearest' });
+  });
+  // Phone dial: ‹ › buttons
+  document.querySelectorAll('.dial-step').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      go(cur + (btn.classList.contains('dial-next') ? 1 : -1));
+    });
   });
   window.addEventListener('hashchange', function () {
     var i = panelIndexFor(window.location.hash.slice(1));
