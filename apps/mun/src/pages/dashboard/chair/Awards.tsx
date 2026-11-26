@@ -145,7 +145,7 @@ export default function ChairAwards() {
                 const options = dels.filter((d: any) => d.id === value || !takenByOthers.includes(d.id));
                 return (
                   <div key={def.key} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <span className={`w-40 shrink-0 text-sm font-bold ${def.color}`}>🏆 {def.label}</span>
+                    <span className={`w-40 shrink-0 text-sm font-bold ${def.color}`}>{def.label}</span>
                     <select
                       disabled={locked}
                       value={value}

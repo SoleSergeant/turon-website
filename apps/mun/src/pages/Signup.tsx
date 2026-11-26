@@ -131,7 +131,7 @@ const Signup = () => {
                 className="mt-8 p-6 bg-diplomatic-50 rounded-xl border border-diplomatic-200"
               >
                 <p className="text-sm text-diplomatic-700">
-                  <span className="font-semibold">🎓 Tip:</span> {fill(regText.signup_tip)}
+                  <span className="font-semibold">Tip:</span> {fill(regText.signup_tip)}
                 </p>
               </motion.div>
             </motion.div>

@@ -65,7 +65,7 @@ const ResetPasswordChange = () => {
         return;
       }
 
-      setSuccessMessage('✅ Password updated successfully! Redirecting to login...');
+      setSuccessMessage('Password updated. Taking you to sign in…');
       setFormData({ password: '', confirmPassword: '' });
 
       setTimeout(() => {
@@ -245,7 +245,7 @@ const ResetPasswordChange = () => {
             {/* Info Box */}
             <motion.div variants={itemVariants} className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-700">
-                <strong>💡 Tip:</strong> Use a strong password with a mix of uppercase, lowercase, numbers, and special characters for better security.
+                <strong>Tip:</strong> Use a strong password with a mix of uppercase, lowercase, numbers, and special characters for better security.
               </p>
             </motion.div>
           </motion.div>

@@ -30,8 +30,6 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Helper function to sign in as admin (simplified for demo)
-// Removed due to security risk. Admins should use standard login flows.
 
 // Helper function to check current auth state
 export const checkAuthState = async () => {

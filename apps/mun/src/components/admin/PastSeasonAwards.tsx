@@ -89,7 +89,7 @@ export default function PastSeasonAwards() {
               const winner = delegates.find(d => hasAward(d, award));
               return (
                 <label key={award} className="block">
-                  <span className="block text-xs font-bold uppercase tracking-wide text-amber-600 mb-1.5">🏆 {award}</span>
+                  <span className="block text-xs font-bold uppercase tracking-wide text-amber-600 mb-1.5">{award}</span>
                   <select
                     value={winner?.id ?? ''}
                     disabled={saving === key}

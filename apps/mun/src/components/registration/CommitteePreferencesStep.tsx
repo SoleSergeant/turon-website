@@ -154,7 +154,7 @@ const CommitteePreferencesStep: React.FC<CommitteePreferencesStepProps> = ({
 
         {/* Committee Information */}
         <div className="bg-diplomatic-50 border border-diplomatic-200 rounded-lg p-4">
-          <h4 className="font-semibold text-diplomatic-800 mb-2">💡 Committee Selection Tips</h4>
+          <h4 className="font-semibold text-diplomatic-800 mb-2">Choosing committees</h4>
           <ul className="text-sm text-diplomatic-700 space-y-1">
             <li>• Choose committees that align with your interests and expertise</li>
             <li>• Consider the topics and complexity level of each committee</li>

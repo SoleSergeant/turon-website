@@ -25,7 +25,7 @@ const qa: Field[] = [
 // ── General ────────────────────────────────────────────────────────────
 const general = {
   site_name: 'TuronMUN',
-  season_label: 'Season 7',
+  season_label: 'Season 8',
   conference_date: '',
   logo_url: LOGO,
   contact_email: 'admin@turonmun.com',
@@ -34,7 +34,7 @@ const general = {
   telegram_url: 'https://t.me/TuronMUN',
   links_url: 'https://myurls.co/turonmunconference',
   sponsorship_url: 'http://t.me/ozodjonov_mh',
-  footer_about: 'Join us for an enriching diplomatic simulation that brings together students from around the world to discuss pressing global issues.',
+  footer_about: 'A student-run Model UN conference in Fergana, Uzbekistan, for school and university students.',
   footer_credits: 'Coded & created by Numonov Samandar & Asadbek Abdukhalilov',
   footer_credits_url: 'https://t.me/samandar_vibe',
 };
@@ -42,8 +42,8 @@ const general = {
 // ── Homepage ───────────────────────────────────────────────────────────
 const next_season = {
   badge_label: 'Next Season',
-  heading: 'Coming Soon',
-  subtitle: 'Details will be announced shortly.',
+  heading: 'Season 8',
+  subtitle: 'Our ninth conference. Dates and venue will be announced soon.',
   date_text: 'To be announced',
   duration_text: 'To be announced',
   location_text: 'Fergana, Uzbekistan',
@@ -64,7 +64,7 @@ const hero = {
 };
 
 const home_about = {
-  headline: 'We are the only MUN from *Central Asia* that topped the *mymun charts* *back-to-back*',
+  headline: 'Three *1st places* at the MyMUN 2024 awards, and *3rd* for Best Medium Conference in 2025',
   paragraphs: [
     'Delegates represent a country in a committee, research its position, and spend the day debating, negotiating and writing resolutions. Committees run in English, with Uzbek and Russian committees in some seasons.',
     'You do not need MUN experience. Most of our delegates came to their first conference with us, and our chairs help newcomers find their feet.',
@@ -232,8 +232,8 @@ const registration = {
   badge_closed: '{season} — Applications Opening Soon',
   badge_open: '{season} — Applications Open',
   title: 'Apply for {season}',
-  intro_closed: "We're preparing the next chapter of TuronMUN. Applications for delegates and chairs will open shortly — follow us to be the first to know.",
-  intro_open: 'Choose your role below and begin your TuronMUN journey.',
+  intro_closed: 'Applications for delegates and chairs are not open yet. We announce the dates on Telegram and Instagram first.',
+  intro_open: 'Choose your role below.',
   delegate_description: 'Represent a country in one of our committees. Debate, draft resolutions, and practise diplomacy.',
   chair_description: 'Lead a committee as a chair. Shape the debate and guide delegates through the session.',
   observer_enabled: true,

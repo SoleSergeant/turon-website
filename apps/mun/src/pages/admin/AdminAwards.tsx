@@ -135,7 +135,7 @@ const AdminAwards = () => {
                     const a = awardFor(c.id, d.key);
                     return (
                       <div key={d.key} className="border border-gray-200 rounded-lg p-4">
-                        <p className="text-xs font-bold uppercase tracking-wide text-amber-600 mb-2">🏆 {d.label}</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-amber-600 mb-2">{d.label}</p>
                         {a ? (
                           <>
                             <div className="flex items-center gap-3 mb-3">

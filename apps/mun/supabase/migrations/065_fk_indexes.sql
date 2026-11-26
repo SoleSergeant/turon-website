@@ -1,0 +1,27 @@
+-- 065 (turon.one): covering indexes for foreign keys (Supabase performance advisor). Safe to re-run.
+CREATE INDEX IF NOT EXISTS idx_admin_users_committee_id ON public.admin_users (committee_id);
+CREATE INDEX IF NOT EXISTS idx_admin_users_checked_in_by ON public.admin_users (checked_in_by);
+CREATE INDEX IF NOT EXISTS idx_applications_assigned_committee_id ON public.applications (assigned_committee_id);
+CREATE INDEX IF NOT EXISTS idx_applications_reviewed_by ON public.applications (reviewed_by);
+CREATE INDEX IF NOT EXISTS idx_applications_checked_in_by ON public.applications (checked_in_by);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_responded_by ON public.contact_messages (responded_by);
+CREATE INDEX IF NOT EXISTS idx_resources_committee_id ON public.resources (committee_id);
+CREATE INDEX IF NOT EXISTS idx_committee_sessions_created_by ON public.committee_sessions (created_by);
+CREATE INDEX IF NOT EXISTS idx_speakers_list_application_id ON public.speakers_list (application_id);
+CREATE INDEX IF NOT EXISTS idx_votes_application_id ON public.votes (application_id);
+CREATE INDEX IF NOT EXISTS idx_matrix_countries_created_by ON public.matrix_countries (created_by);
+CREATE INDEX IF NOT EXISTS idx_attendance_application_id ON public.attendance (application_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_events_committee_id ON public.schedule_events (committee_id);
+CREATE INDEX IF NOT EXISTS idx_committee_announcements_sent_by ON public.committee_announcements (sent_by);
+CREATE INDEX IF NOT EXISTS idx_position_papers_reviewed_by ON public.position_papers (reviewed_by);
+CREATE INDEX IF NOT EXISTS idx_committee_awards_application_id ON public.committee_awards (application_id);
+CREATE INDEX IF NOT EXISTS idx_committee_awards_nominated_by ON public.committee_awards (nominated_by);
+CREATE INDEX IF NOT EXISTS idx_demographic_aliases_created_by ON public.demographic_aliases (created_by);
+CREATE INDEX IF NOT EXISTS idx_motions_proposed_by ON public.motions (proposed_by);
+CREATE INDEX IF NOT EXISTS idx_motions_seconded_by ON public.motions (seconded_by);
+CREATE INDEX IF NOT EXISTS idx_debate_pairings_a_id ON public.debate_pairings (a_id);
+CREATE INDEX IF NOT EXISTS idx_debate_pairings_b_id ON public.debate_pairings (b_id);
+CREATE INDEX IF NOT EXISTS idx_debate_scores_team_id ON public.debate_scores (team_id);
+CREATE INDEX IF NOT EXISTS idx_debate_pair_votes_pairing_id ON public.debate_pair_votes (pairing_id);
+CREATE INDEX IF NOT EXISTS idx_debate_pair_votes_winner_id ON public.debate_pair_votes (winner_id);
+CREATE INDEX IF NOT EXISTS idx_debate_registrations_checked_in_by ON public.debate_registrations (checked_in_by);

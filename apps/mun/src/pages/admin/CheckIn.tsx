@@ -292,7 +292,8 @@ const CheckIn = () => {
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input aria-label="Search people to check in"
+            <input
+ aria-label="Search people to check in"
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -370,7 +371,7 @@ const CheckIn = () => {
                   : 'bg-amber-700'
               }`}>
                 <span className="text-sm font-bold uppercase tracking-wider">
-                  🎫 Hand them their {selected.kind === 'chair' ? `${roleLabel(selected)} badge` : 'badge'}
+                  Hand them their {selected.kind === 'chair' ? `${roleLabel(selected)} badge` : 'badge'}
                 </span>
                 <button onClick={() => setSelected(null)} className="text-white/80 hover:text-white"><X className="h-5 w-5" /></button>
               </div>

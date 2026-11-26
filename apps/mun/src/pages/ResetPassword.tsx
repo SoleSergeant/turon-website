@@ -37,7 +37,7 @@ const ResetPassword = () => {
     const result = await resetPassword(email);
 
     if (result.success) {
-      setSuccessMessage('✅ Password reset link sent! Check your email for instructions.');
+      setSuccessMessage('Password reset link sent. Check your email.');
       setIsSubmitted(true);
       setEmail('');
       setTimeout(() => {
@@ -163,7 +163,7 @@ const ResetPassword = () => {
                   {/* Info Box */}
                   <div className="mt-6 p-4 bg-diplomatic-50 border border-diplomatic-200 rounded-lg">
                     <p className="text-sm text-diplomatic-700">
-                      <strong>💡 Tip:</strong> Check your spam folder if you don't see the email within a few minutes.
+                      <strong>Tip:</strong> Check your spam folder if you don't see the email within a few minutes.
                     </p>
                   </div>
                 </>
