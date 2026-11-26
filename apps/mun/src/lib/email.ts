@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { SITE_URL } from '@/lib/domains';
 
 /**
  * Admin-panel email. Sends through the send-email Edge Function
@@ -75,7 +76,6 @@ export const partialResult = (err: unknown): SendResult =>
 
 // ── Templates ──────────────────────────────────────────────────────────
 
-const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) || 'https://www.turonmun.com';
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

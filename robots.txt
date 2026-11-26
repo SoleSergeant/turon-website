@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /designs/
-
-Sitemap: https://turonmun.com/sitemap.xml

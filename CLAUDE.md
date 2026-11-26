@@ -1,15 +1,44 @@
 # Turon website — project brief for Claude Code
 
+> Ecosystem domain: **turon.one** (test now, production later). turonmun.com stays as is.
+
 ## What this is
 The website for **Turon**, a student-led ecosystem in Fergana, Uzbekistan.
 Tagline / page title: **"Turon — ecosystem for you(th)"** (the pun only works in English, so the title stays English on every language version; style "(th)" in the gold accent).
 Mission: bring quality opportunities to regional youth so they don't have to leave the region to find them.
 
-## Current state (2026-11-26, v2)
-- `index.html` + `assets/styles.css` + `assets/app.js` — **the hub homepage**. Static, no build step. Uzbek is the default; English comes from the UZ/EN switch.
-- `404.html`, `robots.txt`, `sitemap.xml`, `.well-known/security.txt`, `vercel.json` (security headers), `assets/favicon.svg`.
-- `designs/midnight.html`, `designs/daylight.html` — archived explorations. Don't edit; don't link from the site (`robots.txt` disallows `/designs/`).
-- Local preview: `.claude/launch.json` runs `python -m http.server 5173`.
+## Current state (2026-11-26, v3: turon.one test)
+Monorepo, one Vercel project per app, all deployed from this repo:
+
+| Folder | Vercel project | Test URL (now) | Final URL |
+|---|---|---|---|
+| `apps/hub` | `turon-website` (root dir `apps/hub`) | https://turon-website-roan.vercel.app | https://turon.one |
+| `apps/mun` | `turon-mun` (root dir `apps/mun`) | https://turon-mun.vercel.app | mun. / debat. / admin. / chair.turon.one |
+
+- **turonmun.com stays live and untouched.** It deploys from the separate `SoleSergeant/turonmun` repo with its own Supabase (`ylqgyxibakupzxbvwgvf`). Never point turon.one code at that database.
+- `apps/mun` is a **git subtree** of `SoleSergeant/turonmun` at `f6bd6c3` (TuronMUN + Turon Debate + admin + chair in one React/Vite app, chosen by hostname). Pull upstream changes with:
+  `git subtree pull --prefix apps/mun https://github.com/SoleSergeant/turonmun.git main`
+- Changes made in `apps/mun` for turon.one (keep them when pulling):
+  - `src/lib/domains.ts`: all public URLs come from `VITE_SITE_URL`, `VITE_ADMIN_URL`, `VITE_CHAIR_URL`, `VITE_DEBATE_URL` and `VITE_HUB_URL`. The defaults are the turonmun.com URLs.
+  - `use-subdomain.ts`: `?subdomain=admin|chair|debate` is remembered per tab (sessionStorage), and `?subdomain=none` clears it. This lets the vercel.app test URL act as every subdomain.
+  - `middleware.js` + `vercel.json`: the debat host rule also matches `debat.turon.one`.
+  - `scripts/debate-meta.mjs`: link-preview URLs come from the env vars.
+  - `supabase/migrations/000_base_tables.sql` (base tables that used to come from archive scripts) and `063_turon_one_alignment.sql`.
+- **Supabase for turon.one:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt (eu-central-1), free plan. The schema is 000 → 062 (006 skipped) + 063, and was checked against the live schema: same tables, triggers, storage buckets and functions; policies are as strict or stricter. It has no data and no accounts yet.
+  - A disabled one-off function `run-migrations-once` is left in Supabase; it returns 410. Delete it in Dashboard → Edge Functions.
+- Hub project links go through `/go/mun`, `/go/mun-apply`, `/go/debat` redirects in `apps/hub/vercel.json`. **When turon.one is live, change those three destinations** to `https://mun.turon.one/`, `https://mun.turon.one/register`, `https://debat.turon.one/`.
+- The hub sends `X-Robots-Tag: noindex` during the test. Remove it in `apps/hub/vercel.json` at launch.
+- `designs/` holds the archived design explorations.
+- Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173. MUN app: `cd apps/mun && npm ci && npm run dev`.
+
+## Going live on turon.one (checklist)
+1. Buy turon.one (ideally in Vercel, so DNS is automatic).
+2. Add domains in Vercel: `turon.one` + `www.turon.one` → hub; `mun.`, `debat.`, `admin.` and `chair.turon.one` → `turon-mun`.
+3. Set the `turon-mun` env vars to the turon.one URLs (see `src/lib/domains.ts`) and redeploy.
+4. Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**` (+ the vercel.app test URL while testing).
+5. Email: deploy `apps/mun/supabase/functions/send-email` and set `RESEND_API_KEY` / `EMAIL_FROM` secrets (verify turon.one in Resend). Until then, the app's own emails don't send; Supabase's built-in auth emails (confirm, reset) still work, rate-limited.
+6. First admin: sign up on the MUN site, then add that email to `admin_users` with role `sg` (Supabase SQL editor). See `apps/mun/docs/ADMIN_PANEL_SETUP.md`.
+7. Change the hub `/go/*` redirects, remove noindex, update canonical/sitemap if needed.
 
 ## Projects (as of now)
 - **TuronMUN**: live at https://www.turonmun.com (apply: `/register`). Season 8 is "coming soon" there.

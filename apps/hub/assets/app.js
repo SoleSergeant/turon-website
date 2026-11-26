@@ -25,7 +25,7 @@
     projectsTitle: 'Projects', projectsLead: 'One ecosystem, three doors. Each project has its own site.',
     munStatus: 'Season 8 · coming soon',
     munDesc: 'Where it all started. A student-run Model UN conference in Fergana: 8 conferences and 700+ delegates since July 2024. No experience needed.',
-    munApply: 'Apply →',
+    munApply: 'Apply →', debateGo: 'Register →',
     debateStatus: 'Running now',
     debateDesc: 'A debate session every 1–2 months. Real motions, a real audience — learn to back up your argument.',
     vibeStatus: 'Spring 2027',

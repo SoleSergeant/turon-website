@@ -8,9 +8,18 @@ export const useSubdomain = (): Subdomain => {
     
     // For local development, treat localhost as 'none' 
     // but allow forced subdomain via query param for testing
+    // ?subdomain=admin|chair|debate is remembered for this browser tab, so the
+    // test deployments on *.vercel.app (no real subdomains) keep working after
+    // in-app navigation. ?subdomain=none clears it.
     const urlParams = new URLSearchParams(window.location.search);
-    const forcedSubdomain = urlParams.get('subdomain');
-    if (forcedSubdomain === 'admin' || forcedSubdomain === 'chair' || forcedSubdomain === 'debate') {
+    const allowed = ['admin', 'chair', 'debate'];
+    let forcedSubdomain = urlParams.get('subdomain');
+    try {
+      if (forcedSubdomain === 'none') sessionStorage.removeItem('forced-subdomain');
+      else if (forcedSubdomain && allowed.includes(forcedSubdomain)) sessionStorage.setItem('forced-subdomain', forcedSubdomain);
+      else forcedSubdomain = sessionStorage.getItem('forced-subdomain');
+    } catch { /* storage blocked */ }
+    if (forcedSubdomain && allowed.includes(forcedSubdomain)) {
       return forcedSubdomain as Subdomain;
     }
 
@@ -26,7 +35,7 @@ export const useSubdomain = (): Subdomain => {
       return 'chair';
     }
 
-    // Turon Debate — debat.turonmun.com (debate.* works too)
+    // Turon Debate — debat.turonmun.com / debat.turon.one (debate.* works too)
     if (hostname.startsWith('debat.') || hostname.startsWith('debate.')) {
       return 'debate';
     }

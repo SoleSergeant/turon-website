@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback, useEffect } from 'react';
+import { ADMIN_URL, CHAIR_URL } from '@/lib/domains';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Globe, ChevronDown, LogIn } from 'lucide-react';
@@ -125,10 +126,10 @@ const NavbarDesktop: React.FC<NavbarDesktopProps> = ({ scrolled, isHomePage, nav
 
     if (adminRoles.includes(role.toLowerCase())) {
       e.preventDefault();
-      window.open('https://admin.turonmun.com', '_blank');
+      window.open(ADMIN_URL, '_blank', 'noopener');
     } else if (chairRoles.includes(role.toLowerCase())) {
       e.preventDefault();
-      window.open('https://chair.turonmun.com', '_blank');
+      window.open(CHAIR_URL, '_blank', 'noopener');
     } else {
       // For delegates, just let the Link handle it normally
       // But we can also use navigate here if needed

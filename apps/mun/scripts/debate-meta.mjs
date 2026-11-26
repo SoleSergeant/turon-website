@@ -4,7 +4,9 @@
 // is unchanged (same scripts), and every other path still gets dist/index.html.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 
-const SITE = 'https://www.turonmun.com';
+const clean = (v, d) => (v && /^https:\/\//.test(v) ? v.replace(/\/+$/, '') : d);
+const SITE = clean(process.env.VITE_SITE_URL, 'https://www.turonmun.com');
+const DEBATE = clean(process.env.VITE_DEBATE_URL, 'https://debat.turonmun.com');
 const TITLE = 'Turon Debate';
 const DESCRIPTION = 'No countries. Just your voice. Watch how a round works and register for Turon Debate.';
 const IMAGE = `${SITE}/debate/og-image.png`;
@@ -19,7 +21,7 @@ set(/<title>[\s\S]*?<\/title>/, `<title>${TITLE}</title>`);
 set(/<meta name="description" content="[^"]*"/, `<meta name="description" content="${DESCRIPTION}"`);
 set(/<meta property="og:title" content="[^"]*"/, `<meta property="og:title" content="${TITLE}"`);
 set(/<meta property="og:description" content="[^"]*"/, `<meta property="og:description" content="${DESCRIPTION}"`);
-set(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="https://debat.turonmun.com/"`);
+set(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${DEBATE}/"`);
 set(/<meta property="og:image" content="[^"]*"/, `<meta property="og:image" content="${IMAGE}"`);
 set(/<meta name="twitter:image" content="[^"]*"/, `<meta name="twitter:image" content="${IMAGE}"`);
 set(/<link rel="icon"[^>]*>/, '<link rel="icon" type="image/svg+xml" href="/debate/favicon.svg" />');

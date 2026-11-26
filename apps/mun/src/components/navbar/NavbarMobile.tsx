@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
+import { ADMIN_URL, CHAIR_URL } from '@/lib/domains';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe, ChevronDown, ChevronRight, LogIn, User } from 'lucide-react';
@@ -119,11 +120,11 @@ const NavbarMobile: React.FC<NavbarMobileProps> = ({
     if (adminRoles.includes(role.toLowerCase())) {
       e.preventDefault();
       toggleMenu();
-      window.open('https://admin.turonmun.com', '_blank');
+      window.open(ADMIN_URL, '_blank', 'noopener');
     } else if (chairRoles.includes(role.toLowerCase())) {
       e.preventDefault();
       toggleMenu();
-      window.open('https://chair.turonmun.com', '_blank');
+      window.open(CHAIR_URL, '_blank', 'noopener');
     } else {
       // For delegates, let the Link handle it
       toggleMenu();

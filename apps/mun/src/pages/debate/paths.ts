@@ -1,4 +1,5 @@
 import { useSubdomain } from '@/hooks/use-subdomain';
+import { DEBATE_URL } from '@/lib/domains';
 
 /**
  * Turon Debate lives at the root of debat.turonmun.com, and also at
@@ -8,7 +9,7 @@ import { useSubdomain } from '@/hooks/use-subdomain';
 export const DEBATE_BASE = '/debat';
 
 /** Public address of the debate site (used by admin links). */
-export const DEBATE_SITE_URL = 'https://debat.turonmun.com';
+export const DEBATE_SITE_URL = DEBATE_URL;
 
 export function useDebatePath() {
   const base = useSubdomain() === 'debate' ? '' : DEBATE_BASE;
