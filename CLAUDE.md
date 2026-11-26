@@ -97,6 +97,7 @@ Hub + subdomains:
 
 ## Homepage section order (current) — the section dial ("option B")
 With JS and a window ≥520px tall, `html.wheel` is on: the page doesn't scroll. One `.screen` is shown at a time, next to a small dial (`nav.dial`) that turns 45° per section and loops (after Contact comes Home). On laptops the dial is a half-wheel on the left edge (`--dial-d`, `--dial-w`); under 1000px wide it's a low arc along the bottom (`--dial-v`). Wheel/trackpad (one step per gesture), arrow keys/PageUp/PageDown/Home/End, vertical swipes, the dial labels, the header links and any `#id` link turn the dial. Inactive screens are `inert`, and the URL hash follows the section (deep links like `/#faq` work). Without JS, or on very short windows, it's a normal scrolling page. Logic: the "Section dial" block in `app.js`; styles: "the dial" / "the stage" in `styles.css`.
+Animations (all off with reduced motion): first-visit hint chip + dial nudge after 2s (remembered in localStorage `turon-dial-seen`; Uzbek hint text needs proofreading), numbers count up on the Numbers stop (real value kept in a visually hidden span), each stop's parts rise in one after another (`rise`, `--d` delays). Focus moves to the new section when it was inside the old one.
 **When you add content, re-check that every stop still fits** (no inner scrolling) at 1366×633, 1024×768, 390×664 and 360×640, in both languages.
 1. Home (navy, `#top`): title, subtitle, Join / See projects, real TuronMUN photo
 2. In numbers (navy, `#numbers`): 700+ · 8 · 15+ · 3; MyMUN award chips

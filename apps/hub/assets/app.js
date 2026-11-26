@@ -10,6 +10,7 @@
   var EN = {
     skip: 'Skip to content', navLabel: 'Main menu', menu: 'Menu',
     dotsLabel: 'Sections', dotTop: 'Home', dotContact: 'Contact',
+    hintScroll: 'Scroll down', hintSwipe: 'Swipe up',
     navProjects: 'Projects', navMilestones: 'Milestones', navAbout: 'About', navJoin: 'Get involved', navFaq: 'FAQ',
     ctaJoin: 'Join Turon', ctaJoinShort: 'Join Turon', ctaProjects: 'See projects',
     eyebrow: 'Fergana · Uzbekistan · student-led',
@@ -164,10 +165,14 @@ m4: 'Best Medium Conference: 3rd place',
     if (d === 0 && !(opts && opts.force)) return;
     turns += d;
     root.setAttribute('data-dir', d < 0 ? 'back' : 'fwd');
+    var prev = panels[cur];
+    var hadFocus = prev.contains(document.activeElement);
     cur = i;
     panels[cur].scrollTop = 0;
     paint();
-    if (opts && opts.focus) panels[cur].focus({ preventScroll: true });
+    // Keep keyboard users in place: if focus was in the old section, move it to the new one
+    if ((opts && opts.focus) || hadFocus) panels[cur].focus({ preventScroll: true });
+    onTurn();
     try {
       var u = new URL(window.location.href);
       u.hash = cur === 0 ? '' : panels[cur].id;
@@ -185,6 +190,8 @@ m4: 'Best Medium Conference: 3rd place',
     paint();
     void disc.offsetWidth; disc.style.transition = '';
     window.scrollTo(0, 0);
+    countUp(panels[cur]);
+    scheduleHint();
   }
   function disable() {
     if (!on) return;
@@ -256,6 +263,57 @@ m4: 'Best Medium Conference: 3rd place',
     var i = panelIndexFor(window.location.hash.slice(1));
     if (i >= 0) go(i);
   });
+
+  // ---------- small animations ----------
+  var reduceMq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { return reduceMq && reduceMq.matches; }
+
+  // Numbers count up when their screen turns into view. The real value stays in a
+  // visually hidden span for screen readers; only the aria-hidden copy animates.
+  var counters = [];
+  document.querySelectorAll('.impact dd').forEach(function (dd) {
+    var text = dd.textContent.trim(), m = text.match(/^(\d+)(.*)$/);
+    if (!m) return;
+    var real = document.createElement('span'); real.className = 'visually-hidden'; real.textContent = text;
+    var shown = document.createElement('span'); shown.setAttribute('aria-hidden', 'true'); shown.textContent = text;
+    dd.textContent = ''; dd.appendChild(real); dd.appendChild(shown);
+    counters.push({ el: shown, to: parseInt(m[1], 10), suffix: m[2] });
+  });
+  function countUp(panel) {
+    if (!panel || !panel.querySelector('.impact') || reduced()) return;
+    counters.forEach(function (c, k) {
+      var delay = 180 + k * 70, dur = 900, t0 = null;
+      c.el.textContent = '0' + c.suffix;
+      function frame(t) {
+        if (t0 === null) t0 = t;
+        var x = Math.min(1, Math.max(0, (t - t0 - delay) / dur));
+        var eased = 1 - Math.pow(1 - x, 3);
+        c.el.textContent = Math.round(c.to * eased) + c.suffix;
+        if (x < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  // First-visit hint: after 2s on the first screen, the dial nudges and a chip says
+  // "Scroll down" / "Swipe up". Gone for good after the first turn.
+  var hint = document.querySelector('.dial-hint'), hintTimers = [], SEEN = 'turon-dial-seen';
+  function seen() { try { return localStorage.getItem(SEEN) === '1'; } catch (e) { return false; } }
+  function nudge() {
+    if (reduced() || !disc) return;
+    disc.classList.remove('nudge'); void disc.offsetWidth; disc.classList.add('nudge');
+  }
+  function scheduleHint() {
+    if (!hint || seen()) return;
+    hintTimers.push(setTimeout(function () { if (on) { hint.classList.add('show'); nudge(); } }, 2000));
+    hintTimers.push(setTimeout(function () { if (on) nudge(); }, 7000));
+  }
+  function onTurn() {
+    hintTimers.forEach(clearTimeout); hintTimers = [];
+    if (hint) hint.classList.remove('show');
+    try { localStorage.setItem(SEEN, '1'); } catch (e) {}
+    countUp(panels[cur]);
+  }
 
   function sync() { if (wheelMq && wheelMq.matches) enable(); else disable(); }
   if (wheelMq) {
