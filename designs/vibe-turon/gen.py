@@ -146,3 +146,73 @@ for c in CONCEPTS:
         save(f'{c}-icon-violet', 64, 64, tile(c, VIOLET, WHITE, WHITE if c != 'eq' else '#D0BFFF'))
     save(f'{c}-icon-navy', 64, 64, tile(c, NAVY, WHITE, VIOLET_L))
 print('ok', sorted(os.listdir(OUT)))
+
+
+# ---- Technical concepts -------------------------------------------------
+# Each symbol is drawn in a 100x100 box; wordmarks and tiles scale it.
+
+def sym(c, fg, accent, bg):
+    if c == 'brackets':  # <v>
+        sw = 11
+        d, _ = text('v', 62, 800, 0, 0)
+        g = FONTS[800].getGlyphSet(); bp = BoundsPen(g); g['v'].draw(bp)
+        k = 62 / 1000; gw = (bp.bounds[2] - bp.bounds[0]) * k; gh = bp.bounds[3] * k
+        return (f'<path d="M24 26 6 50l18 24M76 26l18 24-18 24" fill="none" stroke="{accent}" '
+                f'stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path fill="{fg}" transform="translate({50 - gw/2 - bp.bounds[0]*k:.2f} {50 + gh/2:.2f})" d="{d}"/>')
+    if c == 'terminal':  # window dots + prompt >v
+        d, _ = text('v', 62, 800, 0, 0)
+        return (''.join(f'<circle cx="{10 + i*13}" cy="12" r="5" fill="{fg}" opacity="{0.35 if i else 1}"/>' for i in range(3))
+                + f'<path d="M8 40l22 20-22 20" fill="none" stroke="{accent}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>'
+                + f'<path fill="{fg}" transform="translate(40 83)" d="{d}"/>')
+    if c == 'pixel':  # 7x6 bitmap V, last pixel lit in the accent
+        rows = [(0, 1, 5, 6), (0, 1, 5, 6), (1, 2, 4, 5), (1, 2, 4, 5), (2, 3, 4), (3,)]
+        p, s, out = 14.4, 13.2, []
+        for r, cols in enumerate(rows):
+            for col in cols:
+                out.append(f'<rect x="{col*p:.1f}" y="{8 + r*p + (4 if r == 5 else 0):.1f}" width="{s}" height="{s}" rx="2" '
+                           f'fill="{accent if r == 5 else fg}"/>')
+        return ''.join(out)
+    if c == 'merge':  # two branches merge into one: people + AI -> project
+        return (f'<path d="M18 16 50 82 82 16" fill="none" stroke="{fg}" stroke-width="13" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<circle cx="18" cy="16" r="12" fill="{fg}"/><circle cx="82" cy="16" r="12" fill="{fg}"/>'
+                f'<circle cx="50" cy="82" r="15" fill="{accent}" stroke="{bg}" stroke-width="5"/>')
+
+
+def tech_lockup(c, fg, accent, sub, bg):
+    S = 120
+    if c == 'brackets':  # <vibe/> written out
+        d, w = text('vibe', S, 800, 54, 96)
+        x = 54 + w + 12
+        body = (f'<path d="M30 30 8 60l22 30" fill="none" stroke="{accent}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path fill="{fg}" d="{d}"/>'
+                f'<path d="M{x+26} 24 {x+6} 96M{x+42} 30l22 30-22 30" fill="none" stroke="{accent}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>')
+        d2, _ = text('turon', 34, 500, 58, 150, track=0.32)
+        return x + 72, 168, body + f'<path fill="{sub}" d="{d2}"/>'
+    if c == 'terminal':  # > vibe
+        d, w = text('vibe', S, 800, 66, 96)
+        body = (f'<path d="M10 34l30 26-30 26" fill="none" stroke="{accent}" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path fill="{fg}" d="{d}"/>')
+        d2, _ = text('turon', 34, 500, 70, 150, track=0.32)
+        return 66 + w + 4, 168, body + f'<path fill="{sub}" d="{d2}"/>'
+    body = f'<g transform="translate(0 8) scale(0.92)">{sym(c, fg, accent, bg)}</g>'
+    d, w = text('vibe', S, 800, 118, 96)
+    d2, _ = text('turon', 34, 500, 122, 150, track=0.32)
+    return 118 + w + 4, 168, body + f'<path fill="{fg}" d="{d}"/><path fill="{sub}" d="{d2}"/>'
+
+
+def tech_tile(c, bg, fg, accent):
+    sc = 0.46 if c != 'terminal' else 0.5
+    off = 32 - 50 * sc
+    return (f'<rect width="64" height="64" rx="14" fill="{bg}"/>'
+            f'<g transform="translate({off:.2f} {off:.2f}) scale({sc})">{sym(c, fg, accent, bg)}</g>')
+
+
+for c in ['brackets', 'terminal', 'pixel', 'merge']:
+    for mode, (fg, acc, sub, bg) in {'light': (NAVY, VIOLET, VIOLET, WHITE),
+                                     'dark': (WHITE, VIOLET_L, VIOLET_L, NAVY)}.items():
+        w, h, body = tech_lockup(c, fg, acc, sub, bg)
+        save(f'{c}-wordmark-{mode}', w, h, body)
+    save(f'{c}-icon-violet', 64, 64, tech_tile(c, VIOLET, WHITE, '#D0BFFF' if c == 'pixel' else WHITE if c != 'merge' else NAVY))
+    save(f'{c}-icon-navy', 64, 64, tech_tile(c, NAVY, WHITE, VIOLET_L))
