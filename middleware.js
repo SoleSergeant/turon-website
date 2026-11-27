@@ -1,7 +1,9 @@
 // Vercel Routing Middleware for the single turon.one project.
 // Runs before static files, so it decides which site a request gets:
 //   turon.one, www.turon.one                     -> hub (dist/hub/)
-//   turon-website*.vercel.app (test address)     -> hub for "/" and the hub's own files;
+//   old test addresses (turon-website-roan.vercel.app, turon-one-mun.vercel.app)
+//                                                -> 308 to the same page on turon.one (OLD_HOST)
+//   other turon-website*.vercel.app (previews)   -> hub for "/" and the hub's own files;
 //                                                   every other path -> TuronMUN app (dist/),
 //                                                   e.g. /mun, /debat, /vibe, /register
 //   debat.turon.one (bare "/")                   -> Turon Debate page with its own link previews
@@ -11,6 +13,8 @@ export const config = { matcher: '/:path*' };
 
 const HUB_HOST = /^((www\.)?turon\.one|turon-website(-[a-z0-9-]+)?\.vercel\.app)$/i;
 const TEST_HOST = /^turon-website(-[a-z0-9-]+)?\.vercel\.app$/i;
+// Retired addresses: send visitors (and old shared links) to the same page on turon.one.
+const OLD_HOST = /^(turon-website-roan|turon-one-mun)\.vercel\.app$/i;
 const DEBATE_HOST = /^(debat|debate)\.(turonmun\.com|turon\.one)$/i;
 const VIBE_HOST = /^vibe\.turon\.one$/i;
 
@@ -26,12 +30,30 @@ const GO = {
   '/go/vibe': ['/vibe', 'https://vibe.turon.one/'],
 };
 
+// Where a page on an old test address lives now.
+function newHome(url) {
+  const p = url.pathname, q = url.search;
+  const rest = (prefix) => p.slice(prefix.length) || '/';
+  if (GO[p]) return GO[p][1];
+  if (p === '/' || HUB_FILES.test(p)) return `https://turon.one${p}${q}`;
+  if (p === '/mun' || p === '/mun/') {
+    const sub = url.searchParams.get('subdomain');
+    const host = sub === 'admin' || sub === 'chair' ? sub : 'mun';
+    return `https://${host}.turon.one/`;
+  }
+  if (p === '/debat' || p.startsWith('/debat/')) return `https://debat.turon.one${rest('/debat')}${q}`;
+  if (p === '/vibe' || p.startsWith('/vibe/')) return `https://vibe.turon.one${rest('/vibe')}${q}`;
+  return `https://mun.turon.one${p}${q}`;
+}
+
 const rewrite = (path, request) =>
   new Response(null, { headers: { 'x-middleware-rewrite': new URL(path, request.url).toString() } });
 
 export default function middleware(request) {
   const url = new URL(request.url);
   const host = (request.headers.get('host') || '').split(':')[0];
+
+  if (OLD_HOST.test(host)) return Response.redirect(newHome(url), 308);
 
   if (HUB_HOST.test(host)) {
     const test = TEST_HOST.test(host);

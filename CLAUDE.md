@@ -1,6 +1,6 @@
 # Turon website — project brief for Claude Code
 
-> Ecosystem domain: **turon.one** (test now, production later). turonmun.com stays as is.
+> Ecosystem domain: **turon.one** — live since 2026-11-27 (bought in Vercel, DNS managed by Vercel). turonmun.com stays as is.
 
 ## What this is
 The website for **Turon**, a student-led ecosystem in Fergana, Uzbekistan.
@@ -11,19 +11,21 @@ Mission: bring quality opportunities to regional youth so they don't have to lea
 - **Never change the `SoleSergeant/turonmun` repo** (or its Vercel project / Supabase). Copy code from it into this repo when needed.
 - **One Vercel project** (`turon-website`) for all of turon.one. Don't create separate projects per app.
 
-## Current state (2026-11-26, v4: one project)
+## Current state (2026-11-27, v5: live on turon.one)
 One repo, one Vercel project (`turon-website`, built from the repo root):
 
-| Folder | What | Test URL | Final URL |
-|---|---|---|---|
-| `apps/hub` | Hub (static) → built to `dist/hub/` | https://turon-website-roan.vercel.app | https://turon.one |
-| `apps/mun` | TuronMUN + Turon Debate + Vibe Turon + admin + chair (React/Vite) → `dist/` | https://turon-website-roan.vercel.app/mun (Debate: `/debat`, Vibe Turon: `/vibe`, admin: `/mun?subdomain=admin`, chair: `/mun?subdomain=chair`) | mun. / debat. / vibe. / admin. / chair.turon.one |
+| Folder | What | URL |
+|---|---|---|
+| `apps/hub` | Hub (static) → built to `dist/hub/` | https://turon.one (`www.` 308-redirects to it, set on the Vercel domain) |
+| `apps/mun` | TuronMUN + Turon Debate + Vibe Turon + admin + chair (React/Vite) → `dist/` | https://mun.turon.one, https://debat.turon.one, https://vibe.turon.one, https://admin.turon.one, https://chair.turon.one |
 
-- **How it routes:** root `middleware.js` reads the hostname. `turon.one` and `www.turon.one` get the hub, rewritten to `/hub/...`. On the test address `turon-website*.vercel.app` (the old `turon-one-mun.vercel.app` is retired, 2026-11-27) the hub keeps `/` and its own files (`HUB_FILES`, kept in sync with `vercel.json`) and every other path goes to the MUN app; `/mun` is the MUN app's entry (`MunEntry` in `App.tsx`). A full reload of `/` there always shows the hub. `debat.turon.one/` gets the Debate page and `vibe.turon.one/` the Vibe Turon page. Every other hostname gets the MUN app, which picks admin/chair/debate by subdomain (`use-subdomain.ts`).
+- **Old test addresses are retired:** `turon-website-roan.vercel.app` and `turon-one-mun.vercel.app` 308-redirect to the same page on turon.one (`OLD_HOST` + `newHome()` in `middleware.js`: `/` → hub, `/mun` → mun., `/mun?subdomain=admin|chair` → admin./chair., `/debat/x` → debat./x, `/vibe` → vibe., `/go/*` via `GO`, anything else → mun.). Preview deployments (other `turon-website-*.vercel.app` URLs) keep the old same-host routing below, with `noindex`, so branches can still be tested.
+
+- **How it routes:** root `middleware.js` reads the hostname. `turon.one` and `www.turon.one` get the hub, rewritten to `/hub/...`. On preview addresses `turon-website*.vercel.app` the hub keeps `/` and its own files (`HUB_FILES`, kept in sync with `vercel.json`) and every other path goes to the MUN app; `/mun` is the MUN app's entry (`MunEntry` in `App.tsx`). A full reload of `/` there always shows the hub. `debat.turon.one/` gets the Debate page and `vibe.turon.one/` the Vibe Turon page. Every other hostname gets the MUN app, which picks admin/chair/debate by subdomain (`use-subdomain.ts`).
 - **Build:** root `package.json` → `npm --prefix apps/mun run build` + `scripts/assemble.mjs`. Root `vercel.json` holds the install/build/output settings, rewrites and per-host security headers. The hub keeps its strict CSP; the MUN app keeps its original headers. `apps/mun/vercel.json` and `apps/mun/middleware.js` are upstream copies and are **not used**.
 - **Hub project links:** the `GO` map in `middleware.js` (`/go/mun`, `/go/mun-apply`, `/go/debat`, `/go/vibe`). On the test address they stay on the same host (`/mun`, `/register`, `/debat`, `/vibe`); on turon.one they go to the subdomains. Nothing to change at launch.
-- **Env vars** (on `turon-website`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (turon-one DB), plus `VITE_SITE_URL`, `VITE_ADMIN_URL`, `VITE_CHAIR_URL`, `VITE_DEBATE_URL`, `VITE_VIBE_URL` (defaults to https://vibe.turon.one) and `VITE_HUB_URL`, currently set to the test address (`…/mun?subdomain=admin`, `…/debat`, `…/vibe`).
-- All header blocks send `X-Robots-Tag: noindex` during the test; remove it in `vercel.json` at launch. On the test address the hub's strict headers cover only the hub's files; the MUN app's headers cover the rest.
+- **Env vars** (on `turon-website`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (turon-one DB), plus `VITE_SITE_URL`, `VITE_ADMIN_URL`, `VITE_CHAIR_URL`, `VITE_DEBATE_URL`, `VITE_VIBE_URL` (defaults to https://vibe.turon.one) and `VITE_HUB_URL`, set to the turon.one URLs (mun., admin., chair., debat., vibe., turon.one) on 2026-11-27. Changing one needs a redeploy (they're baked in at build time).
+- `X-Robots-Tag: noindex` was removed for turon.one at launch; only the `*.vercel.app` header blocks keep it (previews). On preview addresses the hub's strict headers cover only the hub's files; the MUN app's headers cover the rest.
 - `apps/mun` is a copy of `SoleSergeant/turonmun` at `f6bd6c3` (git subtree). To bring in newer turonmun code (this only reads that repo):
   `git subtree pull --prefix apps/mun https://github.com/SoleSergeant/turonmun.git main`
   Keep the turon.one changes listed below when resolving conflicts.
@@ -33,17 +35,17 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - **Hub content:** past milestones only (founding 28 Jun 2024, MyMUN 2024 awards, rename to TuronMUN 12 May 2025, MyMUN 2025 3rd place, Turon Debate Nov 2026). No future plans: Vibe Turon is off the hub until the user decides (see the decision chat).
 - **Supabase:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt, free. Schema 000 → 062 (006 skipped) + 063, checked against the live schema. No data yet. The disabled function `run-migrations-once` (answers 410) can be deleted in the dashboard.
 - **Supabase security check (2026-11-27):** no errors. `068_revoke_trigger_fn_execute.sql` (applied) stops the API from calling trigger functions (`trg_*`). The remaining warnings are deliberate: every admin/staff RPC checks the role itself (`is_academic_staff`, `is_sg`, `is_active_admin`), and the anon-callable ones (`form_approved_count`, `verify_certificate`, `debate_public_results`, role checks used by RLS) are meant to be public. Performance notes (unused indexes, several permissive policies) can wait: the database is empty.
-- **Auth URLs (launch step 4) still to do:** email sign-up needs confirmation, so Site URL must point at the site, not `localhost`.
+- **Auth URLs (launch step 4) still to do:** email sign-up needs confirmation, so Site URL must be `https://mun.turon.one`, not `localhost`.
 - `designs/` holds the archived design explorations. Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173.
 
 ## Going live on turon.one (checklist)
-1. Buy turon.one (ideally in Vercel, so DNS is automatic).
-2. Add all domains to the one project `turon-website`: `turon.one`, `www.turon.one`, `mun.`, `debat.`, `vibe.`, `admin.` and `chair.turon.one`. Routing is automatic (middleware.js).
-3. Set the `turon-website` env vars to the turon.one URLs (see `src/lib/domains.ts`) and redeploy.
-4. Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**` (+ `https://turon-website-roan.vercel.app/**` while testing).
+1. ✅ Bought turon.one in Vercel (DNS automatic).
+2. ✅ All domains on `turon-website`: `turon.one`, `www.` (→ apex), `mun.`, `debat.`, `vibe.`, `admin.`, `chair.turon.one`.
+3. ✅ Env vars set to the turon.one URLs.
+4. ⏳ Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**` (+ `https://turon-website-roan.vercel.app/**` while testing).
 5. Email: deploy `apps/mun/supabase/functions/send-email` and set `RESEND_API_KEY` / `EMAIL_FROM` secrets (verify turon.one in Resend). Until then, the app's own emails don't send; Supabase's built-in auth emails (confirm, reset) still work, rate-limited.
 6. First admin: sign up on the MUN site, then add that email to `admin_users` with role `sg` (Supabase SQL editor). See `apps/mun/docs/ADMIN_PANEL_SETUP.md`.
-7. Remove `X-Robots-Tag` from `vercel.json`, check canonical/sitemap. (The `GO` links already point at turon.one on the real domain.)
+7. ✅ `X-Robots-Tag` removed for turon.one; hub canonical/sitemap say https://turon.one/. Note: the MUN app's `og:url`, `robots.txt` and `sitemap.xml` still point at www.turonmun.com (the live TuronMUN site).
 
 ## Projects (as of now)
 - **TuronMUN**: live at https://www.turonmun.com (apply: `/register`). Season 8 is "coming soon" there.
@@ -87,7 +89,6 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - FAQ: Turon Debate / Vibe Turon **[pricing details]** and **[language]**
 - Partner logos (partners show as text names; use logos once each partner approves)
 - Hub-specific Telegram/Instagram (currently the TuronMUN ones)
-- Final domain: `canonical`, `og:url` and `sitemap.xml` all say `https://turonmun.com/`
 
 ## Site architecture (agreed)
 Hub + subdomains:
