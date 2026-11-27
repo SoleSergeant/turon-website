@@ -277,7 +277,7 @@ Setup: `$SRC` and `$DST` both point at turon-one; `SRC_URL`/`DST_URL` and the ke
 
 Use addresses on a domain nobody owns for mail (e.g. `dryrun1@example.com` … `dryrun3@example.com`) and one test password, recorded in the dry-run notes, not in chat.
 
-1. Sign up two accounts through the app on the test URL (https://turon-one-mun.vercel.app) so `auth.users`, `auth.identities` and `public.users` are filled the normal way. Confirm them in the dashboard (Authentication → Users) since email may not send.
+1. Sign up two accounts through the app on the test URL (https://turon-website-roan.vercel.app/mun) so `auth.users`, `auth.identities` and `public.users` are filled the normal way. Confirm them in the dashboard (Authentication → Users) since email may not send.
 2. Make the first one SG: `INSERT INTO admin_users (…) VALUES (…, 'sg', …)`.
 3. Add a Season 7 row to `seasons` (not current) next to Season 8 (current), then insert:
    - one **Season 7** application and one **Season 8** application for account 2, each with an uploaded file (upload through the app so a public URL is saved);

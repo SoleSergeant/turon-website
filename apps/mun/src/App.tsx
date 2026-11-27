@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { SecretMessage, useSecretMessage } from "@/components/easter-egg/SecretMessage";
 import { useSubdomain } from "./hooks/use-subdomain";
 
@@ -95,6 +95,8 @@ const MyHistory = lazy(() => import("./pages/dashboard/MyHistory"));
 const DebateLanding = lazy(() => import("./pages/debate/DebateLanding"));
 const DebateLogin = lazy(() => import("./pages/debate/DebateLogin"));
 const DebateRegister = lazy(() => import("./pages/debate/DebateRegister"));
+// Vibe Turon (vibe.turon.one)
+const VibeLanding = lazy(() => import("./pages/vibe/VibeLanding"));
 
 const ChairLogin = lazy(() => import("./pages/chair/ChairLogin"));
 const ChairDashboardLayout = lazy(() => import("./pages/dashboard/ChairDashboard"));
@@ -118,12 +120,15 @@ const queryClient = new QueryClient({
   },
 });
 
+/** Turon Debate and Vibe Turon pages on the main host: light, no MUN splash. */
+const isProjectPath = () => /^\/(debat|vibe)(\/|$)/.test(window.location.pathname);
+
 // Lightweight fallback while a route chunk is being fetched. Navy on the
 // public site so pages don't flash white; the admin, chair and Turon Debate
 // pages are light.
 const RouteFallback = () => {
   const subdomain = useSubdomain();
-  const dark = subdomain === 'none' && !window.location.pathname.startsWith('/debat');
+  const dark = subdomain === 'none' && !isProjectPath();
   return (
     <div className={`min-h-screen flex items-center justify-center ${dark ? 'bg-diplomatic-900' : 'bg-white'}`}>
       <div className={`w-8 h-8 border-4 border-t-transparent rounded-full animate-spin ${dark ? 'border-gold-400' : 'border-diplomatic-500'}`} />
@@ -203,6 +208,15 @@ const KeepQueryRedirect = ({ to }: { to: string }) => {
   return <Navigate to={`${to}${search}`} replace />;
 };
 
+// Test address (turon-website*.vercel.app): "/" there is the Turon hub, so the
+// app is entered at /mun (add ?subdomain=admin|chair|debate for those). This
+// hands over to the app's own "/" without a page load. See middleware.js.
+const MunEntry = ({ children }: { children: ReactNode }) => {
+  const { pathname, search } = useLocation();
+  if (pathname === '/mun' || pathname === '/mun/') return <Navigate to={`/${search}`} replace />;
+  return <>{children}</>;
+};
+
 const App = () => {
   const { isOpen, closeMessage } = useSecretMessage();
   // Splash greets a visitor once per browser session, not on every reload or link.
@@ -270,6 +284,15 @@ const App = () => {
       );
     }
 
+    if (subdomain === 'vibe') {
+      return (
+        <Routes>
+          <Route path="/" element={<VibeLanding />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      );
+    }
+
     if (subdomain === 'chair') {
       return (
         <Routes>
@@ -326,6 +349,9 @@ const App = () => {
         <Route path="/debat/login" element={<DebateLogin />} />
         <Route path="/debat/register" element={<DebateRegister />} />
 
+        {/* Vibe Turon at /vibe (same page as vibe.turon.one) */}
+        <Route path="/vibe" element={<VibeLanding />} />
+
         {/* Chair login & dashboard (non-subdomain access) */}
         <Route path="/chair-login" element={<ChairLogin />} />
         <Route path="/chair-dashboard" element={<ChairRoute><ChairDashboardLayout /></ChairRoute>}>
@@ -360,7 +386,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {showSplash && subdomain === 'none' && !window.location.pathname.startsWith('/debat') && <SplashScreen onComplete={endSplash} />}
+          {showSplash && subdomain === 'none' && !isProjectPath() && <SplashScreen onComplete={endSplash} />}
           <BrowserRouter>
             <ScrollToTop />
             {subdomain === 'none' && <PageTitle />}
@@ -371,7 +397,7 @@ const App = () => {
             {/* Without this, any crash (e.g. a page file that won't load) leaves a blank page. */}
             <ErrorBoundary fallback={<CrashScreen />}>
               <Suspense fallback={<RouteFallback />}>
-                {renderRoutes()}
+                <MunEntry>{renderRoutes()}</MunEntry>
               </Suspense>
             </ErrorBoundary>
 

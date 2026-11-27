@@ -7,6 +7,8 @@ export type Field =
   | { key: string; label: string; type: 'text' | 'textarea' | 'url' | 'image' | 'date'; hint?: string }
   | { key: string; label: string; type: 'number'; hint?: string }
   | { key: string; label: string; type: 'boolean'; hint?: string }
+  /** One choice from a fixed list (shown as a dropdown). */
+  | { key: string; label: string; type: 'select'; options: { value: string; label: string }[]; hint?: string }
   /** A list of plain strings (one per line in the editor). */
   | { key: string; label: string; type: 'strings'; hint?: string }
   /** A list of objects, e.g. FAQ items or sponsors. */

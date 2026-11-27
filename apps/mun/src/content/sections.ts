@@ -385,6 +385,56 @@ const debate = {
   email_rejected_body: "Dear {name},\n\nThank you for registering for {event}. Unfortunately we can't offer you a place this time. We hope to see you at a future round.\n\nBest regards,\nThe {event} team",
 };
 
+// ── Vibe Turon (vibe.turon.one) ────────────────────────────────────────
+// Facts here come from the Turon Vibeathon event plan. Keep unconfirmed
+// details (prize pool, places, tracks) off the page until they're announced.
+const vibe = {
+  name: 'Vibe Turon',
+  status: 'coming_soon',
+  date_text: 'March 2027',
+  venue_text: 'Fergana',
+  headline: 'Your idea. *Working* in a weekend.',
+  intro: 'Vibe Turon is a hackathon in Fergana for everyone, AI-aided. Bring a problem from your school, mahalla or bazaar. AI writes much of the code, and short workshops teach you the rest.',
+  tagline: 'No coding needed',
+  telegram_button: 'Join the Telegram',
+  register_button: 'Register',
+  registration_url: '',
+  registration_deadline: '',
+  ideas_title: 'Ideas teams could build',
+  ideas: [
+    { idea: 'Bus times for your route', tag: 'Community & city' },
+    { idea: 'A menu page for a café', tag: 'Small business' },
+    { idea: 'A quiz app for one subject', tag: 'School & learning' },
+    { idea: 'A Fergana food map', tag: 'Tourism & culture' },
+  ],
+  steps_title: 'How it works',
+  steps: [
+    { when: 'February 2027', title: 'Warm-up', description: 'A short session to try the AI tools before the big weekend.' },
+    { when: 'Day 1', title: 'Build', description: 'Join a team, pick a real problem, and build with AI between short workshops.' },
+    { when: 'Day 2', title: 'Fair and finals', description: 'Visitors use your app at an open fair. The best teams present on stage.' },
+  ],
+  audience_title: "Who it's for",
+  audience: [
+    { title: 'Never built anything?', description: "Perfect. That's who this is for." },
+    { title: 'Tried AI tools before?', description: 'Turn your experiments into something people actually use.' },
+    { title: 'Already code?', description: 'Build faster, and help your team ship.' },
+  ],
+  info_title: 'Key details',
+  info: [] as { label: string; value: string }[],
+  faq_title: 'Questions',
+  faq: [
+    { question: 'Do I need to know how to code?', answer: 'No. You describe what you want, AI writes much of the code, and the workshops show you how to test, fix and improve it.' },
+    { question: 'Can I come without a team?', answer: 'Yes. We form the teams, so every team has a mix of beginners and people who have built something before. You can name one friend to be teamed with.' },
+    { question: 'Do I need a laptop?', answer: "Bring one if you can. Tell us when you register, and we'll make sure every team has enough." },
+  ],
+  cta_title: 'Dates, venue and registration go to Telegram first.',
+  cta_open_title: 'Registration is open. Bring your idea.',
+  finished_title: 'Thank you for building with us.',
+  finished_text: 'Photos and projects are coming soon. Join the Telegram to hear about the next Vibe Turon first.',
+  telegram_url: '',
+  instagram_url: '',
+};
+
 // ── Section registry ───────────────────────────────────────────────────
 export const SECTIONS = {
   general: {
@@ -691,6 +741,54 @@ export const SECTIONS = {
       { key: 'email_waitlisted_body', label: 'Waitlisted email — message', type: 'textarea' },
       { key: 'email_rejected_subject', label: 'Rejected email — subject', type: 'text' },
       { key: 'email_rejected_body', label: 'Rejected email — message', type: 'textarea' },
+    ],
+  },
+  vibe: {
+    key: 'vibe', group: 'Vibe Turon', title: 'Vibe Turon',
+    description: 'The Vibe Turon site (vibe.turon.one). Switch Status when registration opens; sections with nothing in them are hidden.',
+    defaults: vibe,
+    fields: [
+      { key: 'status', label: 'Status', type: 'select', options: [
+        { value: 'coming_soon', label: 'Coming soon (main button: Telegram)' },
+        { value: 'open', label: 'Registration open (main button: Register)' },
+        { value: 'finished', label: 'Finished (thank-you message)' },
+      ], hint: 'Changes the badge, the main button and the closing message.' },
+      { key: 'date_text', label: 'Date', type: 'text', hint: 'As shown, e.g. "March 2027" or "13–14 March 2027".' },
+      { key: 'venue_text', label: 'Venue', type: 'text', hint: 'Shown next to the date once registration is open.' },
+      { key: 'registration_url', label: 'Registration link', type: 'url', hint: 'Google Form, Telegram bot or any page. The Register button only appears when this is filled in and Status is "Registration open".' },
+      { key: 'registration_deadline', label: 'Registration deadline (optional)', type: 'date', hint: 'After this the page goes back to the Telegram button.' },
+      { key: 'name', label: 'Name', type: 'text' },
+      { key: 'headline', label: 'Headline', type: 'text', hint: 'Wrap one word in *stars* to highlight it in violet.' },
+      { key: 'intro', label: 'Intro', type: 'textarea' },
+      { key: 'tagline', label: 'Short line next to the button', type: 'text', hint: 'Leave empty to hide it.' },
+      { key: 'telegram_button', label: 'Telegram button', type: 'text' },
+      { key: 'register_button', label: 'Register button', type: 'text' },
+      { key: 'ideas_title', label: 'Ideas — label', type: 'text' },
+      { key: 'ideas', label: 'Example ideas (the notes in the hero)', type: 'list', itemLabel: 'Idea', titleKey: 'idea', hint: 'Four look best. Hidden when empty.', fields: [
+        { key: 'idea', label: 'Idea', type: 'text' },
+        { key: 'tag', label: 'Small label', type: 'text', hint: 'e.g. the track' },
+      ] },
+      { key: 'steps_title', label: 'Steps — title', type: 'text' },
+      { key: 'steps', label: 'Steps', type: 'list', itemLabel: 'Step', titleKey: 'title', fields: [
+        { key: 'when', label: 'When', type: 'text', hint: 'e.g. February 2027, Day 1' },
+        { key: 'title', label: 'Title', type: 'text' },
+        { key: 'description', label: 'Description', type: 'textarea' },
+      ] },
+      { key: 'audience_title', label: "Who it's for — title", type: 'text' },
+      { key: 'audience', label: "Who it's for", type: 'list', itemLabel: 'Card', titleKey: 'title', fields: titleDesc },
+      { key: 'info_title', label: 'Key details — title', type: 'text' },
+      { key: 'info', label: 'Key details', type: 'list', itemLabel: 'Detail', titleKey: 'label', hint: 'e.g. Format: 2 days, in person · Teams: 3–4 people · Prizes. Hidden when empty.', fields: [
+        { key: 'label', label: 'Label', type: 'text' },
+        { key: 'value', label: 'Value', type: 'text' },
+      ] },
+      { key: 'faq_title', label: 'FAQ — title', type: 'text' },
+      { key: 'faq', label: 'FAQ', type: 'list', itemLabel: 'Question', titleKey: 'question', fields: qa, hint: 'Hidden when empty.' },
+      { key: 'cta_title', label: 'Closing line — coming soon', type: 'text' },
+      { key: 'cta_open_title', label: 'Closing line — registration open', type: 'text' },
+      { key: 'finished_title', label: 'Finished — title', type: 'text' },
+      { key: 'finished_text', label: 'Finished — text', type: 'textarea' },
+      { key: 'telegram_url', label: 'Telegram link', type: 'url', hint: 'Leave empty to use the one in General.' },
+      { key: 'instagram_url', label: 'Instagram link', type: 'url', hint: 'Leave empty to use the one in General.' },
     ],
   },
 } satisfies Record<string, Section<any>>;

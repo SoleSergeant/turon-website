@@ -5,57 +5,269 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/hub/(.*)", "destination": "/hub/404.html" },
+    {
+      "source": "/hub/(.*)",
+      "destination": "/hub/404.html"
+    },
     {
       "source": "/((?!assets/|debate/|hub/).*)",
-      "has": [{ "type": "host", "value": "(debat|debate)\\.(turonmun\\.com|turon\\.one)" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "(debat|debate)\\.(turonmun\\.com|turon\\.one)"
+        }
+      ],
       "destination": "/debat/index.html"
     },
-    { "source": "/((?!assets/|hub/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!assets/|vibe/|hub/).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "vibe\\.turon\\.one"
+        }
+      ],
+      "destination": "/vibe/index.html"
+    },
+    {
+      "source": "/((?!assets/|hub/).*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?turon\\.one"
+        }
+      ],
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://www.turonmun.com data:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" },
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://www.turonmun.com data:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/(|index\\.html|404\\.html|robots\\.txt|sitemap\\.xml|\\.well-known/security\\.txt|assets/app\\.js|assets/styles\\.css|assets/favicon\\.svg|assets/apple-touch-icon\\.png)",
+      "has": [
+        {
+          "type": "host",
+          "value": "turon-website(-[a-z0-9-]+)?\\.vercel\\.app"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://www.turonmun.com data:; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
       ]
     },
     {
       "source": "/(.*)",
-      "missing": [{ "type": "host", "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)" }],
+      "missing": [
+        {
+          "type": "host",
+          "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
+        }
+      ],
       "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Content-Security-Policy", "value": "frame-ancestors 'self'" },
-        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https://acqfxuvnhmmgblkmcpnh.supabase.co; connect-src 'self' https://acqfxuvnhmmgblkmcpnh.supabase.co wss://acqfxuvnhmmgblkmcpnh.supabase.co https://hook.us2.make.com; frame-src https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=(), payment=()" },
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self'"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https://acqfxuvnhmmgblkmcpnh.supabase.co; connect-src 'self' https://acqfxuvnhmmgblkmcpnh.supabase.co wss://acqfxuvnhmmgblkmcpnh.supabase.co https://hook.us2.make.com; frame-src https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/((?!(?:index\\.html|404\\.html|robots\\.txt|sitemap\\.xml|\\.well-known/security\\.txt|assets/app\\.js|assets/styles\\.css|assets/favicon\\.svg|assets/apple-touch-icon\\.png)$).+)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self'"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https://acqfxuvnhmmgblkmcpnh.supabase.co; connect-src 'self' https://acqfxuvnhmmgblkmcpnh.supabase.co wss://acqfxuvnhmmgblkmcpnh.supabase.co https://hook.us2.make.com; frame-src https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ],
+      "has": [
+        {
+          "type": "host",
+          "value": "turon-website(-[a-z0-9-]+)?\\.vercel\\.app"
+        }
       ]
     },
     {
       "source": "/(|index.html)",
-      "missing": [{ "type": "host", "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)" }],
-      "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
+      "missing": [
+        {
+          "type": "host",
+          "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
     },
     {
       "source": "/assets/(.*)",
-      "missing": [{ "type": "host", "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)" }],
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "missing": [
+        {
+          "type": "host",
+          "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/((?!(?:app\\.js|styles\\.css|favicon\\.svg|apple-touch-icon\\.png)$).+)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ],
+      "has": [
+        {
+          "type": "host",
+          "value": "turon-website(-[a-z0-9-]+)?\\.vercel\\.app"
+        }
+      ]
     },
     {
       "source": "/sw.js",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
     }
   ]
 }

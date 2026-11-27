@@ -9,6 +9,7 @@ import { SECTION_LIST } from '@/content/sections';
 import { reloadContent, getSection } from '@/content/store';
 import { isAdminHost } from '@/lib/adminPath';
 import { DEBATE_SITE_URL, DEBATE_BASE } from '@/pages/debate/paths';
+import { VIBE_SITE_URL, VIBE_BASE } from '@/pages/vibe/paths';
 import { confirmAction } from '@/components/admin/ConfirmDialog';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
@@ -112,6 +113,8 @@ const SiteContent = ({ only }: { only?: string }) => {
   // On admin.* the same path would open the admin panel, so link to the public site.
   const previewPath = activeKey === 'debate'
     ? (isAdminHost() ? DEBATE_SITE_URL : DEBATE_BASE)
+    : activeKey === 'vibe'
+    ? (isAdminHost() ? VIBE_SITE_URL : VIBE_BASE)
     : (isAdminHost() ? getSection('seo').site_url.replace(/\/$/, '') : '') + (PREVIEW[activeKey] ?? '/');
 
   return (

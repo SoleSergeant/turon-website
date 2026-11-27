@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-export type Subdomain = 'admin' | 'chair' | 'debate' | 'none';
+export type Subdomain = 'admin' | 'chair' | 'debate' | 'vibe' | 'none';
 
 export const useSubdomain = (): Subdomain => {
   return useMemo(() => {
@@ -8,11 +8,11 @@ export const useSubdomain = (): Subdomain => {
     
     // For local development, treat localhost as 'none' 
     // but allow forced subdomain via query param for testing
-    // ?subdomain=admin|chair|debate is remembered for this browser tab, so the
+    // ?subdomain=admin|chair|debate|vibe is remembered for this browser tab, so the
     // test deployments on *.vercel.app (no real subdomains) keep working after
     // in-app navigation. ?subdomain=none clears it.
     const urlParams = new URLSearchParams(window.location.search);
-    const allowed = ['admin', 'chair', 'debate'];
+    const allowed = ['admin', 'chair', 'debate', 'vibe'];
     let forcedSubdomain = urlParams.get('subdomain');
     try {
       if (forcedSubdomain === 'none') sessionStorage.removeItem('forced-subdomain');
@@ -38,6 +38,11 @@ export const useSubdomain = (): Subdomain => {
     // Turon Debate — debat.turonmun.com / debat.turon.one (debate.* works too)
     if (hostname.startsWith('debat.') || hostname.startsWith('debate.')) {
       return 'debate';
+    }
+
+    // Vibe Turon — vibe.turon.one
+    if (hostname.startsWith('vibe.')) {
+      return 'vibe';
     }
 
     return 'none';
