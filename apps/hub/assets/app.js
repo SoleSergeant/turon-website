@@ -26,6 +26,9 @@
   var disc = document.querySelector('.dial-disc');
   var N = panels.length, STEP = 360 / N;
   var cur = 0, turns = 0, on = false;
+  var GAP = 40;
+  var dialNav = document.querySelector('.dial');
+  var dialLinks = Array.prototype.slice.call(document.querySelectorAll('.dial a'));
   var currentLinks = document.querySelectorAll('.dial a, .nav-links a');
 
   function panelIndexFor(id) {
@@ -47,8 +50,25 @@
       if (a.getAttribute('href') === id) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');
     });
-    disc.style.transform = 'rotate(' + (-turns * STEP) + 'deg)';
+    // the side rail takes the colour of the section behind it
+    var dark = panels[cur].classList.contains('dark') || panels[cur].classList.contains('site-footer');
+    root.setAttribute('data-tone', dark ? 'dark' : 'light');
+    var ang = -turns * STEP;
+    disc.style.transform = 'rotate(' + ang + 'deg)';
+    if (dialNav) dialNav.style.setProperty('--a', ang + 'deg');
+    dialLinks.forEach(function (l, i) {
+      var s = ((i - cur) % N + N) % N; if (s > N / 2) s -= N;   // signed steps from the current section
+      var k = Math.abs(s);
+      l.setAttribute('data-k', k);
+      // laptop layout: names evenly spaced down a curve just outside the rim
+      var R = disc.offsetWidth / 2 + 22, y = s * GAP;
+      var x = Math.abs(y) < R ? Math.sqrt(R * R - y * y) : 0;
+      l.style.setProperty('--x', x.toFixed(1) + 'px');
+      l.style.setProperty('--y', y + 'px');
+      if (k > 2) l.setAttribute('tabindex', '-1'); else l.removeAttribute('tabindex');
+    });
   }
+  window.addEventListener('resize', function () { if (on) paint(); });
   function go(i, opts) {
     i = ((i % N) + N) % N;
     if (!on) return;

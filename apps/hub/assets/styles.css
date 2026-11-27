@@ -104,7 +104,7 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
 .wheel .screen{position:fixed;top:var(--hh);left:var(--dial-w);right:0;bottom:var(--dial-v);margin:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:var(--bg);border:0;
   opacity:0;visibility:hidden;transform:translateY(28px);transition:opacity .4s,transform .55s cubic-bezier(.3,.7,.2,1),visibility 0s .55s}
 .wheel .screen.dark{background:radial-gradient(120% 90% at 85% 0%,#33409A 0%,var(--navy) 38%,var(--navy-900) 100%)}
-.wheel .site-footer.screen{background:var(--navy-900);padding:var(--sy) 0}
+.wheel .site-footer.screen{background:var(--navy-900)}
 .wheel[data-dir="back"] .screen{transform:translateY(-28px)}
 .wheel .screen.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .45s .12s,transform .6s .12s cubic-bezier(.3,.7,.2,1),visibility 0s}
 .wheel .screen:focus{outline:none}
@@ -363,3 +363,39 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
 .page-404{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:20px}
 .page-404 h1{color:#fff;font-size:clamp(30px,5vw,56px)}
 .page-404 .sub{color:var(--on-navy);font-size:18px}
+
+/* ---------- laptop dial v2: a small wheel with the section names curving around it ---------- */
+@media (min-width:1000px){
+  html.wheel{--dial-d:clamp(170px,27vh,220px);--dial-x:26px;--dial-w:calc(var(--dial-x) + var(--dial-d) / 2 + 150px)}
+  @supports (height:100svh){html.wheel{--dial-d:clamp(170px,27svh,220px)}}
+  .dial-disc{left:calc(var(--dial-x) - var(--dial-d) / 2);box-shadow:0 0 0 6px rgba(62,74,154,.18)}
+  .dial-pointer{left:calc(var(--dial-x) + var(--dial-d) / 2 + 6px)}
+  /* the hub logo at the centre: gold core, white ring */
+  .dial-disc::after{width:15%;height:15%;background:var(--gold);border:0;box-shadow:0 0 0 calc(var(--dial-d) * .025) #1C2560,0 0 0 calc(var(--dial-d) * .045) #fff}
+  /* 8 ticks on the rim, one per section; they turn with the wheel */
+  .dial-disc::before{content:"";position:absolute;inset:6px;border-radius:50%;
+    background:repeating-conic-gradient(from 87deg,rgba(211,215,247,.55) 0deg 6deg,transparent 6deg 45deg);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 9px),#000 calc(100% - 9px));
+            mask:radial-gradient(farthest-side,transparent calc(100% - 9px),#000 calc(100% - 9px))}
+  /* names sit outside the rim, evenly spaced on a curve (--x/--y from app.js); they cancel the wheel's turn so they stay level */
+  .dial a{top:50%;left:50%;margin:0;min-height:30px;padding:0 4px;font-size:14px;transform-origin:0 0;
+    transform:rotate(calc(var(--a,0deg) * -1)) translate(var(--x,0px),var(--y,0px)) translateY(-50%);
+    transition:transform .7s cubic-bezier(.3,.7,.2,1),opacity .45s,color .3s}
+  .dial a[aria-current="true"]{font-size:15.5px}
+  .dial a[data-k="1"]{opacity:.8}
+  .dial a[data-k="2"]{opacity:.4}
+  .dial a[data-k="3"],.dial a[data-k="4"]{opacity:0;pointer-events:none}
+}
+@media (min-width:1000px) and (prefers-reduced-motion:reduce){.dial a{transition:none}}
+
+/* the rail has no colour of its own: each section's background runs under the dial */
+.wheel .dial{background:transparent;border:0}
+.wheel .screen{left:0;bottom:0;padding-left:var(--dial-w);padding-bottom:calc(var(--sy) + var(--dial-v))}
+@media (min-width:1000px){
+  /* the first-visit nudge wiggles only the ticks, so the names never tilt */
+  .dial-disc.nudge{animation:none}
+  .dial-disc.nudge::before{animation:dialNudge 1.1s cubic-bezier(.3,.7,.2,1)}
+  html[data-tone="light"] .dial a{color:var(--muted)}
+  html[data-tone="light"] .dial a:hover{color:var(--navy)}
+  html[data-tone="light"] .dial a[aria-current="true"]{color:var(--gold-ink)}
+}
