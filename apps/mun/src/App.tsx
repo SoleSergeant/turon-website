@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { SecretMessage, useSecretMessage } from "@/components/easter-egg/SecretMessage";
 import { useSubdomain } from "./hooks/use-subdomain";
 
@@ -208,6 +208,15 @@ const KeepQueryRedirect = ({ to }: { to: string }) => {
   return <Navigate to={`${to}${search}`} replace />;
 };
 
+// Test address (turon-website*.vercel.app): "/" there is the Turon hub, so the
+// app is entered at /mun (add ?subdomain=admin|chair|debate for those). This
+// hands over to the app's own "/" without a page load. See middleware.js.
+const MunEntry = ({ children }: { children: ReactNode }) => {
+  const { pathname, search } = useLocation();
+  if (pathname === '/mun' || pathname === '/mun/') return <Navigate to={`/${search}`} replace />;
+  return <>{children}</>;
+};
+
 const App = () => {
   const { isOpen, closeMessage } = useSecretMessage();
   // Splash greets a visitor once per browser session, not on every reload or link.
@@ -388,7 +397,7 @@ const App = () => {
             {/* Without this, any crash (e.g. a page file that won't load) leaves a blank page. */}
             <ErrorBoundary fallback={<CrashScreen />}>
               <Suspense fallback={<RouteFallback />}>
-                {renderRoutes()}
+                <MunEntry>{renderRoutes()}</MunEntry>
               </Suspense>
             </ErrorBoundary>
 
