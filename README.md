@@ -6,8 +6,8 @@ One Vercel project (`turon-website`) serves everything; `middleware.js` picks th
 
 | Folder | What | Test URL |
 | --- | --- | --- |
-| `apps/hub` | Hub homepage (static HTML/CSS/JS, UZ/EN) | https://turon-website-roan.vercel.app |
-| `apps/mun` | TuronMUN + Turon Debate + admin + chair (React/Vite/Supabase) | https://turon-one-mun.vercel.app |
+| `apps/hub` | Hub homepage (static HTML/CSS/JS, English) | https://turon-website-roan.vercel.app |
+| `apps/mun` | TuronMUN + Turon Debate + Vibe Turon + admin + chair (React/Vite/Supabase) | https://turon-website-roan.vercel.app/mun (Debate `/debat`, Vibe Turon `/vibe`) |
 
 `apps/mun` is a git subtree of [SoleSergeant/turonmun](https://github.com/SoleSergeant/turonmun), pointed at its own Supabase project (`turon-one`). The turonmun repo itself is never modified from here; code is copied in when needed.
 
@@ -21,7 +21,7 @@ python -m http.server 5173 --directory apps/hub
 cd apps/mun && npm ci && npm run dev
 ```
 
-On the test URL, add `?subdomain=admin`, `?subdomain=chair` or `?subdomain=debate` to open that part of the MUN app; `?subdomain=none` goes back. The Debate site is also at `/debat`.
+On the test address the hub keeps `/` and every other path goes to the MUN app. Open the MUN site at `/mun`, the admin panel at `/mun?subdomain=admin`, the chair site at `/mun?subdomain=chair` (`?subdomain=none` goes back), Turon Debate at `/debat` and Vibe Turon at `/vibe`.
 
 ## Deploy
 
