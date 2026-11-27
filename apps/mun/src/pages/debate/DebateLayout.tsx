@@ -80,7 +80,7 @@ export default function DebateLayout({ title, children, nav }: {
           <div className="container mx-auto flex h-14 items-center justify-between gap-3 px-4 sm:h-16 md:grid md:grid-cols-[1fr_auto_1fr]">
             <Link to={path('/')} className={`flex min-w-0 items-center gap-2 justify-self-start rounded-lg ${focusRing}`}>
               <img src="/debate/podium.svg" alt="" width={502} height={671} className="h-8 w-auto shrink-0 sm:h-9" />
-              <span className={`${headingCls} truncate text-lg leading-none text-debate-blue sm:text-xl`}>{d.name}</span>
+              <span className={`${headingCls} truncate text-base leading-none text-debate-blue min-[380px]:text-lg sm:text-xl`}>{d.name}</span>
             </Link>
 
             {nav && nav.length > 0 && (
@@ -102,7 +102,7 @@ export default function DebateLayout({ title, children, nav }: {
                   Sign in
                 </Link>
               )}
-              <Link to={path('/register')} className={`${primaryButton} px-4 py-2 text-sm`}>
+              <Link to={path('/register')} className={`${primaryButton} px-3 py-2 text-sm min-[380px]:px-4`}>
                 {d.register_button}
               </Link>
             </div>

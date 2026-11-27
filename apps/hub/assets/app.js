@@ -223,12 +223,13 @@
   }
   function scheduleHint() {
     if (!hint || seen()) return;
-    hintTimers.push(setTimeout(function () { if (on) { hint.classList.add('show'); nudge(); } }, 2000));
+    hintTimers.push(setTimeout(function () { if (on) { hint.classList.add('show'); root.classList.add('hinting'); nudge(); } }, 2000));
     hintTimers.push(setTimeout(function () { if (on) nudge(); }, 7000));
   }
   function onTurn() {
     hintTimers.forEach(clearTimeout); hintTimers = [];
     if (hint) hint.classList.remove('show');
+    root.classList.remove('hinting');
     try { localStorage.setItem(SEEN, '1'); } catch (e) {}
     countUp(panels[cur]);
   }
