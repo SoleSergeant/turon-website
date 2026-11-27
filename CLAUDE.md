@@ -31,7 +31,9 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - **Season 8 = the ninth conference** (Seasons 1–7 plus TuronMUN x CAMU). It's set as the current season in `turon-one` (`066_season_8.sql`) and in the app defaults (`sections.ts`). The homepage card text lives in the `site_content` table (Admin → Site content), and that overrides the code defaults.
 - **Hub cache:** `index.html` and `404.html` load `assets/styles.css?v=…` and `assets/app.js?v=…`. **Bump the `?v=` value whenever you change those files**, or returning visitors can see old text (this happened once).
 - **Hub content:** past milestones only (founding 28 Jun 2024, MyMUN 2024 awards, rename to TuronMUN 12 May 2025, MyMUN 2025 3rd place, Turon Debate Nov 2026). No future plans: Vibe Turon is off the hub until the user decides (see the decision chat).
-- **Supabase:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt, free. Schema 000 → 062 (006 skipped) + 063, checked against the live schema. No data yet. The disabled function `run-migrations-once` can be deleted.
+- **Supabase:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt, free. Schema 000 → 062 (006 skipped) + 063, checked against the live schema. No data yet. The disabled function `run-migrations-once` (answers 410) can be deleted in the dashboard.
+- **Supabase security check (2026-11-27):** no errors. `068_revoke_trigger_fn_execute.sql` (applied) stops the API from calling trigger functions (`trg_*`). The remaining warnings are deliberate: every admin/staff RPC checks the role itself (`is_academic_staff`, `is_sg`, `is_active_admin`), and the anon-callable ones (`form_approved_count`, `verify_certificate`, `debate_public_results`, role checks used by RLS) are meant to be public. Performance notes (unused indexes, several permissive policies) can wait: the database is empty.
+- **Auth URLs (launch step 4) still to do:** email sign-up needs confirmation, so Site URL must point at the site, not `localhost`.
 - `designs/` holds the archived design explorations. Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173.
 
 ## Going live on turon.one (checklist)
