@@ -80,6 +80,25 @@ export default {
 					950: '#1a2336',
 				},
 				// New MUN specific colors - elegant, diplomatic palette
+				// Vibe Turon brand (logo files in public/vibe): Turon navy #283480 + violet #6741D9.
+				'vibe-navy': {
+					DEFAULT: '#283480',
+					50: '#f1f3fb',
+					100: '#e3e6f6',
+					600: '#33409a',
+					700: '#283480',
+					800: '#1e2766',
+					900: '#141b4d',
+				},
+				'vibe-violet': {
+					DEFAULT: '#6741D9',
+					50: '#f5f1ff',
+					100: '#ece5fe',
+					200: '#d9cbfd',
+					300: '#b197fc',
+					600: '#6741d9',
+					700: '#5532bd',
+				},
 				// Turon Debate brand (logo files in public/debate): blue #013399, maroon #800032.
 				'debate-blue': {
 					DEFAULT: '#013399',
@@ -157,6 +176,8 @@ export default {
 				mono: ['Roboto Mono', 'monospace'],
 				// Wide grotesque close to the Turon Debate wordmark (loaded on debate pages only).
 				debate: ['Archivo', 'Inter', 'system-ui', 'sans-serif'],
+				// Vibe Turon headings (loaded on Vibe Turon pages only), same face as the turon.one hub.
+				vibe: ['Unbounded', 'Inter', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

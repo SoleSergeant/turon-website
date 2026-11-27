@@ -17,12 +17,12 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 | Folder | What | Test URL | Final URL |
 |---|---|---|---|
 | `apps/hub` | Hub (static) → built to `dist/hub/` | https://turon-website-roan.vercel.app | https://turon.one |
-| `apps/mun` | TuronMUN + Turon Debate + admin + chair (React/Vite) → `dist/` | https://turon-one-mun.vercel.app (Debate: `/debat`, admin: `?subdomain=admin`, chair: `?subdomain=chair`) | mun. / debat. / admin. / chair.turon.one |
+| `apps/mun` | TuronMUN + Turon Debate + Vibe Turon + admin + chair (React/Vite) → `dist/` | https://turon-one-mun.vercel.app (Debate: `/debat`, Vibe Turon: `/vibe`, admin: `?subdomain=admin`, chair: `?subdomain=chair`) | mun. / debat. / vibe. / admin. / chair.turon.one |
 
-- **How it routes:** root `middleware.js` reads the hostname. `turon.one`, `www.turon.one` and `turon-website*.vercel.app` get the hub, rewritten to `/hub/...`. `debat.turon.one/` gets the Debate page. Every other hostname gets the MUN app, which picks admin/chair/debate by subdomain (`use-subdomain.ts`).
+- **How it routes:** root `middleware.js` reads the hostname. `turon.one`, `www.turon.one` and `turon-website*.vercel.app` get the hub, rewritten to `/hub/...`. `debat.turon.one/` gets the Debate page and `vibe.turon.one/` the Vibe Turon page. Every other hostname gets the MUN app, which picks admin/chair/debate by subdomain (`use-subdomain.ts`).
 - **Build:** root `package.json` → `npm --prefix apps/mun run build` + `scripts/assemble.mjs`. Root `vercel.json` holds the install/build/output settings, rewrites and per-host security headers. The hub keeps its strict CSP; the MUN app keeps its original headers. `apps/mun/vercel.json` and `apps/mun/middleware.js` are upstream copies and are **not used**.
-- **Hub project links:** the `GO` map in `middleware.js` (`/go/mun`, `/go/mun-apply`, `/go/debat`). Change these to turon.one URLs at launch.
-- **Env vars** (on `turon-website`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (turon-one DB), plus `VITE_SITE_URL`, `VITE_ADMIN_URL`, `VITE_CHAIR_URL`, `VITE_DEBATE_URL` and `VITE_HUB_URL`, currently set to the test URLs.
+- **Hub project links:** the `GO` map in `middleware.js` (`/go/mun`, `/go/mun-apply`, `/go/debat`, `/go/vibe`). Change these to turon.one URLs at launch.
+- **Env vars** (on `turon-website`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (turon-one DB), plus `VITE_SITE_URL`, `VITE_ADMIN_URL`, `VITE_CHAIR_URL`, `VITE_DEBATE_URL`, `VITE_VIBE_URL` (defaults to https://vibe.turon.one) and `VITE_HUB_URL`, currently set to the test URLs.
 - Both hosts send `X-Robots-Tag: noindex` during the test; remove it in `vercel.json` at launch.
 - `apps/mun` is a copy of `SoleSergeant/turonmun` at `f6bd6c3` (git subtree). To bring in newer turonmun code (this only reads that repo):
   `git subtree pull --prefix apps/mun https://github.com/SoleSergeant/turonmun.git main`
@@ -36,7 +36,7 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 
 ## Going live on turon.one (checklist)
 1. Buy turon.one (ideally in Vercel, so DNS is automatic).
-2. Add all domains to the one project `turon-website`: `turon.one`, `www.turon.one`, `mun.`, `debat.`, `admin.` and `chair.turon.one`. Routing is automatic (middleware.js).
+2. Add all domains to the one project `turon-website`: `turon.one`, `www.turon.one`, `mun.`, `debat.`, `vibe.`, `admin.` and `chair.turon.one`. Routing is automatic (middleware.js).
 3. Set the `turon-website` env vars to the turon.one URLs (see `src/lib/domains.ts`) and redeploy.
 4. Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**` (+ the vercel.app test URL while testing).
 5. Email: deploy `apps/mun/supabase/functions/send-email` and set `RESEND_API_KEY` / `EMAIL_FROM` secrets (verify turon.one in Resend). Until then, the app's own emails don't send; Supabase's built-in auth emails (confirm, reset) still work, rate-limited.
@@ -46,7 +46,7 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 ## Projects (as of now)
 - **TuronMUN**: live at https://www.turonmun.com (apply: `/register`). Season 8 is "coming soon" there.
 - **Turon Debate**: running since Nov 2026.
-- **Vibe Turon**: warm-up in Feb 2027, then the vibeathon in spring 2027.
+- **Vibe Turon**: an AI-aided hackathon ("hackathon" first, AI-aided second; don't call it a vibeathon on the site). Warm-up Feb 2027, the 2-day event planned for March 2027 (Day 1 build + workshops, Day 2 fair + finals). Landing page: `apps/mun/src/pages/vibe/VibeLanding.tsx`, all text in Admin → Website → Content → **Vibe Turon** (`vibe` section in `sections.ts`). The **Status** dropdown switches Coming soon (Telegram button) / Registration open (Register button → the Registration link) / Finished. Logo files: `apps/mun/public/vibe/` (V mark only, no wordmark on the page); link preview `og-image.png` + `scripts/vibe-meta.mjs`. Prize pool, 150 places, coins and track names stay off the page until announced. Registration itself is an external link for now.
 - **Turon Research is NOT running.** It was removed from the site (projects, milestones, numbers, copy). Don't add it back unless the user says so.
 
 ## Design direction

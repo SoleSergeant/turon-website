@@ -19,6 +19,7 @@ const blankFor = (fields: Field[]): Obj => {
     } else if (f.type === 'list' || f.type === 'strings') o[f.key] = [];
     else if (f.type === 'boolean') o[f.key] = true;
     else if (f.type === 'number') o[f.key] = 0;
+    else if (f.type === 'select') o[f.key] = f.options[0]?.value ?? '';
     else o[f.key] = '';
   });
   return o;
@@ -167,6 +168,12 @@ function FieldInput({ field, value, onChange }: { field: Field; value: any; onCh
           <input type="checkbox" checked={!!value} onChange={e => onChange(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-panel-600" />
           {value ? 'Yes' : 'No'}
         </label>
+      );
+    case 'select':
+      return (
+        <select value={value ?? ''} onChange={e => onChange(e.target.value)} aria-label={field.label} className={`${inputCls} max-w-xs bg-white`}>
+          {field.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
       );
     case 'date':
       return (

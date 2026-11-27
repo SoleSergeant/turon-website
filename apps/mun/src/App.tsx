@@ -95,6 +95,8 @@ const MyHistory = lazy(() => import("./pages/dashboard/MyHistory"));
 const DebateLanding = lazy(() => import("./pages/debate/DebateLanding"));
 const DebateLogin = lazy(() => import("./pages/debate/DebateLogin"));
 const DebateRegister = lazy(() => import("./pages/debate/DebateRegister"));
+// Vibe Turon (vibe.turon.one)
+const VibeLanding = lazy(() => import("./pages/vibe/VibeLanding"));
 
 const ChairLogin = lazy(() => import("./pages/chair/ChairLogin"));
 const ChairDashboardLayout = lazy(() => import("./pages/dashboard/ChairDashboard"));
@@ -118,12 +120,15 @@ const queryClient = new QueryClient({
   },
 });
 
+/** Turon Debate and Vibe Turon pages on the main host: light, no MUN splash. */
+const isProjectPath = () => /^\/(debat|vibe)(\/|$)/.test(window.location.pathname);
+
 // Lightweight fallback while a route chunk is being fetched. Navy on the
 // public site so pages don't flash white; the admin, chair and Turon Debate
 // pages are light.
 const RouteFallback = () => {
   const subdomain = useSubdomain();
-  const dark = subdomain === 'none' && !window.location.pathname.startsWith('/debat');
+  const dark = subdomain === 'none' && !isProjectPath();
   return (
     <div className={`min-h-screen flex items-center justify-center ${dark ? 'bg-diplomatic-900' : 'bg-white'}`}>
       <div className={`w-8 h-8 border-4 border-t-transparent rounded-full animate-spin ${dark ? 'border-gold-400' : 'border-diplomatic-500'}`} />
@@ -270,6 +275,15 @@ const App = () => {
       );
     }
 
+    if (subdomain === 'vibe') {
+      return (
+        <Routes>
+          <Route path="/" element={<VibeLanding />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      );
+    }
+
     if (subdomain === 'chair') {
       return (
         <Routes>
@@ -326,6 +340,9 @@ const App = () => {
         <Route path="/debat/login" element={<DebateLogin />} />
         <Route path="/debat/register" element={<DebateRegister />} />
 
+        {/* Vibe Turon at /vibe (same page as vibe.turon.one) */}
+        <Route path="/vibe" element={<VibeLanding />} />
+
         {/* Chair login & dashboard (non-subdomain access) */}
         <Route path="/chair-login" element={<ChairLogin />} />
         <Route path="/chair-dashboard" element={<ChairRoute><ChairDashboardLayout /></ChairRoute>}>
@@ -360,7 +377,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {showSplash && subdomain === 'none' && !window.location.pathname.startsWith('/debat') && <SplashScreen onComplete={endSplash} />}
+          {showSplash && subdomain === 'none' && !isProjectPath() && <SplashScreen onComplete={endSplash} />}
           <BrowserRouter>
             <ScrollToTop />
             {subdomain === 'none' && <PageTitle />}
