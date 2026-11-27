@@ -35,14 +35,15 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - **Hub content:** past milestones only (founding 28 Jun 2024, MyMUN 2024 awards, rename to TuronMUN 12 May 2025, MyMUN 2025 3rd place, Turon Debate Nov 2026). No future plans: Vibe Turon is off the hub until the user decides (see the decision chat).
 - **Supabase:** project `turon-one`, ref `acqfxuvnhmmgblkmcpnh`, Frankfurt, free. Schema 000 → 062 (006 skipped) + 063, checked against the live schema. No data yet. The disabled function `run-migrations-once` (answers 410) can be deleted in the dashboard.
 - **Supabase security check (2026-11-27):** no errors. `068_revoke_trigger_fn_execute.sql` (applied) stops the API from calling trigger functions (`trg_*`). The remaining warnings are deliberate: every admin/staff RPC checks the role itself (`is_academic_staff`, `is_sg`, `is_active_admin`), and the anon-callable ones (`form_approved_count`, `verify_certificate`, `debate_public_results`, role checks used by RLS) are meant to be public. Performance notes (unused indexes, several permissive policies) can wait: the database is empty.
-- **Auth URLs (launch step 4) still to do:** email sign-up needs confirmation, so Site URL must be `https://mun.turon.one`, not `localhost`.
+- **Auth URLs (done 2026-11-27):** Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**`, `https://turon.one/**` (the app returns to `window.location.origin` on each subdomain). Email sign-up needs confirmation; emails come from Supabase's built-in sender (2/hour limit) until custom SMTP/Resend is set.
+- **Google sign-in is NOT enabled** in `turon-one`, but the login/sign-up pages (mun. and debat.) show Google buttons, which fail. Either enable Google (Authentication → Providers, needs a Google OAuth client) or hide the buttons.
 - `designs/` holds the archived design explorations. Local hub preview: `.claude/launch.json` serves `apps/hub` on :5173.
 
 ## Going live on turon.one (checklist)
 1. ✅ Bought turon.one in Vercel (DNS automatic).
 2. ✅ All domains on `turon-website`: `turon.one`, `www.` (→ apex), `mun.`, `debat.`, `vibe.`, `admin.`, `chair.turon.one`.
 3. ✅ Env vars set to the turon.one URLs.
-4. ⏳ Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**` (+ `https://turon-website-roan.vercel.app/**` while testing).
+4. ✅ Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**`, `https://turon.one/**`.
 5. Email: deploy `apps/mun/supabase/functions/send-email` and set `RESEND_API_KEY` / `EMAIL_FROM` secrets (verify turon.one in Resend). Until then, the app's own emails don't send; Supabase's built-in auth emails (confirm, reset) still work, rate-limited.
 6. First admin: sign up on the MUN site, then add that email to `admin_users` with role `sg` (Supabase SQL editor). See `apps/mun/docs/ADMIN_PANEL_SETUP.md`.
 7. ✅ `X-Robots-Tag` removed for turon.one; hub canonical/sitemap say https://turon.one/. Note: the MUN app's `og:url`, `robots.txt` and `sitemap.xml` still point at www.turonmun.com (the live TuronMUN site).
