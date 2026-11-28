@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects section concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#283480; --navy-900:#141B4D; --navy-800:#1E2766; --navy-line:#3E4A9A;
+  --ink:#1A2156; --bg:#F4F5FA; --surface:#fff; --muted:#4A5280; --on-navy:#D3D7F7; --line:#CDD1E8;
+  --gold:#F6A81C; --gold-ink:#8A5A00;
+  --mun:#F6A81C; --debate:#C92A2A; --vibe:#6741D9;
+  --ex1:#0B7285; --ex2:#2B8A3E; /* example accents for "future" projects only */
+  --display:'Unbounded',system-ui,sans-serif; --text:'Inter',system-ui,sans-serif;
+  --pad:clamp(16px,4vw,32px);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#E9EBF4;color:var(--ink);font:400 16px/1.5 var(--text)}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.1;color:var(--navy)}
+a{color:inherit}
+.p-mun{--c:var(--mun);--on-c:var(--navy-900)}
+.p-debate{--c:var(--debate);--on-c:#fff}
+.p-vibe{--c:var(--vibe);--on-c:#fff}
+.p-ex1{--c:var(--ex1);--on-c:#fff}
+.p-ex2{--c:var(--ex2);--on-c:#fff}
+.extra{display:none!important}
+body:has(#many:checked) .extra{display:flex!important}
+
+/* page chrome */
+.intro{max-width:1240px;margin:0 auto;padding:40px var(--pad) 8px}
+.intro h1{font-size:clamp(24px,4vw,36px)}
+.intro p{color:var(--muted);margin-top:10px;max-width:62ch}
+.toggle{display:inline-flex;align-items:center;gap:10px;margin-top:18px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:600;cursor:pointer;user-select:none}
+.toggle input{width:18px;height:18px;accent-color:var(--navy)}
+.concept{max-width:1240px;margin:36px auto 0;padding:0 var(--pad)}
+.label{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.label b{font:700 13px var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink)}
+.label h2{font-size:20px}
+.label p{flex-basis:100%;color:var(--muted);font-size:15px;max-width:75ch}
+.screen{border-radius:24px;overflow:hidden;padding:clamp(24px,4vw,48px) clamp(18px,4vw,48px);box-shadow:0 10px 30px rgba(20,27,77,.12)}
+.light{background:var(--bg)}
+.dark{background:linear-gradient(160deg,#33409A,#283480 45%,#141B4D);color:#fff}
+.dark h2,.dark h3{color:#fff}
+.head{margin-bottom:clamp(18px,3vw,28px)}
+.head h2{font-size:clamp(26px,3.4vw,40px)}
+.head p{color:var(--muted);margin-top:8px}
+.dark .head p{color:var(--on-navy)}
+.chip{display:inline-block;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--c);color:var(--on-c);white-space:nowrap}
+.arrow{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:20px;transition:transform .2s}
+.end{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px 56px}
+
+/* ---------- A. Index list ---------- */
+.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.list li{display:flex}
+.list a{flex:1;display:grid;grid-template-columns:56px minmax(0,1.1fr) minmax(0,1.6fr) auto 44px;align-items:center;gap:20px;padding:18px 16px;border-bottom:1px solid var(--line);text-decoration:none;position:relative;transition:background .2s,color .2s}
+.list a::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:5px;border-radius:4px;background:var(--c)}
+.list .n{font:500 14px var(--display);color:var(--muted);padding-left:14px}
+.list h3{font-size:clamp(20px,2.4vw,28px)}
+.list p{color:#3C4478;font-size:15px}
+.list .arrow{border:1.5px solid var(--line);color:var(--navy)}
+.list a:hover{background:var(--c);color:var(--on-c)}
+.list a:hover h3,.list a:hover p,.list a:hover .n{color:var(--on-c)}
+.list a:hover .chip{background:var(--on-c);color:var(--c)}
+.list a:hover .arrow{border-color:currentColor;color:var(--on-c);transform:translateX(4px)}
+@media (max-width:760px){
+  .list a{grid-template-columns:1fr auto;grid-template-areas:"t a" "d a" "s a";gap:4px 12px;padding:14px 8px 14px 22px}
+  .list a::before{top:12px;bottom:12px}
+  .list .n{display:none}
+  .list h3{grid-area:t}.list p{grid-area:d;font-size:14px}.list .chip{grid-area:s;justify-self:start;margin-top:6px}.list .arrow{grid-area:a}
+}
+
+/* ---------- B. Spotlight + grid ---------- */
+.spot{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.feature{border-radius:22px;background:var(--c);color:var(--on-c);padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:14px;min-height:340px;text-decoration:none;position:relative;overflow:hidden}
+.feature::after{content:"";position:absolute;right:-80px;bottom:-80px;width:260px;height:260px;border-radius:50%;border:40px solid rgba(255,255,255,.12)}
+.feature .tag{font:600 12.5px var(--text);letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.feature h3{color:inherit;font-size:clamp(30px,4vw,48px)}
+.feature p{font-size:17px;max-width:36ch;opacity:.95;flex:1}
+.feature .cta{align-self:flex-start;background:#fff;color:var(--c);font-weight:700;border-radius:14px;padding:13px 22px;position:relative;z-index:1}
+.side{display:grid;grid-template-columns:1fr;gap:16px;align-content:start}
+body:has(#many:checked) .side{grid-template-columns:1fr 1fr}
+.mini{background:#fff;border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;text-decoration:none;border-left:6px solid var(--c);transition:transform .2s}
+.mini:hover{transform:translateY(-3px)}
+.mini .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mini h3{font-size:21px}
+.mini p{color:#3C4478;font-size:14.5px}
+@media (max-width:760px){
+  .spot{grid-template-columns:1fr}
+  .feature{min-height:0}
+  .side,body:has(#many:checked) .side{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:78%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .mini{scroll-snap-align:start}
+}
+
+/* ---------- C. Colour tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.tile{background:var(--c);color:var(--on-c);border-radius:22px;padding:22px;min-height:300px;display:flex;flex-direction:column;text-decoration:none;position:relative;overflow:hidden;transition:transform .25s}
+.tile:hover{transform:translateY(-6px) rotate(-.6deg)}
+.tile .n{font:700 64px/1 var(--display);opacity:.22;letter-spacing:-.04em}
+.tile h3{color:inherit;font-size:clamp(22px,2.2vw,28px);margin-top:auto}
+.tile p{font-size:14.5px;margin-top:8px;opacity:.92}
+.tile .row{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.tile .chip{background:rgba(255,255,255,.2);color:inherit}
+.p-mun.tile .chip{background:rgba(20,27,77,.12)}
+.tile .arrow{background:rgba(255,255,255,.22)}
+.p-mun.tile .arrow{background:var(--navy-900);color:var(--gold)}
+.tile:hover .arrow{transform:translateX(4px)}
+@media (max-width:760px){
+  .tiles{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:76%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .tile{scroll-snap-align:start;min-height:280px}
+}
+
+/* ---------- D. I want to… ---------- */
+.want{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.w{background:#fff;border-radius:22px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:6px;text-decoration:none;border:2px solid transparent;transition:border-color .2s,transform .2s}
+.w:hover{border-color:var(--c);transform:translateY(-3px)}
+.w .verb{font:500 14px var(--text);color:var(--muted)}
+.w .goal{font:700 clamp(21px,2.2vw,26px)/1.15 var(--display);letter-spacing:-.03em;color:var(--navy)}
+.w .goal span{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--c) 35%,transparent) 62%)}
+.w .proj{display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:16px;border-top:1px solid #E4E6F2;font-weight:600;color:var(--navy)}
+.w .dot{width:12px;height:12px;border-radius:4px;background:var(--c)}
+.w .proj em{font-style:normal;margin-left:auto;color:var(--muted);font-weight:500;font-size:14px}
+@media (max-width:760px){.want{grid-template-columns:1fr;gap:10px}.w{padding:16px 18px}.w .proj{padding-top:10px}}
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Projects section: 4 concepts</h1>
+  <p>Brand colours only: navy base, TuronMUN gold, Debate red, Vibe violet. Every layout grows to any number of projects. Resize the window (or open on a phone) to see the mobile version.</p>
+  <label class="toggle"><input type="checkbox" id="many"> Preview with 5 projects</label>
+</header>
+
+<!-- ============ A ============ -->
+<section class="concept">
+  <div class="label"><b>Concept A</b><h2>Index</h2><p>An editorial list: one row per project. The row fills with the project's colour on hover. Easiest to scan and the most scalable: a 6th project is just one more row.</p></div>
+  <div class="screen light">
+    <div class="head"><h2>Projects</h2><p>Everything Turon runs, in one place.</p></div>
+    <ul class="list">
+      <li class="p-mun"><a href="#"><span class="n">01</span><h3>TuronMUN</h3><p>Student-run Model UN. 8 conferences, 700+ delegates.</p><span class="chip">Since 2024</span><span class="arrow">→</span></a></li>
+      <li class="p-debate"><a href="#"><span class="n">02</span><h3>Turon Debate</h3><p>Real motions and a real audience, every 1–2 months.</p><span class="chip">Running now</span><span class="arrow">→</span></a></li>
+      <li class="p-vibe"><a href="#"><span class="n">03</span><h3>Vibe Turon</h3><p>An AI-aided hackathon. Build a working app in a weekend.</p><span class="chip">Coming soon</span><span class="arrow">→</span></a></li>
+      <li class="p-ex1 extra"><a href="#"><span class="n">04</span><h3>Project four</h3><p>Example row to show how the list grows.</p><span class="chip">Example</span><span class="arrow">→</span></a></li>
+      <li class="p-ex2 extra"><a href="#"><span class="n">05</span><h3>Project five</h3><p>Example row to show how the list grows.</p><span class="chip">Example</span><span class="arrow">→</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ B ============ -->
+<section class="concept">
+  <div class="label"><b>Concept B</b><h2>Spotlight</h2><p>The project you most want people to act on right now gets a big card in its own colour; the rest sit beside it as small cards. Move the spotlight by swapping one class. On phones the small cards become a swipe row.</p></div>
+  <div class="screen light">
+    <div class="head"><h2>Projects</h2><p>Two running now, more on the way.</p></div>
+    <div class="spot">
+      <a class="feature p-debate" href="#"><span class="tag">Registration open</span><h3>Turon Debate</h3><p>Real motions, a real audience. You learn to back up your argument.</p><span class="cta">Register →</span></a>
+      <div class="side">
+        <a class="mini p-mun" href="#"><div class="top"><h3>TuronMUN</h3><span class="chip">Since 2024</span></div><p>Student-run Model UN. 8 conferences, 700+ delegates.</p></a>
+        <a class="mini p-vibe" href="#"><div class="top"><h3>Vibe Turon</h3><span class="chip">Coming soon</span></div><p>An AI-aided hackathon. Build a working app in a weekend.</p></a>
+        <a class="mini p-ex1 extra" href="#"><div class="top"><h3>Project four</h3><span class="chip">Example</span></div><p>Example card.</p></a>
+        <a class="mini p-ex2 extra" href="#"><div class="top"><h3>Project five</h3><span class="chip">Example</span></div><p>Example card.</p></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C ============ -->
+<section class="concept">
+  <div class="label"><b>Concept C</b><h2>Colour tiles</h2><p>On the navy background, each project is a solid tile in its own colour, so the ecosystem reads as a set of colours at a glance. The grid fills itself; on phones it is a swipe row.</p></div>
+  <div class="screen dark">
+    <div class="head"><h2>Projects</h2><p>One ecosystem, one colour per project.</p></div>
+    <div class="tiles">
+      <a class="tile p-mun" href="#"><span class="n">01</span><h3>TuronMUN</h3><p>Student-run Model UN. 8 conferences, 700+ delegates.</p><div class="row"><span class="chip">Since 2024</span><span class="arrow">→</span></div></a>
+      <a class="tile p-debate" href="#"><span class="n">02</span><h3>Turon Debate</h3><p>Real motions and a real audience, every 1–2 months.</p><div class="row"><span class="chip">Running now</span><span class="arrow">→</span></div></a>
+      <a class="tile p-vibe" href="#"><span class="n">03</span><h3>Vibe Turon</h3><p>An AI-aided hackathon. Build a working app in a weekend.</p><div class="row"><span class="chip">Coming soon</span><span class="arrow">→</span></div></a>
+      <a class="tile p-ex1 extra" href="#"><span class="n">04</span><h3>Project four</h3><p>Example tile.</p><div class="row"><span class="chip">Example</span><span class="arrow">→</span></div></a>
+      <a class="tile p-ex2 extra" href="#"><span class="n">05</span><h3>Project five</h3><p>Example tile.</p><div class="row"><span class="chip">Example</span><span class="arrow">→</span></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ D ============ -->
+<section class="concept">
+  <div class="label"><b>Concept D</b><h2>I want to…</h2><p>Lead with what a student wants to do, not with a project name they don't know yet. The project name sits underneath, marked with its colour.</p></div>
+  <div class="screen light">
+    <div class="head"><h2>What do you want to do?</h2><p>Pick one to start.</p></div>
+    <div class="want">
+      <a class="w p-mun" href="#"><span class="verb">I want to</span><span class="goal"><span>represent a country</span></span><span class="proj"><i class="dot"></i>TuronMUN<em>→</em></span></a>
+      <a class="w p-debate" href="#"><span class="verb">I want to</span><span class="goal"><span>win an argument</span></span><span class="proj"><i class="dot"></i>Turon Debate<em>→</em></span></a>
+      <a class="w p-vibe" href="#"><span class="verb">I want to</span><span class="goal"><span>build an app</span></span><span class="proj"><i class="dot"></i>Vibe Turon<em>→</em></span></a>
+      <a class="w p-ex1 extra" href="#"><span class="verb">I want to</span><span class="goal"><span>do something new</span></span><span class="proj"><i class="dot"></i>Project four<em>→</em></span></a>
+      <a class="w p-ex2 extra" href="#"><span class="verb">I want to</span><span class="goal"><span>try another thing</span></span><span class="proj"><i class="dot"></i>Project five<em>→</em></span></a>
+    </div>
+  </div>
+</section>
+
+<p class="end">Teal and green on the example projects are placeholders, not brand colours.</p>
+</body>
+</html>

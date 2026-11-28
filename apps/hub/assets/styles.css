@@ -270,19 +270,46 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
 }
 /* Phones: wide rows become sideways swipe rows so each screen stays one screen tall */
 @media (max-width:767px){
-  .projects,.cards,.timeline,.partners{display:flex;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);gap:12px;margin-inline:calc(-1 * var(--pad));padding:0 var(--pad) 6px;scrollbar-width:none}
-  .projects::-webkit-scrollbar,.cards::-webkit-scrollbar,.timeline::-webkit-scrollbar,.partners::-webkit-scrollbar{display:none}
-  .projects>li,.cards>.card{flex:0 0 86%;scroll-snap-align:start}
-  .partners>li{flex:0 0 58%;scroll-snap-align:start}
-  .timeline{gap:0;padding-top:10px}
-  .timeline li{flex:0 0 74%;padding-right:20px;scroll-snap-align:start}
+  /* get involved: stacked compact cards (title + link on one line), partners in a 2-column grid; all on one screen */
+  .cards{grid-template-columns:1fr;gap:8px}
+  .card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:2px 12px;padding:12px 16px;border-radius:16px}
+  .card h3{font-size:17px}
+  .card .go{grid-column:2;grid-row:1;font-size:13.5px;white-space:nowrap}
+  .card p{grid-column:1/-1;font-size:13.5px;line-height:1.42}
+  .partners-title{margin-top:clamp(14px,2.5vh,22px)}
+  .partners{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .partners>li{flex:0 1 auto}
+  .partner{min-height:32px;padding:5px 12px;font-size:13px;border-radius:999px}
+  .partner small{display:none} /* names only on phones; the seasons are in Milestones and on turonmun.com */
+  .partners>li:has(.partner-cta){display:none} /* same link as the "Partner or mentor" card */
+  /* projects: all on one screen, stacked compact cards with a colour bar on the left */
+  .projects{grid-template-columns:1fr;gap:10px}
+  .project{border-top:0;border-left:5px solid var(--c);border-radius:16px}
+  .project-body{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 10px}
+  .project-top{display:contents}
+  .project .num{display:none}
+  .project .chip{grid-column:2;grid-row:1;font-size:12px;padding:4px 10px}
+  .project h3{grid-column:1;grid-row:1}
+  .project p,.project-links{grid-column:1/-1}
+  .project .more{display:none} /* the full text is on each project's own site */
+  #projects .section-head p{display:none} /* the status chips already say it */
+  .project-links{border-top:0;padding-top:0;gap:0 14px}
+  .project .text-link{min-height:36px;font-size:15px}
+  /* milestones: a vertical timeline, all five on one screen */
+  .timeline{grid-template-columns:1fr;gap:0;padding-left:8px}
+  .timeline li{flex-direction:row;flex-wrap:wrap;gap:0 10px;padding:0 0 clamp(10px,1.8vh,16px) 22px;border-top:0;border-left:2px solid var(--line);font-size:15px}
+  .timeline li:last-child{padding-bottom:0;border-left-color:transparent}
+  .timeline li::before{top:2px;left:-9px}
+  .timeline .when{font-size:13.5px;line-height:1.5}
+  .timeline .what{flex-basis:100%;line-height:1.35}
+  .timeline .what small{font-size:13.5px;margin-top:2px;line-height:1.4}
   .impact{grid-template-columns:1fr 1fr;border-top:0}
   .impact .stat{border-top:1px solid var(--navy-line);padding:16px 12px 18px 0}
   .split{grid-template-columns:1fr;gap:20px}
   .split-intro{gap:8px}
   .story{border-radius:22px}
   .story p{font-size:15px;line-height:1.55}
-  .project-body{padding:18px 20px;gap:10px}
+  .project-body{padding:13px 16px;gap:4px 10px}
   .project p{font-size:15px;line-height:1.5}
   .photos{display:block;min-height:0;height:clamp(130px,16vh,220px)}
   .photo:first-child{height:100%}
@@ -356,14 +383,22 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
   .numbers .wrap{gap:14px}
   .awards{font-size:13px;gap:6px 8px}
   .awards li{padding:4px 10px}
-  .project h3{font-size:21px}
-  .project-body{padding:16px 18px;gap:8px}
-  .project p{font-size:14.5px}
+  .project h3{font-size:19px}
+  .project-body{padding:11px 14px;gap:2px 10px}
+  .project p{font-size:13.5px;line-height:1.42}
+  .project .text-link{min-height:32px;font-size:14px}
+  .timeline li{font-size:14px}
+  .timeline .what small{font-size:12.5px}
+  .timeline li{padding-bottom:8px}
   .story{padding:18px;gap:10px}
   .story h2{font-size:21px}
   .story p{font-size:14.5px}
-  .card{padding:18px;gap:8px}
-  .partners-title{margin-top:18px}
+  .card{padding:9px 14px}
+  .cards{gap:6px}
+  .card p{font-size:13px;line-height:1.38}
+  .partners-title{margin-top:10px}
+  .partners{gap:5px}
+  .partner{min-height:29px;padding:4px 11px;font-size:12.5px}
   .section-head{margin-bottom:10px}
   .section-head p,.lead{font-size:14.5px}
 }
@@ -407,4 +442,9 @@ html.wheel{--screen:calc(100vh - var(--hh) - var(--dial-v))}
   html[data-tone="light"] .dial a{color:var(--muted)}
   html[data-tone="light"] .dial a:hover{color:var(--navy)}
   html[data-tone="light"] .dial a[aria-current="true"]{color:var(--gold-ink)}
+}
+/* very short phones: projects and milestones keep only their headline lines so they still fit */
+@media (max-width:767px) and (max-height:600px){
+  .project p,.timeline .what small,.card p{display:none}
+  .faq summary{min-height:46px}
 }
