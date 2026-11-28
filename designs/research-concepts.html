@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Turon Research concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#283480; --navy-900:#141B4D; --navy-800:#1E2766; --navy-line:#3E4A9A;
+  --ink:#1A2156; --bg:#F4F5FA; --surface:#fff; --muted:#4A5280; --on-navy:#D3D7F7; --line:#CDD1E8;
+  --gold:#F6A81C; --gold-ink:#8A5A00;
+  /* Research accent (proposal): teal. Kept away from MUN gold, Debate red, Vibe violet.
+     --res on light (5.4:1 on white), --res-lt on navy (6:1 on #283480). */
+  --res:#0B7285; --res-lt:#5FD3E2; --res-tint:#E3F4F6;
+  --display:'Unbounded',system-ui,sans-serif; --text:'Inter',system-ui,sans-serif;
+  --pad:clamp(16px,4vw,32px);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#E9EBF4;color:var(--ink);font:400 16px/1.5 var(--text)}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.03em;line-height:1.1;color:var(--navy)}
+a{color:inherit}
+ul{margin:0;padding:0;list-style:none}
+.ph{background:rgba(246,168,28,.22);border-radius:4px;padding:0 3px;font-style:normal}
+.dk .ph{background:rgba(246,168,28,.3)}
+
+/* page chrome */
+.intro{max-width:1240px;margin:0 auto;padding:40px var(--pad) 8px}
+.intro h1{font-size:clamp(24px,4vw,36px)}
+.intro p{color:var(--muted);margin-top:10px;max-width:70ch}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.jump a{background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:600;text-decoration:none;font-size:15px}
+.jump a:hover{border-color:var(--navy)}
+.findings{max-width:1240px;margin:28px auto 0;padding:0 var(--pad)}
+.findings .box{background:#fff;border-radius:20px;padding:22px clamp(18px,3vw,28px)}
+.findings h2{font-size:18px;margin-bottom:12px}
+.findings ol{margin:0;padding-left:20px;display:grid;gap:6px;color:#3C4478;font-size:15px}
+.findings ol b{color:var(--ink)}
+.concept{max-width:1240px;margin:44px auto 0;padding:0 var(--pad)}
+.label{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.label b{font:700 13px var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink)}
+.label h2{font-size:22px}
+.label p{flex-basis:100%;color:var(--muted);font-size:15px;max-width:80ch}
+.label .from{flex-basis:100%;font-size:13.5px;color:var(--muted)}
+.label .from em{font-style:normal;font-weight:600;color:var(--ink)}
+.frame{border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(20,27,77,.14);background:var(--bg)}
+.bar{display:flex;align-items:center;gap:8px;background:#DADDEB;padding:9px 14px;font-size:13px;color:var(--muted)}
+.bar i{width:10px;height:10px;border-radius:50%;background:#B9BDD4}
+.bar span{margin-left:8px;background:#fff;border-radius:8px;padding:3px 12px}
+.end{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px 56px}
+
+/* shared site bits */
+.w{max-width:1120px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+.sec{padding:clamp(36px,6vw,64px) 0}
+.eyebrow{font:600 12.5px/1.3 var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--res)}
+.dk{background:linear-gradient(160deg,#33409A,#283480 45%,#141B4D);color:#fff}
+.dk h1,.dk h2,.dk h3,.dk h4{color:#fff}
+.dk .eyebrow{color:var(--res-lt)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px}
+.mark{display:inline-flex;align-items:center;gap:8px;font:800 18px var(--display);letter-spacing:-.02em;text-decoration:none}
+.mark svg{width:24px;height:24px}
+.mark small{font:600 11px var(--text);letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-left:2px}
+.top nav{display:flex;gap:18px;font-size:14.5px;font-weight:500}
+.top nav a{text-decoration:none;opacity:.85}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:13px;font:600 15.5px var(--text);text-decoration:none;border:1.5px solid transparent;white-space:nowrap}
+.btn-res{background:var(--res);color:#fff}
+.btn-gold{background:var(--gold);color:var(--navy-900)}
+.btn-ghost{border-color:var(--line);color:var(--navy)}
+.dk .btn-ghost{border-color:rgba(255,255,255,.45);color:#fff}
+.h2{font-size:clamp(24px,3.2vw,36px)}
+.lead{color:var(--muted);margin-top:10px;max-width:60ch}
+.dk .lead{color:var(--on-navy)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--res-tint);color:var(--res)}
+@media (max-width:760px){.top nav{display:none}}
+
+/* ================= A. The Journal ================= */
+.A{background:#FBFBFD}
+.A .top{border-bottom:1px solid var(--line)}
+.A .masthead{padding:clamp(36px,6vw,72px) 0 clamp(28px,4vw,44px);border-bottom:3px double var(--navy);display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:end}
+.A .masthead h1{font-size:clamp(34px,6vw,72px);letter-spacing:-.045em}
+.A .masthead h1 span{color:var(--res)}
+.A .masthead p{color:var(--muted);margin-top:14px;max-width:48ch;font-size:17px}
+.A .issue{border-left:3px solid var(--res);padding-left:18px;display:grid;gap:4px;font-size:14.5px;color:var(--muted)}
+.A .issue strong{font:700 20px var(--display);color:var(--navy);letter-spacing:-.02em}
+.A .issue .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.A .filters{display:flex;gap:8px;flex-wrap:wrap;padding:18px 0}
+.A .filters button{font:500 14px var(--text);border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;color:var(--navy);cursor:pointer}
+.A .filters button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
+.A .toc li{display:grid;grid-template-columns:64px 1fr auto;gap:20px;padding:22px 0;border-top:1px solid var(--line);align-items:start}
+.A .toc .num{font:500 14px var(--display);color:var(--muted);padding-top:4px}
+.A .toc h3{font-size:clamp(18px,2vw,22px);letter-spacing:-.02em;line-height:1.25}
+.A .toc .meta{font-size:14px;color:var(--muted);margin-top:6px}
+.A .toc .abs{font-size:15px;color:#3C4478;margin-top:8px;max-width:72ch}
+.A .toc .pdf{font-weight:600;font-size:14px;color:var(--res);text-decoration:none;border:1.5px solid var(--res);border-radius:10px;padding:6px 12px}
+.A .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;border-top:3px double var(--navy);padding-top:28px}
+.A .cols h4{font-size:16px;margin-bottom:8px}
+.A .cols p{font-size:15px;color:#3C4478}
+.A .cols a{font-weight:600;color:var(--res)}
+@media (max-width:760px){
+  .A .masthead{grid-template-columns:1fr;gap:20px}
+  .A .toc li{grid-template-columns:1fr auto;gap:6px 12px}
+  .A .toc .num{grid-column:1/-1;padding:0}
+  .A .toc .abs{display:none}
+  .A .cols{grid-template-columns:1fr;gap:18px}
+}
+
+/* ================= B. The Pathway ================= */
+.B .hero{padding:clamp(36px,6vw,80px) 0 clamp(40px,6vw,72px);display:grid;grid-template-columns:1.25fr 1fr;gap:36px;align-items:center}
+.B .hero h1{font-size:clamp(32px,5.4vw,62px);letter-spacing:-.045em}
+.B .hero h1 em{font-style:normal;color:var(--gold)}
+.B .hero p{color:var(--on-navy);font-size:17.5px;margin-top:16px;max-width:46ch}
+.B .hero .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.B .next{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:22px}
+.B .next .eyebrow{margin-bottom:10px}
+.B .next dl{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin:0;font-size:15px}
+.B .next dt{color:var(--on-navy)}
+.B .next dd{margin:0;font-weight:600}
+.B .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px;counter-reset:s}
+.B .step{background:#fff;border-radius:20px;padding:24px;position:relative;counter-increment:s}
+.B .step::before{content:"0" counter(s);font:700 40px/1 var(--display);color:var(--res);opacity:.18;position:absolute;right:20px;top:18px}
+.B .step .wk{font-size:13px;font-weight:600;color:var(--res)}
+.B .step h3{font-size:21px;margin:8px 0}
+.B .step p{font-size:15px;color:#3C4478}
+.B .step ul{margin-top:12px;display:grid;gap:6px;font-size:14.5px;color:var(--ink)}
+.B .step li::before{content:"→ ";color:var(--res);font-weight:700}
+.B .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+.B .card{background:#fff;border-radius:20px;padding:24px}
+.B .card h3{font-size:19px;margin-bottom:12px}
+.B .card li{padding:9px 0;border-top:1px solid #E4E6F2;font-size:15px;display:flex;gap:10px}
+.B .card li b{color:var(--res);font-weight:700}
+.B .mentors{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+.B .m{background:#fff;border-radius:18px;padding:16px;text-align:center}
+.B .m .av{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;background:repeating-linear-gradient(45deg,#E4E6F2 0 6px,#EEF0F7 6px 12px);display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.B .m h4{font-size:14.5px;letter-spacing:-.01em}
+.B .m p{font-size:13px;color:var(--muted);margin-top:3px}
+@media (max-width:860px){
+  .B .hero{grid-template-columns:1fr}
+  .B .steps,.B .split{grid-template-columns:1fr}
+  .B .mentors{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ================= C. Question-first ================= */
+.C .hero{padding:clamp(36px,6vw,80px) 0 clamp(28px,4vw,48px);text-align:center}
+.C .hero h1{font-size:clamp(30px,5.2vw,60px);letter-spacing:-.045em;max-width:16ch;margin:0 auto}
+.C .hero h1 span{color:var(--res-lt)}
+.C .hero p{color:var(--on-navy);font-size:17.5px;margin:16px auto 0;max-width:52ch}
+.C .ask{max-width:640px;margin:28px auto 0;background:#fff;border-radius:18px;padding:8px 8px 8px 20px;display:flex;align-items:center;gap:10px;color:var(--muted);text-align:left}
+.C .ask span{flex:1;font-size:16px}
+.C .fields{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:20px}
+.C .fields a{border:1.5px solid rgba(255,255,255,.3);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:500;text-decoration:none;color:#fff}
+.C .fields a:hover{background:rgba(255,255,255,.1)}
+.C .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+.C .q{background:#fff;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:10px;border-top:5px solid var(--res);text-decoration:none;transition:transform .2s}
+.C .q:hover{transform:translateY(-4px)}
+.C .q .ql{font:700 19px/1.25 var(--display);letter-spacing:-.02em;color:var(--navy)}
+.C .q .who{font-size:14px;color:var(--muted);margin-top:auto;padding-top:12px;border-top:1px solid #E4E6F2;display:flex;justify-content:space-between;gap:8px}
+.C .q .who b{color:var(--res)}
+.C .q.open{border-top-color:var(--gold);background:#FFF9EC}
+.C .q.open .ql{color:var(--navy)}
+.C .q.open .who b{color:var(--gold-ink)}
+.C .local{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
+.C .local .art{aspect-ratio:4/3;border-radius:22px;background:var(--res-tint);position:relative;overflow:hidden}
+.C .local .art svg{position:absolute;inset:0;width:100%;height:100%}
+.C .local li{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:15.5px}
+.C .local li b{font-family:var(--display);color:var(--res);min-width:28px}
+.C .cta{border-radius:24px;padding:clamp(24px,4vw,40px);display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.C .cta .btns{display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:860px){
+  .C .qgrid{grid-template-columns:1fr}
+  .C .local,.C .cta{grid-template-columns:1fr}
+  .C .ask span{font-size:14.5px}
+}
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Turon Research: 3 concepts</h1>
+  <p>Brand base (navy #283480, Unbounded + Inter, TuronMUN gold for the hub mark) with one new project accent for Research: <b>teal #0B7285</b> (light teal on navy), kept clear of MUN gold, Debate red and Vibe violet. All three follow the agreed project-site template (hero → what it is → format → who can join → what you get → past work → FAQ → apply) and carry the small <b>turon.</b> mark that links back to the hub.</p>
+  <p><span class="ph">Highlighted text</span> is a placeholder or an example. Nothing here is a real paper, mentor or number yet; the brief says every number needs a source. Resize the window (or open on a phone) to see the mobile layout.</p>
+  <nav class="jump" aria-label="Concepts"><a href="#findings">What other sites do</a><a href="#a">A · The Journal</a><a href="#b">B · The Pathway</a><a href="#c">C · Question-first</a></nav>
+</header>
+
+<section class="findings" id="findings">
+  <div class="box">
+    <h2>What research-program sites do (read: RSI, Regeneron STS, Pioneer, Polygence, NHSJS)</h2>
+    <ol>
+      <li><b>A dated deadline or status up top.</b> RSI, STS, Pioneer and Polygence all put "apply by…" or "applications closed" before anything else.</li>
+      <li><b>One fixed facts block.</b> Pioneer gives every program the same Details box: dates, eligibility, format, cost. STS shows a dated timeline (application → Top 300 → finals).</li>
+      <li><b>Papers as cards.</b> NHSJS (the strongest listing) and Pioneer: title, student author, subject tag, date, abstract excerpt, PDF link. NHSJS groups them in subject rows.</li>
+      <li><b>Proof = concrete numbers + named students.</b> STS pairs a few hard numbers with finalist quotes and photos. Pioneer and Polygence lean on stat tiles.</li>
+      <li><b>Mentors by credential.</b> "All our mentors are professors" (Pioneer), "PhD-level, background-checked" (Polygence). Nobody shows mentor faces on the homepage, which is an opening for us.</li>
+      <li><b>Avoid:</b> adjective-only proof (RSI's page has no numbers, papers or outcomes); stat-stacked heroes and repeated testimonial blocks (Pioneer, Polygence); a bare paper index with no "how it works" or next step (NHSJS). Admission-rate stats are off-mission for us anyway.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ A ============ -->
+<section class="concept" id="a">
+  <div class="label"><b>Concept A</b><h2>The Journal</h2>
+    <p>The site <em>is</em> the publication. Light, editorial, a printed-journal masthead and a table of contents of student papers you can filter by field. The program sits below as "How to get published". Feels the most credible and scholarly; it needs real papers to look good, so it fits best after the first cohort.</p>
+    <p class="from">Borrowed from <em>NHSJS</em> and <em>Pioneer</em> (paper cards: title, author, field tag, abstract, PDF), and unlike NHSJS it keeps "how to get published" on the same page.</p></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><span>research.turon.one</span></div>
+  <div class="A">
+    <div class="w top"><a class="mark" href="#a"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#283480" stroke-width="3"/><circle cx="16" cy="16" r="4.5" fill="#F6A81C"/><circle cx="16" cy="5" r="2.6" fill="#283480"/><circle cx="6.5" cy="21.5" r="2.6" fill="#283480"/><circle cx="25.5" cy="21.5" r="2.6" fill="#283480"/></svg>turon.<small>research</small></a>
+      <nav><a href="#a">Papers</a><a href="#a">How to publish</a><a href="#a">Mentors</a><a href="#a">FAQ</a></nav>
+      <a class="btn btn-res" href="#a">Apply</a></div>
+    <div class="w">
+      <div class="masthead">
+        <div><p class="eyebrow">Student research from the Fergana Valley</p>
+          <h1>Turon <span>Research</span><br>Journal</h1>
+          <p>Papers written by school students in Fergana, with a mentor beside them. Read them, cite them, or write the next one.</p></div>
+        <div class="issue"><span>Current issue</span><strong>Vol. 1 · <span class="ph">[Spring 2027]</span></strong><span><span class="ph">[N]</span> papers · <span class="ph">[N]</span> fields</span>
+          <div class="btns"><a class="btn btn-res" href="#a">Apply for cohort 1</a><a class="btn btn-ghost" href="#a">Read the issue</a></div></div>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by field"><button aria-pressed="true">All fields</button><button aria-pressed="false">Medicine &amp; biology</button><button aria-pressed="false">Economics</button><button aria-pressed="false">Environment</button><button aria-pressed="false">Education</button><button aria-pressed="false">History &amp; society</button></div>
+      <ol class="toc">
+        <li><span class="num">01</span><div><h3><span class="ph">Example: Water use in Fergana Valley cotton farms, 2015–2025</span></h3><p class="meta"><span class="ph">[Student name], grade 10</span> · Environment · Mentor: <span class="ph">[name]</span></p><p class="abs"><span class="ph">One-paragraph abstract. What the student asked, how they found out, and what they found, in plain words a classmate can follow.</span></p></div><a class="pdf" href="#a">PDF</a></li>
+        <li><span class="num">02</span><div><h3><span class="ph">Example: How far do Fergana school-leavers travel for university?</span></h3><p class="meta"><span class="ph">[Student name], grade 11</span> · Education · Mentor: <span class="ph">[name]</span></p><p class="abs"><span class="ph">Abstract placeholder.</span></p></div><a class="pdf" href="#a">PDF</a></li>
+        <li><span class="num">03</span><div><h3><span class="ph">Example: Air quality around Fergana's industrial zone</span></h3><p class="meta"><span class="ph">[Student name], grade 9</span> · Medicine &amp; biology · Mentor: <span class="ph">[name]</span></p><p class="abs"><span class="ph">Abstract placeholder.</span></p></div><a class="pdf" href="#a">PDF</a></li>
+      </ol>
+      <div class="cols sec">
+        <div><h4>How to get published</h4><p>Learn the basics, then <span class="ph">8–10</span> weeks with a mentor. Finished papers are reviewed and published here.</p></div>
+        <div><h4>Who can apply</h4><p>School students in <span class="ph">[grades 8–11]</span> from the Fergana region. <span class="ph">[Free / fee]</span>. No experience needed.</p></div>
+        <div><h4>For mentors &amp; reviewers</h4><p>University students and researchers: give <span class="ph">[2 hours a week]</span>. <a href="#a">Become a mentor →</a></p></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============ B ============ -->
+<section class="concept" id="b">
+  <div class="label"><b>Concept B</b><h2>The Pathway</h2>
+    <p>Program first. The navy hero matches the hub (same gradient, gold highlight), with the next cohort's dates and deadline right beside it. Then the three steps with weeks (Learn → Research → Publish), what you get, who can join, and mentors as faces. Works <em>today</em>, before any paper exists; papers get added later as a "Past work" strip.</p>
+    <p class="from">Borrowed from <em>Pioneer</em> (facts block: dates, eligibility, format, cost), <em>RSI / STS</em> (deadline up front, weeks spelled out) and <em>Polygence</em> (mentor credentials), plus mentor faces, which none of them show.</p></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><span>research.turon.one</span></div>
+  <div class="B">
+    <div class="dk">
+      <div class="w top"><a class="mark" href="#b"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="4.5" fill="#F6A81C"/><circle cx="16" cy="5" r="2.6" fill="#fff"/><circle cx="6.5" cy="21.5" r="2.6" fill="#fff"/><circle cx="25.5" cy="21.5" r="2.6" fill="#fff"/></svg>turon.<small>research</small></a>
+        <nav><a href="#b">Program</a><a href="#b">Mentors</a><a href="#b">Past work</a><a href="#b">FAQ</a></nav>
+        <a class="btn btn-gold" href="#b">Apply</a></div>
+      <div class="w hero">
+        <div><p class="eyebrow">Turon Research</p>
+          <h1>Ask a real question. <em>Publish</em> the answer.</h1>
+          <p>A mentored research program for school students in Fergana. You learn how research works, pick a question that matters here, and finish with a paper of your own.</p>
+          <div class="btns"><a class="btn btn-gold" href="#b">Apply for cohort 1</a><a class="btn btn-ghost" href="#b">How it works</a></div></div>
+        <aside class="next"><p class="eyebrow">Next cohort</p>
+          <dl><dt>Starts</dt><dd><span class="ph">[Jan 2027]</span></dd><dt>Length</dt><dd><span class="ph">8–10 weeks</span></dd><dt>Apply by</dt><dd><span class="ph">[date]</span></dd><dt>Who</dt><dd><span class="ph">[Grades 8–11]</span>, Fergana region</dd><dt>Cost</dt><dd><span class="ph">[Free]</span></dd></dl></aside>
+      </div>
+    </div>
+    <div class="sec"><div class="w">
+      <p class="eyebrow">How it works</p><h2 class="h2">Three steps, one paper</h2>
+      <div class="steps">
+        <div class="step"><span class="wk"><span class="ph">Weeks 1–2</span></span><h3>Learn</h3><p>Short workshops on the basics.</p><ul><li>Asking a good question</li><li>Finding and reading sources</li><li>Collecting data honestly</li></ul></div>
+        <div class="step"><span class="wk"><span class="ph">Weeks 3–8</span></span><h3>Research</h3><p>One mentor, one small group, a weekly check-in.</p><ul><li>Plan your method</li><li>Gather and analyse data</li><li>Draft, get feedback, redraft</li></ul></div>
+        <div class="step"><span class="wk"><span class="ph">Weeks 9–10</span></span><h3>Publish</h3><p>Present it, then put it out there.</p><ul><li>Final paper, reviewed</li><li>Public presentation day</li><li>Published on this site</li></ul></div>
+      </div>
+      <div class="split">
+        <div class="card"><h3>What you get</h3><ul><li><b>✓</b>A finished paper with your name on it</li><li><b>✓</b>A mentor who knows your field</li><li><b>✓</b>A certificate and a public presentation</li><li><b>✓</b><span class="ph">[Recommendation letter for strong work]</span></li></ul></div>
+        <div class="card"><h3>Who can join</h3><ul><li><b>✓</b>School students, <span class="ph">[grades 8–11]</span></li><li><b>✓</b>From anywhere in the Fergana region</li><li><b>✓</b>No research experience needed</li><li><b>✓</b>Working language: <span class="ph">[Uzbek / English]</span></li></ul></div>
+      </div>
+      <div class="sec" style="padding-bottom:0"><p class="eyebrow">Mentors</p><h2 class="h2">People who have done it</h2>
+        <div class="mentors">
+          <div class="m"><div class="av">photo</div><h4><span class="ph">[Name]</span></h4><p><span class="ph">[University · field]</span></p></div>
+          <div class="m"><div class="av">photo</div><h4><span class="ph">[Name]</span></h4><p><span class="ph">[University · field]</span></p></div>
+          <div class="m"><div class="av">photo</div><h4><span class="ph">[Name]</span></h4><p><span class="ph">[University · field]</span></p></div>
+          <div class="m"><div class="av">photo</div><h4><span class="ph">[Name]</span></h4><p><span class="ph">[University · field]</span></p></div>
+        </div></div>
+    </div></div>
+  </div></div>
+</section>
+
+<!-- ============ C ============ -->
+<section class="concept" id="c">
+  <div class="label"><b>Concept C</b><h2>Question-first</h2>
+    <p>Starts from curiosity, not the program: "What do you want to find out about your region?" Field chips and a wall of research questions: some answered (by a student, with a paper), some still open (gold, "take this one"). A "Fergana is the lab" section ties it straight to the mission: local questions nobody has studied yet. The most distinctive and youth-friendly; needs the team to curate a list of open questions.</p>
+    <p class="from">Borrowed from <em>NHSJS</em> (browse by subject) and <em>STS</em> (finished projects as a showcase), with our own twist: the open-question board.</p></div>
+  <div class="frame"><div class="bar"><i></i><i></i><i></i><span>research.turon.one</span></div>
+  <div class="C">
+    <div class="dk">
+      <div class="w top"><a class="mark" href="#c"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="4.5" fill="#F6A81C"/><circle cx="16" cy="5" r="2.6" fill="#fff"/><circle cx="6.5" cy="21.5" r="2.6" fill="#fff"/><circle cx="25.5" cy="21.5" r="2.6" fill="#fff"/></svg>turon.<small>research</small></a>
+        <nav><a href="#c">Questions</a><a href="#c">How it works</a><a href="#c">Mentors</a><a href="#c">FAQ</a></nav>
+        <a class="btn btn-gold" href="#c">Apply</a></div>
+      <div class="w hero">
+        <p class="eyebrow">Turon Research</p>
+        <h1>What do you want to <span>find out?</span></h1>
+        <p>Bring a question about the world around you. We'll give you a mentor, the methods and <span class="ph">8–10</span> weeks to answer it properly.</p>
+        <div class="ask"><span>e.g. Why do so many graduates leave Fergana?</span><a class="btn btn-gold" href="#c">Start with this</a></div>
+        <div class="fields"><a href="#c">Medicine &amp; biology</a><a href="#c">Economics</a><a href="#c">Environment</a><a href="#c">Education</a><a href="#c">History &amp; society</a><a href="#c">Technology</a></div>
+      </div>
+    </div>
+    <div class="sec"><div class="w">
+      <p class="eyebrow">The question board</p><h2 class="h2">Answered by students, or still open</h2>
+      <div class="qgrid">
+        <a class="q" href="#c"><span class="tag">Environment</span><span class="ql"><span class="ph">Example: Is the Fergana Valley's groundwater getting saltier?</span></span><span class="who"><span class="ph">[Student], grade 10</span><b>Read paper →</b></span></a>
+        <a class="q open" href="#c"><span class="tag">Education</span><span class="ql"><span class="ph">Example: Do students who join clubs get better grades here?</span></span><span class="who"><span>Open question</span><b>Take this one →</b></span></a>
+        <a class="q" href="#c"><span class="tag">Economics</span><span class="ql"><span class="ph">Example: What does a Margilan silk workshop earn per metre?</span></span><span class="who"><span class="ph">[Student], grade 11</span><b>Read paper →</b></span></a>
+      </div>
+    </div></div>
+    <div class="sec" style="padding-top:0"><div class="w local">
+      <div class="art" aria-hidden="true"><svg viewBox="0 0 400 300"><path d="M20 210 C 90 150, 150 230, 210 170 S 330 110, 380 140" fill="none" stroke="#0B7285" stroke-width="3" stroke-dasharray="6 8"/><circle cx="120" cy="190" r="10" fill="#F6A81C"/><circle cx="210" cy="170" r="14" fill="#283480"/><circle cx="300" cy="128" r="10" fill="#0B7285"/><circle cx="70" cy="110" r="7" fill="#0B7285" opacity=".5"/><circle cx="330" cy="220" r="7" fill="#283480" opacity=".5"/><text x="222" y="160" font-family="Inter" font-size="14" font-weight="600" fill="#283480">Fergana</text><text x="128" y="215" font-family="Inter" font-size="12" fill="#4A5280">Margilan</text><text x="306" y="118" font-family="Inter" font-size="12" fill="#4A5280">Kokand</text></svg></div>
+      <div><p class="eyebrow">Fergana is the lab</p><h2 class="h2">The best questions are right here</h2>
+        <p class="lead">Most research about the region is written from somewhere else. Yours doesn't have to be.</p>
+        <ol style="margin-top:16px"><li><b>01</b>Pick a question, or take one from the board</li><li><b>02</b>Get matched with a mentor in that field</li><li><b>03</b>Research for <span class="ph">8–10</span> weeks, then present and publish</li></ol></div>
+    </div></div>
+    <div class="w" style="padding-bottom:40px"><div class="cta dk"><div><h2 class="h2">Cohort 1 opens <span class="ph">[Jan 2027]</span></h2><p class="lead">School students, <span class="ph">[grades 8–11]</span>. No experience needed.</p></div><div class="btns"><a class="btn btn-gold" href="#c">Apply</a><a class="btn btn-ghost" href="#c">Mentor with us</a></div></div></div>
+  </div></div>
+</section>
+
+<p class="end">My pick: <b>B</b> to launch (works with zero papers), growing into <b>A</b>'s journal list once cohort 1 publishes. Borrowing C's open-question board as one section would make it distinctly ours.</p>
+</body>
+</html>
