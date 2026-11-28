@@ -221,14 +221,3 @@
   }
 }
 
-/* Hide any potential Lovable badge */
-[data-lovable-badge],
-.lovable-badge,
-#lovable-badge,
-div[style*="position: fixed"][style*="bottom: 0"][style*="z-index: 9999"],
-div[style*="position:fixed"][style*="bottom:0"][style*="z-index:9999"] {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}

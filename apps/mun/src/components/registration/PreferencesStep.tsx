@@ -18,7 +18,7 @@ const PreferencesStep: React.FC<PreferencesStepProps> = ({ formData, handleChang
 
   return (
     <div className="bg-white rounded-xl shadow-elegant p-8 border border-neutral-100">
-      <h2 className="text-2xl font-display font-semibold mb-2">Page 2 — Experience & Background</h2>
+      <h2 className="text-2xl font-display font-semibold mb-2">Page 2: Experience & Background</h2>
       <p className="text-neutral-600 mb-6">Tell us about your MUN experience and background</p>
 
       <div className="space-y-6">
@@ -65,10 +65,10 @@ const PreferencesStep: React.FC<PreferencesStepProps> = ({ formData, handleChang
               onChange={handleChange}
               rows={4}
               className="pl-10 w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-diplomatic-300 focus:border-transparent transition-all resize-none"
-              placeholder="Names of conferences, awards, roles — helps evaluate track record and dedication"
+              placeholder="Names of conferences, awards and roles. This helps us see your track record."
             />
           </div>
-          <p className="text-xs text-neutral-500 mt-1">Names of conferences, awards, roles — helps evaluate track record and dedication</p>
+          <p className="text-xs text-neutral-500 mt-1">Names of conferences, awards and roles. This helps us see your track record.</p>
         </div>
 
 

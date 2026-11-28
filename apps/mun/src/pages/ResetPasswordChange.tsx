@@ -177,7 +177,7 @@ const ResetPasswordChange = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      className="inline-flex items-center justify-center absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-700"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md absolute right-1 top-[3px] text-neutral-500 hover:text-neutral-700"
                       disabled={isLoading}
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -210,7 +210,7 @@ const ResetPasswordChange = () => {
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                      className="inline-flex items-center justify-center absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-700"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md absolute right-1 top-[3px] text-neutral-500 hover:text-neutral-700"
                       disabled={isLoading}
                     >
                       {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}

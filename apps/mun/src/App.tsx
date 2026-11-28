@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { SecretMessage, useSecretMessage } from "@/components/easter-egg/SecretMessage";
@@ -401,7 +400,6 @@ const App = () => {
               </Suspense>
             </ErrorBoundary>
 
-            <Analytics />
             <SpeedInsights />
           </BrowserRouter>
         </TooltipProvider>

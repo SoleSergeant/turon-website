@@ -45,7 +45,7 @@ export default function DebateLogin() {
         const res = await signup(email.trim(), password, fullName.trim(), redirect);
         if (!res.success) throw new Error(res.error?.message || 'Could not create the account');
         // If email confirmation is on, there's no session yet.
-        setNotice(`We sent a confirmation link to ${email.trim()}. Open it to finish creating your account — it brings you straight back to registration.`);
+        setNotice(`We sent a confirmation link to ${email.trim()}. Open it to finish creating your account, and it will bring you back to registration.`);
       } else {
         const res = await resetPassword(email.trim());
         if (!res.success) throw new Error(res.error?.message || 'Could not send the reset email');

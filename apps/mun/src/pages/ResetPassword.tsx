@@ -189,7 +189,7 @@ const ResetPassword = () => {
             <motion.div variants={itemVariants} className="text-center mt-6">
               <p className="text-neutral-600">
                 Remember your password?{' '}
-                <Link to="/login" className="text-diplomatic-600 hover:text-diplomatic-700 font-semibold">
+                <Link to="/login" className="inline-block py-2 text-diplomatic-600 hover:text-diplomatic-700 font-semibold">
                   Sign in
                 </Link>
               </p>

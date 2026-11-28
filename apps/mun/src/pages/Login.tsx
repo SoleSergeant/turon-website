@@ -151,7 +151,7 @@ const Login = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      className="inline-flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md absolute right-1 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -160,11 +160,11 @@ const Login = () => {
 
                 {/* Remember Me & Forgot Password */}
                 <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex min-h-11 items-center gap-2 cursor-pointer">
                     <Checkbox id="rememberMe" />
                     <span className="text-neutral-600">Remember me</span>
                   </label>
-                  <Link to="/reset-password" className="text-diplomatic-600 hover:text-diplomatic-700 font-medium">
+                  <Link to="/reset-password" className="inline-block py-2 text-diplomatic-600 hover:text-diplomatic-700 font-medium">
                     Forgot password?
                   </Link>
                 </div>
@@ -223,7 +223,7 @@ const Login = () => {
             <motion.div variants={itemVariants} className="text-center mt-6">
               <p className="text-neutral-600">
                 Don't have an account?{' '}
-                <Link to="/signup" className="text-diplomatic-600 hover:text-diplomatic-700 font-semibold">
+                <Link to="/signup" className="inline-block py-2 text-diplomatic-600 hover:text-diplomatic-700 font-semibold">
                   Sign up
                 </Link>
               </p>

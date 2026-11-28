@@ -211,7 +211,7 @@ export default function Season1() {
                         </div>
                         <h4 className="font-bold text-lg mb-2 text-center text-gray-800">Delegates</h4>
                         <p className="text-gray-600 text-center text-sm">
-                          {seasonData.statistics.participants} passionate participants
+                          {seasonData.statistics.participants} participants
                         </p>
                       </div>
                       
