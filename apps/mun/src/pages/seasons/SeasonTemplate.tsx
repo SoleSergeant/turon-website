@@ -150,7 +150,7 @@ export default function SeasonTemplate({ seasonData }: { seasonData: PastSeason 
                           <Users className="h-6 w-6" />
                         </div>
                         <h4 className="font-bold text-lg mb-2 text-center text-gray-800">Committees</h4>
-                        <p className="text-gray-600 text-center text-sm">{seasonData.statistics.committees} dynamic committees</p>
+                        <p className="text-gray-600 text-center text-sm">{seasonData.statistics.committees} committees</p>
                       </div>
 
                       <div className="bg-gradient-to-br from-white to-diplomatic-50 p-6 rounded-xl shadow-sm border border-diplomatic-100 hover:shadow-md transition-shadow duration-300">

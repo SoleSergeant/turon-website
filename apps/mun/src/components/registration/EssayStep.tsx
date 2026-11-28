@@ -35,16 +35,16 @@ const EssayStep: React.FC<EssayStepProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-elegant p-8 border border-neutral-100">
-      <h2 className="text-2xl font-display font-semibold mb-2">Page 4 — Essay Section</h2>
+      <h2 className="text-2xl font-display font-semibold mb-2">Page 4: Essay Section</h2>
       <p className="text-red-600 mb-6">Kindly ensure all responses are original; any use of AI will be detected and may adversely affect your performance evaluation.</p>
 
       <div className="space-y-8">
 
 
-        {/* A topic or issue you're passionate about */}
+        {/* A topic or issue the applicant cares about */}
         <div className="form-group">
           <label htmlFor="issueInterest" className="block text-sm font-medium text-neutral-700 mb-1">
-            A topic or issue you're passionate or knowledgeable about <span className="text-red-500">*</span>
+            A topic or issue you care about or know well <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <div className="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
@@ -57,12 +57,12 @@ const EssayStep: React.FC<EssayStepProps> = ({
               onChange={handleChange}
               rows={4}
               className="pl-10 w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-diplomatic-300 focus:border-transparent transition-all resize-none"
-              placeholder="Pick an issue or theme you'd dive into for hours. Tell us why it grips you — even briefly."
+              placeholder="Pick an issue or theme you could talk about for hours, and tell us why it matters to you. A few sentences is enough."
               required
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <p className="text-xs text-neutral-500">Pick an issue or theme you'd dive into for hours. Tell us why it grips you — even briefly.</p>
+            <p className="text-xs text-neutral-500">Pick an issue or theme you could talk about for hours, and tell us why it matters to you. A few sentences is enough.</p>
             <span className={`text-xs font-medium ${getWordCountColor(formData.issueInterest)}`}>
               {wordCount(formData.issueInterest)}/115 words
             </span>

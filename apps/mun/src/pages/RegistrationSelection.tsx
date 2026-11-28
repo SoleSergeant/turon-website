@@ -210,7 +210,7 @@ const RegistrationSelection = () => {
                 transition={{ duration: 0.6, delay: 0.5 }}
                 className="text-center"
               >
-                <Link to="/" className="text-white/40 hover:text-white/70 text-sm transition-colors">
+                <Link to="/" className="inline-block py-3 text-white/60 hover:text-white/80 text-sm transition-colors">
                   ← Back to Home
                 </Link>
               </motion.div>

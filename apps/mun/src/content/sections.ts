@@ -151,12 +151,12 @@ const about_page = {
   gallery_title: 'Photos',
   gallery_intro: 'From past seasons.',
   gallery: [
-    { image: '/lovable-uploads/mun-action-1.jpg', alt: 'TuronMUN Delegates in Action', caption: 'Delegates engaged in committee discussions' },
-    { image: '/lovable-uploads/mun-action-2.jpg', alt: 'TuronMUN Committee Session', caption: 'Active participation in committee session' },
-    { image: '/lovable-uploads/mun-action-3.jpg', alt: 'TuronMUN Debate', caption: 'Debate in committee' },
-    { image: '/lovable-uploads/mun-action-4.jpg', alt: 'TuronMUN Speakers', caption: "Delegates delivering their country's position" },
-    { image: '/lovable-uploads/mun-action-5.jpg', alt: 'TuronMUN Group Photo', caption: 'TuronMUN participants and organizers' },
-    { image: '/lovable-uploads/mun-action-6.jpg', alt: 'TuronMUN Closing Ceremony', caption: 'Awarding outstanding delegates' },
+    { image: '/images/gallery/mun-action-1.jpg', alt: 'TuronMUN Delegates in Action', caption: 'Delegates engaged in committee discussions' },
+    { image: '/images/gallery/mun-action-2.jpg', alt: 'TuronMUN Committee Session', caption: 'Active participation in committee session' },
+    { image: '/images/gallery/mun-action-3.jpg', alt: 'TuronMUN Debate', caption: 'Debate in committee' },
+    { image: '/images/gallery/mun-action-4.jpg', alt: 'TuronMUN Speakers', caption: "Delegates delivering their country's position" },
+    { image: '/images/gallery/mun-action-5.jpg', alt: 'TuronMUN Group Photo', caption: 'TuronMUN participants and organizers' },
+    { image: '/images/gallery/mun-action-6.jpg', alt: 'TuronMUN Closing Ceremony', caption: 'Awarding outstanding delegates' },
   ],
 };
 
@@ -229,8 +229,8 @@ const seasonFields: Field[] = [
 
 // ── Other pages ────────────────────────────────────────────────────────
 const registration = {
-  badge_closed: '{season} — Applications Opening Soon',
-  badge_open: '{season} — Applications Open',
+  badge_closed: '{season}: applications opening soon',
+  badge_open: '{season}: applications open',
   title: 'Apply for {season}',
   intro_closed: 'Applications for delegates and chairs are not open yet. We announce the dates on Telegram and Instagram first.',
   intro_open: 'Choose your role below.',
@@ -240,8 +240,8 @@ const registration = {
   observer_title: 'Observer',
   observer_description: 'Attend the conference as an observer. Watch debates, take notes, and learn from the floor.',
   observer_url: 'https://forms.gle/95J7rWqQoTEvo2Rr7',
-  chair_form_subtitle: '{season} — Lead a committee and shape the TuronMUN experience',
-  volunteer_form_subtitle: '{season} — Help make the conference unforgettable',
+  chair_form_subtitle: '{season}: lead a committee as a chair',
+  volunteer_form_subtitle: '{season}: help us run the conference',
   signup_tip: 'Create an account to get early access to {season} application when it opens!',
 };
 
@@ -255,7 +255,7 @@ const pages = {
   schedule_title: 'Conference Schedule',
   schedule_intro: 'Plan your TuronMUN experience with our full day programme.',
   schedule_empty_title: 'No Schedule Available',
-  schedule_empty_text: 'Check back soon — the schedule will be published before the conference.',
+  schedule_empty_text: 'The schedule will be published before the conference.',
   resources_eyebrow: 'Delegate Preparation',
   resources_title: 'Resources & Materials',
   resources_intro: 'Access comprehensive guides, background materials, and tools to help you prepare for a successful Model UN experience.',
@@ -293,7 +293,7 @@ const contact = {
   faq: [
     { question: 'How can I apply to be a delegate?', answer: "To apply as a delegate, navigate to our Registration page and fill out the application form. You'll receive a confirmation email with further instructions." },
     { question: 'Is there a participation fee?', answer: 'Yes, there is a participation fee that varies depending on your delegation type. Early bird rates are available. Please check our Registration page for current pricing.' },
-    { question: 'How can I become a committee chair?', answer: 'Committee chair applications are opened 6 months before the conference. To apply, send your CV and a motivation letter to chairs@munconference.org.' },
+    { question: 'How can I become a committee chair?', answer: 'Chair applications open on the Apply page before each season. We announce the dates on Telegram and Instagram first.' },
     { question: 'When will I know my country assignment?', answer: 'Country assignments are typically sent out 4-6 weeks after your registration is confirmed, along with committee assignments.' },
   ],
   faq_footer: "Still have questions? Don't hesitate to contact us directly.",

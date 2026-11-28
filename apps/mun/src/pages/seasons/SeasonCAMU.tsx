@@ -211,7 +211,7 @@ export default function SeasonCAMU() {
                         </div>
                         <h4 className="font-bold text-lg mb-2 text-center text-gray-800">Delegates</h4>
                         <p className="text-gray-600 text-center text-sm">
-                          {seasonData.statistics.participants} passionate participants
+                          {seasonData.statistics.participants} participants
                         </p>
                       </div>
                       
@@ -221,7 +221,7 @@ export default function SeasonCAMU() {
                         </div>
                         <h4 className="font-bold text-lg mb-2 text-center text-gray-800">Committees</h4>
                         <p className="text-gray-600 text-center text-sm">
-                          {seasonData.statistics.committees} dynamic committees
+                          {seasonData.statistics.committees} committees
                         </p>
                       </div>
                       

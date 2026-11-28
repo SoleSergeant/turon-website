@@ -480,7 +480,7 @@ Photo URL: ${photoUrl || 'N/A'}
         <div className="bg-diplomatic-50 border-b border-diplomatic-100 px-4 py-2 text-center text-diplomatic-900 text-sm">
           <strong>Welcome back!</strong>{' '}
           You were a delegate at {/turon/i.test(pastDelegate.event) ? pastDelegate.event : `TuronMUN ${pastDelegate.event}`}
-          {pastDelegate.award ? <> — <strong>{pastDelegate.award}</strong></> : ''}.
+          {pastDelegate.award ? <>, <strong>{pastDelegate.award}</strong></> : ''}.
           {returningDiscount > 0 && <> Your returning-delegate discount of <strong>{returningDiscount.toLocaleString()} UZS</strong> is included in your fee.</>}
         </div>
       )}
@@ -488,7 +488,7 @@ Photo URL: ${photoUrl || 'N/A'}
       {restoredAt && step < 6 && (
         <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 flex items-center justify-center gap-3 text-emerald-800 text-sm">
           <Save size={15} />
-          <span>Restored your saved draft from <strong>{restoredAt.toLocaleString()}</strong> — keep going where you left off.</span>
+          <span>Restored your saved draft from <strong>{restoredAt.toLocaleString()}</strong>. You can carry on where you left off.</span>
           <button
             onClick={() => { if (confirm('Discard the saved draft and start over?')) { clearDraft(); window.location.reload(); } }}
             className="ml-2 text-emerald-700 underline hover:text-emerald-900 text-xs"

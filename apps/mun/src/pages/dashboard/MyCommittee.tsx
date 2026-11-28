@@ -617,7 +617,7 @@ function MyCommittee() {
                       'BEGIN:VEVENT',
                       `DTSTART:${dateStr}T${startTime}00`,
                       `DTEND:${dateStr}T${endTime}00`,
-                      `SUMMARY:${(committeeName + ' — ' + ev.title).replace(/,/g, '\\,')}`,
+                      `SUMMARY:${(committeeName + ': ' + ev.title).replace(/,/g, '\\,')}`,
                       `LOCATION:${ev.location || 'TBA'}`,
                       'END:VEVENT',
                     );
@@ -671,7 +671,7 @@ function MyCommittee() {
                       <div className="shrink-0 flex items-center gap-6">
                         <div className="hidden md:flex flex-col items-end">
                           <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">Interval</span>
-                          <span className="text-sm font-mono text-gold-400 font-bold">{session.start_time} — {session.end_time}</span>
+                          <span className="text-sm font-mono text-gold-400 font-bold">{session.start_time}–{session.end_time}</span>
                         </div>
                         <div className="md:hidden flex items-center space-x-2 text-white/40 mb-2">
                           <MapPin size={12} className="text-gold-400/60" />

@@ -103,7 +103,7 @@ const RegistrationContent: React.FC<RegistrationContentProps> = ({
           {/* Steps 1–4: use DynamicFormStep if config is loaded, else fall back to original components */}
           {step === 1 && (hasDynamicQuestions(1) ? (
             <DynamicFormStep
-              step={1} stepTitle={`Page 1 — ${resolvedLabels[0]}`}
+              step={1} stepTitle={`Page 1: ${resolvedLabels[0]}`}
               stepSubtitle={STEP_SUBTITLES[1]}
               questions={questionsForStep(1)} formData={formData}
               handleChange={handleChange} photoFile={photoFile}
@@ -117,7 +117,7 @@ const RegistrationContent: React.FC<RegistrationContentProps> = ({
 
           {step === 2 && (hasDynamicQuestions(2) ? (
             <DynamicFormStep
-              step={2} stepTitle={`Page 2 — ${resolvedLabels[1]}`}
+              step={2} stepTitle={`Page 2: ${resolvedLabels[1]}`}
               stepSubtitle={STEP_SUBTITLES[2]}
               questions={questionsForStep(2)} formData={formData}
               handleChange={handleChange} nextStep={nextStep} prevStep={prevStep}
@@ -129,7 +129,7 @@ const RegistrationContent: React.FC<RegistrationContentProps> = ({
 
           {step === 3 && (hasDynamicQuestions(3) ? (
             <DynamicFormStep
-              step={3} stepTitle={`Page 3 — ${resolvedLabels[2]}`}
+              step={3} stepTitle={`Page 3: ${resolvedLabels[2]}`}
               stepSubtitle={STEP_SUBTITLES[3]}
               questions={questionsForStep(3)} formData={formData}
               handleChange={handleChange} nextStep={nextStep} prevStep={prevStep}
@@ -141,7 +141,7 @@ const RegistrationContent: React.FC<RegistrationContentProps> = ({
 
           {step === 4 && (hasDynamicQuestions(4) ? (
             <DynamicFormStep
-              step={4} stepTitle={`Page 4 — ${resolvedLabels[3]}`}
+              step={4} stepTitle={`Page 4: ${resolvedLabels[3]}`}
               stepSubtitle={STEP_SUBTITLES[4]}
               questions={questionsForStep(4)} formData={formData}
               handleChange={handleChange} nextStep={nextStep} prevStep={prevStep}

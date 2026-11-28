@@ -38,7 +38,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-elegant p-8 border border-neutral-100">
-      <h2 className="text-2xl font-display font-semibold mb-2">Page 1 — Personal Information</h2>
+      <h2 className="text-2xl font-display font-semibold mb-2">Page 1: Personal Information</h2>
       <p className="text-neutral-600 mb-6">Please provide your basic information for registration</p>
 
       <div className="space-y-6">

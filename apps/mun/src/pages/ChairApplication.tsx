@@ -13,7 +13,8 @@ import { useCommittees } from '@/hooks/useCommittees';
 import DynamicFormStep from '@/components/registration/DynamicFormStep';
 import type { FormQuestion } from '@/hooks/useFormSettings';
 import { useContent, useFill, rich } from '@/content/store';
-import { getCurrentSeason, inSeason } from '@/lib/season';
+
+import { getCurrentSeason, inSeason } from '@/lib/season';
 
 // ── Fallback constants (used when DB form_questions are empty) ──────────────
 const ROLES = ['Chair', 'Co-Chair'];
@@ -291,7 +292,7 @@ export default function ChairApplication() {
       {restoredAt && !submitted && (
         <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 flex items-center justify-center gap-3 text-emerald-800 text-sm">
           <Save size={15} />
-          <span>Restored your saved draft from <strong>{restoredAt.toLocaleString()}</strong> — keep going where you left off.</span>
+          <span>Restored your saved draft from <strong>{restoredAt.toLocaleString()}</strong>. You can carry on where you left off.</span>
           <button
             onClick={() => { if (confirm('Discard the saved draft and start over?')) { clearDraft(); window.location.reload(); } }}
             className="ml-2 text-emerald-700 underline hover:text-emerald-900 text-xs"
@@ -341,7 +342,7 @@ export default function ChairApplication() {
               {step === 1 && (hasDynamicQuestions(1) ? (
                 <DynamicFormStep
                   step={1}
-                  stepTitle={`Step 1 — ${stepLabels[0]}`}
+                  stepTitle={`Step 1: ${stepLabels[0]}`}
                   stepSubtitle={STEP_SUBTITLES[1]}
                   questions={questionsForStep(1)}
                   formData={formData}
@@ -380,7 +381,7 @@ export default function ChairApplication() {
               {step === 2 && (hasDynamicQuestions(2) ? (
                 <DynamicFormStep
                   step={2}
-                  stepTitle={`Step 2 — ${stepLabels[1]}`}
+                  stepTitle={`Step 2: ${stepLabels[1]}`}
                   stepSubtitle={STEP_SUBTITLES[2]}
                   questions={questionsForStep(2)}
                   formData={formData}
@@ -431,7 +432,7 @@ export default function ChairApplication() {
               {step === 3 && (hasDynamicQuestions(3) ? (
                 <DynamicFormStep
                   step={3}
-                  stepTitle={`Step 3 — ${stepLabels[2]}`}
+                  stepTitle={`Step 3: ${stepLabels[2]}`}
                   stepSubtitle={STEP_SUBTITLES[3]}
                   questions={questionsForStep(3)}
                   formData={formData}

@@ -215,7 +215,7 @@ export default function Season3() {
                       </div>
                       <h4 className="font-bold text-lg mb-2 text-center text-gray-800">Delegates</h4>
                       <p className="text-gray-600 text-center text-sm">
-                        {seasonData.statistics.participants || 'Numerous'} passionate participants
+                        {seasonData.statistics.participants || 'Many'} participants
                       </p>
                     </div>
                     

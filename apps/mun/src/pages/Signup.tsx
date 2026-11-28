@@ -232,7 +232,7 @@ const Signup = () => {
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? 'Hide password' : 'Show password'}
-                        className="inline-flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-md absolute right-1 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -260,7 +260,7 @@ const Signup = () => {
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                        className="inline-flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-md absolute right-1 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -268,7 +268,7 @@ const Signup = () => {
                   </div>
 
                   {/* Terms Checkbox */}
-                  <label className="flex items-start gap-2 cursor-pointer">
+                  <label className="flex items-start gap-2 cursor-pointer py-1">
                     <Checkbox id="terms" required />
                     <span className="text-sm text-neutral-600">
                       I agree to the{' '}
@@ -336,7 +336,7 @@ const Signup = () => {
               <motion.div variants={itemVariants} className="text-center mt-6">
                 <p className="text-neutral-600">
                   Already have an account?{' '}
-                  <Link to="/login" className="text-diplomatic-600 hover:text-diplomatic-700 font-semibold">
+                  <Link to="/login" className="inline-block py-2 text-diplomatic-600 hover:text-diplomatic-700 font-semibold">
                     Sign in
                   </Link>
                 </p>
