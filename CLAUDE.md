@@ -101,8 +101,8 @@ Animations (all off with reduced motion): first-visit hint chip + dial nudge aft
 **When you add content, re-check that every stop still fits** (no inner scrolling) at 1366×633, 1024×768, 768×1024, 390×664 and 360×640. Numbers are sized to their row (`cqi`) so "700+" never runs into the next number; milestones are 3 + 2 columns from 768 to 1279px.
 1. Home (navy, `#top`): title, subtitle, Join / See projects, real TuronMUN photo
 2. In numbers (navy, `#numbers`): 700+ · 8 · 15+ · 3; MyMUN award chips
-3. Projects (`#projects`): TuronMUN · Turon Debate · Vibe Turon (a sideways swipe row on phones)
-4. Milestones (`#milestones`): horizontal timeline, 5 past milestones
+3. Projects (`#projects`): TuronMUN · Turon Debate · Vibe Turon (on phones: stacked compact cards, all on one screen; the `.more` part of each text and the subtitle are hidden there)
+4. Milestones (`#milestones`): horizontal timeline, 5 past milestones (vertical on phones; details hidden under 600px tall)
 5. Why Turon (`#about`): story + 3 photos (1 on tall phones, none on short ones)
 6. Get involved + Hosts & partners (`#join`)
 7. FAQ (`#faq`)
