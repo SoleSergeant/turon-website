@@ -1,6 +1,7 @@
 // Builds the single deploy folder `dist/` for the one Vercel project:
 //   dist/        <- apps/mun/dist (TuronMUN + Turon Debate + admin + chair)
 //   dist/hub/    <- apps/hub      (turon.one homepage; served via middleware.js)
+//   dist/research/ <- apps/research (research.turon.one; served via middleware.js)
 import { cpSync, rmSync, existsSync } from 'node:fs';
 
 rmSync('dist', { recursive: true, force: true });
@@ -10,4 +11,5 @@ cpSync('apps/hub', 'dist/hub', {
   recursive: true,
   filter: (src) => !/[\/]vercel\.json$/.test(src),
 });
-console.log('assemble: dist/ (MUN app) + dist/hub/ (hub) ready');
+cpSync('apps/research', 'dist/research', { recursive: true });
+console.log('assemble: dist/ (MUN app) + dist/hub/ (hub) + dist/research/ ready');

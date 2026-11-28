@@ -8,6 +8,8 @@
 //                                                   e.g. /mun, /debat, /vibe, /register
 //   debat.turon.one (bare "/")                   -> Turon Debate page with its own link previews
 //   vibe.turon.one (bare "/")                    -> Vibe Turon page with its own link previews
+//   research.turon.one                           -> Turon Research site (dist/research/, static);
+//                                                   on preview addresses it lives at /research/
 //   everything else (mun., admin., chair.)       -> TuronMUN app (dist/)
 export const config = { matcher: '/:path*' };
 
@@ -17,6 +19,7 @@ const TEST_HOST = /^turon-website(-[a-z0-9-]+)?\.vercel\.app$/i;
 const OLD_HOST = /^(turon-website-roan|turon-one-mun)\.vercel\.app$/i;
 const DEBATE_HOST = /^(debat|debate)\.(turonmun\.com|turon\.one)$/i;
 const VIBE_HOST = /^vibe\.turon\.one$/i;
+const RESEARCH_HOST = /^research\.turon\.one$/i;
 
 // The hub's own files (apps/hub). Keep in sync with HUB_FILES in vercel.json.
 // MUN app files never clash: its assets have hashed names (index-AbC123.js).
@@ -28,6 +31,7 @@ const GO = {
   '/go/mun-apply': ['/register', 'https://mun.turon.one/register'],
   '/go/debat': ['/debat', 'https://debat.turon.one/'],
   '/go/vibe': ['/vibe', 'https://vibe.turon.one/'],
+  '/go/research': ['/research/', 'https://research.turon.one/'],
 };
 
 // Where a page on an old test address lives now.
@@ -43,6 +47,7 @@ function newHome(url) {
   }
   if (p === '/debat' || p.startsWith('/debat/')) return `https://debat.turon.one${rest('/debat')}${q}`;
   if (p === '/vibe' || p.startsWith('/vibe/')) return `https://vibe.turon.one${rest('/vibe')}${q}`;
+  if (p === '/research' || p === '/research/') return 'https://research.turon.one/';
   return `https://mun.turon.one${p}${q}`;
 }
 
@@ -55,12 +60,23 @@ export default function middleware(request) {
 
   if (OLD_HOST.test(host)) return Response.redirect(newHome(url), 308);
 
+  // Turon Research: a static site in dist/research/. Its pages link to /research/... paths,
+  // which pass straight through; everything else on the host is mapped into that folder.
+  if (RESEARCH_HOST.test(host)) {
+    if (url.pathname === '/research' || url.pathname === '/research/') return rewrite('/research/index.html', request);
+    if (url.pathname.startsWith('/research/')) return;
+    const path = url.pathname === '/' ? '/index.html' : url.pathname;
+    return rewrite(`/research${path}${url.search}`, request);
+  }
+
   if (HUB_HOST.test(host)) {
     const test = TEST_HOST.test(host);
     const go = GO[url.pathname];
     if (go) return Response.redirect(new URL(go[test ? 0 : 1], request.url).toString(), 307);
     if (url.pathname.startsWith('/hub/')) return;
-    // Test address: anything that isn't the hub goes on to the MUN app.
+    // Test address: /research/ is the Research site; anything else that isn't the hub goes on to the MUN app.
+    if (test && url.pathname === '/research') return Response.redirect(new URL('/research/', request.url).toString(), 308);
+    if (test && url.pathname === '/research/') return rewrite('/research/index.html', request);
     if (test && url.pathname !== '/' && !HUB_FILES.test(url.pathname)) return;
     const path = url.pathname === '/' ? '/index.html' : url.pathname;
     return rewrite(`/hub${path}${url.search}`, request);

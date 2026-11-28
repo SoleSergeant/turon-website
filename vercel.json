@@ -10,7 +10,7 @@
       "destination": "/hub/404.html"
     },
     {
-      "source": "/((?!assets/|debate/|hub/).*)",
+      "source": "/((?!assets/|debate/|hub/|research/).*)",
       "has": [
         {
           "type": "host",
@@ -20,7 +20,7 @@
       "destination": "/debat/index.html"
     },
     {
-      "source": "/((?!assets/|vibe/|hub/).*)",
+      "source": "/((?!assets/|vibe/|hub/|research/).*)",
       "has": [
         {
           "type": "host",
@@ -30,7 +30,11 @@
       "destination": "/vibe/index.html"
     },
     {
-      "source": "/((?!assets/|hub/).*)",
+      "source": "/research/(.*)",
+      "destination": "/research/404.html"
+    },
+    {
+      "source": "/((?!assets/|hub/|research/).*)",
       "destination": "/index.html"
     }
   ],
@@ -40,7 +44,7 @@
       "has": [
         {
           "type": "host",
-          "value": "(www\\.)?turon\\.one"
+          "value": "((www|research)\\.)?turon\\.one"
         }
       ],
       "headers": [
@@ -79,7 +83,7 @@
       ]
     },
     {
-      "source": "/(|index\\.html|404\\.html|robots\\.txt|sitemap\\.xml|\\.well-known/security\\.txt|assets/app\\.js|assets/styles\\.css|assets/favicon\\.svg|assets/apple-touch-icon\\.png)",
+      "source": "/(|index\\.html|404\\.html|robots\\.txt|sitemap\\.xml|\\.well-known/security\\.txt|assets/app\\.js|assets/styles\\.css|assets/favicon\\.svg|assets/apple-touch-icon\\.png|research/.*)",
       "has": [
         {
           "type": "host",
@@ -130,7 +134,7 @@
       "missing": [
         {
           "type": "host",
-          "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
+          "value": "(((www|research)\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
         }
       ],
       "headers": [
@@ -165,7 +169,7 @@
       ]
     },
     {
-      "source": "/((?!(?:index\\.html|404\\.html|robots\\.txt|sitemap\\.xml|\\.well-known/security\\.txt|assets/app\\.js|assets/styles\\.css|assets/favicon\\.svg|assets/apple-touch-icon\\.png)$).+)",
+      "source": "/((?!(?:index\\.html|404\\.html|robots\\.txt|sitemap\\.xml|\\.well-known/security\\.txt|assets/app\\.js|assets/styles\\.css|assets/favicon\\.svg|assets/apple-touch-icon\\.png|research/.*)$).+)",
       "headers": [
         {
           "key": "X-Frame-Options",
@@ -212,7 +216,7 @@
       "missing": [
         {
           "type": "host",
-          "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
+          "value": "(((www|research)\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
         }
       ],
       "headers": [
@@ -227,7 +231,7 @@
       "missing": [
         {
           "type": "host",
-          "value": "((www\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
+          "value": "(((www|research)\\.)?turon\\.one|turon-website(-[a-z0-9-]+)?\\.vercel\\.app)"
         }
       ],
       "headers": [
