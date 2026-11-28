@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects concepts, round 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#283480; --navy-900:#141B4D; --navy-line:#3E4A9A;
+  --ink:#1A2156; --bg:#F4F5FA; --muted:#4A5280; --on-navy:#D3D7F7; --line:#CDD1E8;
+  --gold:#F6A81C; --gold-ink:#8A5A00;
+  --mun:#F6A81C; --debate:#C92A2A; --vibe:#6741D9;
+  --ex1:#0B7285; --ex2:#2B8A3E;
+  --display:'Unbounded',system-ui,sans-serif; --text:'Inter',system-ui,sans-serif;
+  --pad:clamp(16px,4vw,32px);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#E9EBF4;color:var(--ink);font:400 16px/1.5 var(--text)}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.1;color:var(--navy)}
+a{color:inherit;text-decoration:none}
+.p-mun{--c:var(--mun);--on-c:var(--navy-900);--c-ink:var(--gold-ink)}
+.p-debate{--c:var(--debate);--on-c:#fff;--c-ink:var(--debate)}
+.p-vibe{--c:var(--vibe);--on-c:#fff;--c-ink:var(--vibe)}
+.p-ex1{--c:var(--ex1);--on-c:#fff;--c-ink:var(--ex1)}
+.p-ex2{--c:var(--ex2);--on-c:#fff;--c-ink:var(--ex2)}
+.extra{display:none!important}
+body:has(#many:checked) .extra{display:revert!important}
+body:has(#many:checked) a.extra{display:flex!important}
+
+.intro{max-width:1240px;margin:0 auto;padding:40px var(--pad) 8px}
+.intro h1{font-size:clamp(24px,4vw,36px)}
+.intro p{color:var(--muted);margin-top:10px;max-width:66ch}
+.toggle{display:inline-flex;align-items:center;gap:10px;margin-top:18px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;font-weight:600;cursor:pointer;user-select:none}
+.toggle input{width:18px;height:18px;accent-color:var(--navy)}
+.concept{max-width:1240px;margin:36px auto 0;padding:0 var(--pad)}
+.label{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.label b{font:700 13px var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink)}
+.label h2{font-size:20px}
+.label p{flex-basis:100%;color:var(--muted);font-size:15px;max-width:80ch}
+.label .why{font-size:13.5px;color:#5A628F}
+.label .why::before{content:"Based on: ";font-weight:600;color:var(--navy)}
+.screen{border-radius:24px;overflow:hidden;padding:clamp(24px,4vw,48px) clamp(18px,4vw,48px);box-shadow:0 10px 30px rgba(20,27,77,.12)}
+.light{background:var(--bg)}
+.dark{background:linear-gradient(160deg,#33409A,#283480 45%,#141B4D);color:#fff}
+.dark h2{color:#fff}
+.head{margin-bottom:clamp(18px,3vw,28px)}
+.head h2{font-size:clamp(26px,3.4vw,40px)}
+.head p{color:var(--muted);margin-top:8px}
+.dark .head p{color:var(--on-navy)}
+.chip{display:inline-block;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--c);color:var(--on-c);white-space:nowrap}
+.arrow{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:19px;transition:transform .2s}
+.end{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px 56px}
+
+/* ---------- E. Tiles → list ---------- */
+.adapt{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.adapt a{display:flex;flex-direction:column;min-height:270px;padding:22px;border-radius:22px;background:var(--c);color:var(--on-c);transition:transform .25s}
+.adapt a:hover{transform:translateY(-6px)}
+.adapt h3{color:inherit;font-size:clamp(22px,2.2vw,28px);margin-top:auto}
+.adapt p{font-size:14.5px;margin-top:8px;opacity:.92}
+.adapt .row{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.adapt .chip{background:rgba(255,255,255,.2);color:inherit}
+.adapt .p-mun .chip{background:rgba(20,27,77,.12)}
+.adapt .arrow{background:rgba(255,255,255,.22)}
+.adapt .p-mun .arrow{background:var(--navy-900);color:var(--gold)}
+.adapt .dom{font:500 13px var(--text);opacity:.8}
+@media (max-width:760px){
+  .adapt{grid-template-columns:1fr;gap:0;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.06)}
+  .adapt a{min-height:0;flex-direction:row;flex-wrap:wrap;align-items:center;gap:4px 12px;border-radius:0;background:transparent;color:#fff;padding:16px 16px 16px 20px;border-left:6px solid var(--c);border-bottom:1px solid var(--navy-line)}
+  .adapt li:last-child a{border-bottom:0}
+  .adapt a:hover{transform:none}
+  .adapt .dom{display:none}
+  .adapt h3{margin:0;font-size:20px;flex:1}
+  .adapt p{flex-basis:100%;order:3;margin:0;font-size:14px;color:var(--on-navy)}
+  .adapt .row{margin:0;gap:10px}
+  .adapt .chip,.adapt .p-mun .chip{background:var(--c);color:var(--on-c)}
+  .adapt .arrow,.adapt .p-mun .arrow{width:36px;height:36px;background:rgba(255,255,255,.12);color:#fff}
+}
+
+/* ---------- F. One spotlight, equal rest ---------- */
+.sl{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.big{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:end;border-radius:22px;padding:clamp(22px,3vw,34px);background:var(--c);color:var(--on-c);position:relative;overflow:hidden}
+.big::after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;border:38px solid rgba(255,255,255,.12)}
+.big .tag{font:600 12.5px var(--text);letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.big h3{color:inherit;font-size:clamp(30px,4vw,46px);margin-top:8px}
+.big p{font-size:16.5px;opacity:.95}
+.big .cta{display:inline-block;margin-top:16px;background:#fff;color:var(--c);font-weight:700;border-radius:14px;padding:12px 20px;position:relative;z-index:1}
+.eq{background:#fff;border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;border-top:5px solid var(--c);transition:transform .2s}
+.eq:hover{transform:translateY(-3px)}
+.eq .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.eq h3{font-size:20px}
+.eq p{color:#3C4478;font-size:14.5px}
+@media (max-width:760px){.sl{grid-template-columns:1fr 1fr}.big{grid-template-columns:1fr;gap:6px}}
+@media (max-width:480px){.sl{grid-template-columns:1fr}}
+
+/* ---------- G. Brand lockups ---------- */
+.locks{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.lock{background:#fff;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.lock:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(20,27,77,.12)}
+.lock .mast{background:var(--c);color:var(--on-c);padding:22px 22px 18px;display:flex;flex-direction:column;gap:2px}
+.lock .mast small{font:800 14px var(--display);letter-spacing:-.02em;opacity:.8}
+.lock .mast strong{font:800 clamp(26px,2.6vw,32px)/1.05 var(--display);letter-spacing:-.04em}
+.lock .body{padding:16px 22px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.lock p{color:#3C4478;font-size:15px;flex:1}
+.lock .foot{display:flex;flex-wrap:wrap;white-space:nowrap;justify-content:space-between;align-items:center;gap:8px;font-weight:600;color:var(--c-ink);font-size:14.5px}
+.lock .st{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:500;font-size:13.5px}
+.lock .st i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+@media (max-width:760px){
+  .locks{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:80%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .lock{scroll-snap-align:start}
+}
+
+/* ---------- H. Grouped by status ---------- */
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vw,36px)}
+.group h3{font:600 13px var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--on-navy);display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.group h3 .count{font:700 12px var(--text);background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:2px 9px;letter-spacing:0}
+.group ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.row2{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid var(--navy-line);transition:background .2s}
+.row2:hover{background:rgba(255,255,255,.12)}
+.row2 .sq{width:44px;height:44px;border-radius:12px;background:var(--c);color:var(--on-c);display:grid;place-items:center;font:800 18px var(--display);flex:none}
+.row2 .t{flex:1;min-width:0}
+.row2 strong{display:block;font:700 18px/1.2 var(--display);letter-spacing:-.03em;color:#fff}
+.row2 span{display:block;font-size:14px;color:var(--on-navy)}
+.row2 .arrow{width:36px;height:36px;background:rgba(255,255,255,.1);color:#fff}
+.row2:hover .arrow{transform:translateX(3px)}
+@media (max-width:760px){.groups{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="intro">
+  <h1>Projects section: round 2</h1>
+  <p>Four new concepts built from the research: one short line + a status per project (Hack Club), never overcrowd (nonprofit guides), lists read best on phones, keep card sizes equal (bento caveat), and treat each project as a sub-brand of Turon (parent-brand portfolios). Brand colours only.</p>
+  <label class="toggle"><input type="checkbox" id="many"> Preview with 5 projects</label>
+</header>
+
+<!-- ============ E ============ -->
+<section class="concept">
+  <div class="label"><b>Concept E</b><h2>Tiles on laptops, list on phones</h2>
+    <p>One piece of markup, two layouts. On wide screens each project is a solid tile in its colour. Under 760px the same items turn into a compact list with a colour bar, so phones never need a sideways swipe. Narrow the window to see it switch.</p>
+    <p class="why">list vs grid research (lists read faster), parent-brand portfolios (one colour per brand).</p></div>
+  <div class="screen dark">
+    <div class="head"><h2>Projects</h2><p>One ecosystem, one colour per project.</p></div>
+    <ul class="adapt">
+      <li class="p-mun"><a href="#"><span class="dom">mun.turon.one</span><h3>TuronMUN</h3><p>Student-run Model UN. 8 conferences, 700+ delegates.</p><div class="row"><span class="chip">Since 2024</span><span class="arrow">→</span></div></a></li>
+      <li class="p-debate"><a href="#"><span class="dom">debat.turon.one</span><h3>Turon Debate</h3><p>Real motions and a real audience, every 1–2 months.</p><div class="row"><span class="chip">Running now</span><span class="arrow">→</span></div></a></li>
+      <li class="p-vibe"><a href="#"><span class="dom">vibe.turon.one</span><h3>Vibe Turon</h3><p>An AI-aided hackathon. Build a working app in a weekend.</p><div class="row"><span class="chip">Coming soon</span><span class="arrow">→</span></div></a></li>
+      <li class="p-ex1 extra"><a href="#"><span class="dom">four.turon.one</span><h3>Project four</h3><p>Example item.</p><div class="row"><span class="chip">Example</span><span class="arrow">→</span></div></a></li>
+      <li class="p-ex2 extra"><a href="#"><span class="dom">five.turon.one</span><h3>Project five</h3><p>Example item.</p><div class="row"><span class="chip">Example</span><span class="arrow">→</span></div></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ F ============ -->
+<section class="concept">
+  <div class="label"><b>Concept F</b><h2>One spotlight, everything else equal</h2>
+    <p>A full-width banner for the one project with something to do right now, then every project (spotlit one included) as equal cards below. Only two sizes ever exist, so adding projects never breaks the layout.</p>
+    <p class="why">bento-grid caveat (avoid hand-sized cells), "one clear path" from nonprofit homepage guides.</p></div>
+  <div class="screen light">
+    <div class="head"><h2>Projects</h2></div>
+    <div class="sl">
+      <a class="big p-debate" href="#"><div><span class="tag">Open now</span><h3>Turon Debate</h3></div><div><p>Real motions and a real audience. You learn to back up your argument.</p><span class="cta">Register →</span></div></a>
+      <a class="eq p-mun" href="#"><div class="top"><h3>TuronMUN</h3><span class="chip">Since 2024</span></div><p>Student-run Model UN. 8 conferences, 700+ delegates.</p></a>
+      <a class="eq p-debate" href="#"><div class="top"><h3>Turon Debate</h3><span class="chip">Running now</span></div><p>Real motions and a real audience, every 1–2 months.</p></a>
+      <a class="eq p-vibe" href="#"><div class="top"><h3>Vibe Turon</h3><span class="chip">Coming soon</span></div><p>An AI-aided hackathon. Build a working app in a weekend.</p></a>
+      <a class="eq p-ex1 extra" href="#"><div class="top"><h3>Project four</h3><span class="chip">Example</span></div><p>Example card.</p></a>
+      <a class="eq p-ex2 extra" href="#"><div class="top"><h3>Project five</h3><span class="chip">Example</span></div><p>Example card.</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ G ============ -->
+<section class="concept">
+  <div class="label"><b>Concept G</b><h2>Sub-brand lockups</h2>
+    <p>Each card looks like a small version of the project's own site header: "turon." above the project name, in the project's colour. It tells visitors that every project is part of one family, and the card footer shows exactly where the link goes.</p>
+    <p class="why">parent-brand portfolio pages (Virgin, Gap), AIESEC's "always show the parent name" rule.</p></div>
+  <div class="screen light">
+    <div class="head"><h2>Projects</h2><p>Every project is part of Turon.</p></div>
+    <div class="locks">
+      <a class="lock p-mun" href="#"><div class="mast"><small>turon.</small><strong>MUN</strong></div><div class="body"><p>Student-run Model UN. 8 conferences, 700+ delegates since 2024.</p><div class="foot"><span>mun.turon.one →</span><span class="st"><i></i>Since 2024</span></div></div></a>
+      <a class="lock p-debate" href="#"><div class="mast"><small>turon.</small><strong>Debate</strong></div><div class="body"><p>Real motions and a real audience, every 1–2 months.</p><div class="foot"><span>debat.turon.one →</span><span class="st"><i></i>Running now</span></div></div></a>
+      <a class="lock p-vibe" href="#"><div class="mast"><small>turon.</small><strong>Vibe</strong></div><div class="body"><p>An AI-aided hackathon. Build a working app in a weekend.</p><div class="foot"><span>vibe.turon.one →</span><span class="st"><i></i>Coming soon</span></div></div></a>
+      <a class="lock p-ex1 extra" href="#"><div class="mast"><small>turon.</small><strong>Four</strong></div><div class="body"><p>Example card.</p><div class="foot"><span>four.turon.one →</span><span class="st"><i></i>Example</span></div></div></a>
+      <a class="lock p-ex2 extra" href="#"><div class="mast"><small>turon.</small><strong>Five</strong></div><div class="body"><p>Example card.</p><div class="foot"><span>five.turon.one →</span><span class="st"><i></i>Example</span></div></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ H ============ -->
+<section class="concept">
+  <div class="label"><b>Concept H</b><h2>Grouped by status</h2>
+    <p>Projects sorted into "Active" and "Coming soon", each a compact row with a coloured initial. As projects are added or finish, they move between groups (a "Past" group can be added later), and each group stays short.</p>
+    <p class="why">Hack Club's status tags on programs, "avoid overcrowding" from nonprofit guides.</p></div>
+  <div class="screen dark">
+    <div class="head"><h2>Projects</h2><p>What Turon runs, and what's on the way.</p></div>
+    <div class="groups">
+      <div class="group"><h3>Active <span class="count">2</span></h3>
+        <ul>
+          <li><a class="row2 p-mun" href="#"><span class="sq">M</span><span class="t"><strong>TuronMUN</strong><span>Student-run Model UN. 700+ delegates.</span></span><span class="arrow">→</span></a></li>
+          <li><a class="row2 p-debate" href="#"><span class="sq">D</span><span class="t"><strong>Turon Debate</strong><span>Real motions, a real audience.</span></span><span class="arrow">→</span></a></li>
+          <li class="extra"><a class="row2 p-ex1" href="#"><span class="sq">4</span><span class="t"><strong>Project four</strong><span>Example row.</span></span><span class="arrow">→</span></a></li>
+        </ul></div>
+      <div class="group"><h3>Coming soon <span class="count">1</span></h3>
+        <ul>
+          <li><a class="row2 p-vibe" href="#"><span class="sq">V</span><span class="t"><strong>Vibe Turon</strong><span>An AI-aided hackathon.</span></span><span class="arrow">→</span></a></li>
+          <li class="extra"><a class="row2 p-ex2" href="#"><span class="sq">5</span><span class="t"><strong>Project five</strong><span>Example row.</span></span><span class="arrow">→</span></a></li>
+        </ul></div>
+    </div>
+  </div>
+</section>
+
+<p class="end">Teal and green on the example projects are placeholders, not brand colours. Group counts in H don't update in this mockup.</p>
+</body>
+</html>
