@@ -51,7 +51,7 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 - **TuronMUN**: live at https://www.turonmun.com (apply: `/register`). Season 8 is "coming soon" there.
 - **Turon Debate**: running since Nov 2026.
 - **Vibe Turon**: an AI-aided hackathon ("hackathon" first, AI-aided second; don't call it a vibeathon on the site). Warm-up Feb 2027, the 2-day event planned for March 2027 (Day 1 build + workshops, Day 2 fair + finals). Landing page: `apps/mun/src/pages/vibe/VibeLanding.tsx`, all text in Admin → Website → Content → **Vibe Turon** (`vibe` section in `sections.ts`). The **Status** dropdown switches Coming soon (Telegram button) / Registration open (Register button → the Registration link) / Finished. Logo files: `apps/mun/public/vibe/` (V mark only, no wordmark on the page); link preview `og-image.png` + `scripts/vibe-meta.mjs`. Prize pool, 150 places, coins and track names stay off the page until announced. Registration itself is an external link for now.
-- **Turon Research is NOT running.** It was removed from the site (projects, milestones, numbers, copy). Don't add it back unless the user says so.
+- **Turon Research is NOT running.** Its logo is chosen (2026-11-28): the **T-funnel** (Turon "T" narrowing to a teal dot = teach many → compete → 5–6 write a paper), accent teal `#0B7285` on light / `#3BC9DB` on navy. Files in `designs/logo/research/final/`; other concepts and `designs/research-benchmark.md` are planning notes. It was removed from the site (projects, milestones, numbers, copy). Don't add it back unless the user says so.
 
 ## Design direction
 - Started from Direction B (Daylight): light body, navy #283480, Unbounded + Inter, white cards, vertical milestones list.
