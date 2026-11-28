@@ -46,7 +46,7 @@ One repo, one Vercel project (`turon-website`, built from the repo root):
 3. ✅ Env vars set to the turon.one URLs.
 4. ⏳ Supabase `turon-one` → Authentication → URL Configuration: Site URL `https://mun.turon.one`; Redirect URLs `https://*.turon.one/**` (+ `https://turon-website-roan.vercel.app/**` while testing).
 5. Email: deploy `apps/mun/supabase/functions/send-email` and set `RESEND_API_KEY` / `EMAIL_FROM` secrets (verify turon.one in Resend). Until then, the app's own emails don't send; Supabase's built-in auth emails (confirm, reset) still work, rate-limited.
-6. First admin: sign up on the MUN site, then add that email to `admin_users` with role `sg` (Supabase SQL editor). See `apps/mun/docs/ADMIN_PANEL_SETUP.md`.
+6. ✅ First admin: the user's own account was added to `admin_users` with role `sg` on 2026-11-28. Add more admins the same way (the email must match the login email exactly; checks use `auth.jwt()->>'email'`). See `apps/mun/docs/ADMIN_PANEL_SETUP.md`.
 7. ✅ `X-Robots-Tag` removed for turon.one; hub canonical/sitemap say https://turon.one/. Note: the MUN app's `og:url`, `robots.txt` and `sitemap.xml` still point at www.turonmun.com (the live TuronMUN site).
 
 ## Projects (as of now)
